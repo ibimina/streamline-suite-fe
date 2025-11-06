@@ -1,10 +1,13 @@
 # Streamline Suite 🚀
 
-A comprehensive business management platform built with modern web technologies. Streamline Suite provides an all-in-one solution for managing quotations, invoices, inventory, expenses, analytics, staff, payroll, and taxes.
+A comprehensive business management platform built with modern web technologies.
+Streamline Suite provides an all-in-one solution for managing quotations,
+invoices, inventory, expenses, analytics, staff, payroll, and taxes.
 
 ## ✨ Features
 
 ### Core Business Modules
+
 - **📊 Dashboard** - Real-time business metrics and analytics overview
 - **📝 Quotations** - Create and manage customer quotations
 - **🧾 Invoices** - Generate and track invoices
@@ -18,49 +21,59 @@ A comprehensive business management platform built with modern web technologies.
 - **🔧 Settings** - Application configuration
 
 ### Technical Features
-- **🎨 Dark/Light Theme** - Seamless theme switching with system preference detection
+
+- **🎨 Dark/Light Theme** - Seamless theme switching with system preference
+  detection
 - **📱 Responsive Design** - Mobile-first approach with collapsible sidebar
 - **🔐 Authentication** - Secure login and signup system
 - **🗂️ State Management** - Redux Toolkit for efficient state management
 - **🎯 Modern UI** - Clean, intuitive interface with Tailwind CSS
-- **⚡ Performance** - Built with Next.js 16 and React 19 for optimal performance
+- **⚡ Performance** - Built with Next.js 16 and React 19 for optimal
+  performance
 
 ## 🛠️ Technology Stack
 
 ### Frontend Framework
+
 - **Next.js 16.0.1** - React framework with App Router
 - **React 19.2.0** - Latest React with concurrent features
 - **TypeScript** - Type-safe development
 
 ### State Management
+
 - **Redux Toolkit** - Modern Redux for predictable state management
 - **React Redux** - Official React bindings for Redux
 
 ### Styling & UI
+
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **PostCSS** - CSS processing and optimization
 - **Heroicons** - Beautiful SVG icons
 - **Recharts** - Composable charting library
 
 ### Development Tools
+
 - **ESLint** - Code linting and quality assurance
 - **Hot Reload** - Fast development with instant updates
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18.x or later
 - npm, yarn, pnpm, or bun
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd streamline-suite-fe
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -70,6 +83,7 @@ A comprehensive business management platform built with modern web technologies.
    ```
 
 3. **Run the development server**
+
    ```bash
    npm run dev
    # or
@@ -80,8 +94,8 @@ A comprehensive business management platform built with modern web technologies.
    bun dev
    ```
 
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
+4. **Open your browser** Navigate to
+   [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## 📁 Project Structure
 
@@ -137,7 +151,10 @@ The application features a sophisticated theme system with:
 - **Persistent Storage** - Theme preference saved in localStorage
 
 ### Theme Configuration
-Themes are managed through Redux state and applied via CSS variables defined in `globals.css`. The system supports:
+
+Themes are managed through Redux state and applied via CSS variables defined in
+`globals.css`. The system supports:
+
 - Custom color palettes for each theme
 - Smooth transitions between themes
 - System preference detection and synchronization
@@ -155,7 +172,8 @@ Themes are managed through Redux state and applied via CSS variables defined in 
 
 - **TypeScript First** - All new code should be written in TypeScript
 - **Component Structure** - Use functional components with hooks
-- **State Management** - Use Redux Toolkit for complex state, local state for simple UI state
+- **State Management** - Use Redux Toolkit for complex state, local state for
+  simple UI state
 - **Styling** - Use Tailwind CSS classes, avoid custom CSS when possible
 - **File Naming** - PascalCase for components, camelCase for utilities
 
@@ -169,7 +187,8 @@ npm run build
 
 ### Deploy on Vercel
 
-The easiest deployment method is using [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
+The easiest deployment method is using
+[Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
 
 1. Push your code to a Git repository
 2. Import your project to Vercel
@@ -185,6 +204,7 @@ The easiest deployment method is using [Vercel Platform](https://vercel.com/new?
 ## 📊 Business Modules
 
 ### Dashboard
+
 - Real-time business metrics and KPIs
 - Sales analytics with interactive charts
 - Recent activity feed
@@ -192,6 +212,7 @@ The easiest deployment method is using [Vercel Platform](https://vercel.com/new?
 - Quick access to all business functions
 
 ### Quotation Management
+
 - Professional quotation templates
 - Customer management integration
 - Automatic quotation numbering
@@ -199,6 +220,7 @@ The easiest deployment method is using [Vercel Platform](https://vercel.com/new?
 - Quotation tracking and follow-up
 
 ### Invoice System
+
 - Convert quotations to invoices seamlessly
 - Multiple payment method support
 - Automated payment reminders
@@ -206,6 +228,7 @@ The easiest deployment method is using [Vercel Platform](https://vercel.com/new?
 - Revenue tracking and reporting
 
 ### Inventory Control
+
 - Real-time stock tracking
 - Low stock alerts and reorder points
 - Product categorization and search
@@ -222,11 +245,13 @@ The easiest deployment method is using [Vercel Platform](https://vercel.com/new?
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for
+details.
 
 ## 📞 Support
 
 For support and questions:
+
 - Create an issue on GitHub
 - Check the documentation
 - Contact the development team

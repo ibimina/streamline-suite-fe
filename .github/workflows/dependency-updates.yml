@@ -15,7 +15,7 @@ jobs:
   update-dependencies:
     name: 📦 Update Dependencies
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
         id: updates
         run: |
           npm outdated --json > outdated.json || true
-          
+
           if [ -s outdated.json ]; then
             echo "has_updates=true" >> $GITHUB_OUTPUT
             echo "📦 Found dependency updates"
@@ -64,10 +64,10 @@ jobs:
           echo "" >> update_summary.md
           echo "The following dependencies have been updated:" >> update_summary.md
           echo "" >> update_summary.md
-          
+
           # Compare package.json changes
           git diff package.json | grep "^+" | grep -v "^+++" | sed 's/^+/- /' >> update_summary.md
-          
+
           echo "" >> update_summary.md
           echo "### ✅ Tests Passed" >> update_summary.md
           echo "- Linting: ✅" >> update_summary.md
@@ -96,7 +96,7 @@ jobs:
   security-audit:
     name: 🛡️ Security Audit
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
@@ -115,10 +115,10 @@ jobs:
         run: |
           # Run audit and capture output
           npm audit --audit-level=moderate --json > audit-results.json || true
-          
+
           # Check if there are vulnerabilities
           VULN_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0')
-          
+
           if [ "$VULN_COUNT" -gt 0 ]; then
             echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT
             echo "vulnerability_count=$VULN_COUNT" >> $GITHUB_OUTPUT
@@ -142,10 +142,10 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             // Read the security report
             const reportContent = fs.readFileSync('security-report.md', 'utf8');
-            
+
             // Check if issue already exists
             const { data: issues } = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -153,11 +153,11 @@ jobs:
               labels: 'security,vulnerability',
               state: 'open'
             });
-            
+
             const existingIssue = issues.find(issue => 
               issue.title.includes('Security Vulnerabilities Detected')
             );
-            
+
             if (existingIssue) {
               // Update existing issue
               await github.rest.issues.createComment({
@@ -187,7 +187,7 @@ jobs:
           icon_emoji: ':warning:'
           text: |
             🛡️ Security Alert: ${{ steps.audit.outputs.vulnerability_count }} vulnerabilities detected in Streamline Suite dependencies.
-            
+
             Please review the security issue created in GitHub and take appropriate action.
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SECURITY_SLACK_WEBHOOK_URL }}

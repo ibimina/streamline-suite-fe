@@ -1,12 +1,16 @@
 # CI/CD Implementation Guide 🚀
 
-This guide covers the complete CI/CD pipeline implementation for Streamline Suite, including continuous integration, automated testing, security scanning, and deployment automation.
+This guide covers the complete CI/CD pipeline implementation for Streamline
+Suite, including continuous integration, automated testing, security scanning,
+and deployment automation.
 
 ## 🏗️ Pipeline Overview
 
-Our CI/CD pipeline consists of multiple workflows that ensure code quality, security, and reliable deployments:
+Our CI/CD pipeline consists of multiple workflows that ensure code quality,
+security, and reliable deployments:
 
 ### 📋 Workflow Structure
+
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Pull Request  │    │   Push to Main   │    │   Scheduled     │
@@ -25,7 +29,9 @@ Our CI/CD pipeline consists of multiple workflows that ensure code quality, secu
 ### 1. **Repository Setup**
 
 #### GitHub Secrets Configuration
-Add these secrets to your GitHub repository (`Settings > Secrets and Variables > Actions`):
+
+Add these secrets to your GitHub repository
+(`Settings > Secrets and Variables > Actions`):
 
 ```bash
 # Deployment Secrets
@@ -64,6 +70,7 @@ TEAM_EMAIL=team@yourcompany.com
 #### 🔑 How to Get Secret Values
 
 ##### **SNYK_TOKEN** - Security Vulnerability Scanning
+
 1. **Sign up at [Snyk.io](https://snyk.io)**
    - Go to https://snyk.io and create a free account
    - You can sign up with GitHub for easier integration
@@ -80,6 +87,7 @@ TEAM_EMAIL=team@yourcompany.com
    - **Secret Value**: Paste your Snyk API token
 
 ##### **CODECOV_TOKEN** - Code Coverage Reporting
+
 1. **Sign up at [Codecov.io](https://codecov.io)**
    - Go to https://codecov.io and sign up with your GitHub account
    - This automatically syncs your repositories
@@ -96,6 +104,7 @@ TEAM_EMAIL=team@yourcompany.com
    - **Secret Value**: Paste your Codecov repository token
 
 ##### **VERCEL_TOKEN** - Deployment Platform
+
 1. **Sign up at [Vercel.com](https://vercel.com)**
    - Go to https://vercel.com and sign up with GitHub
    - Import your `streamline-suite-fe` repository
@@ -117,6 +126,7 @@ TEAM_EMAIL=team@yourcompany.com
    - **VERCEL_PROJECT_ID**: Your project ID
 
 ##### **SLACK_WEBHOOK_URL** - Team Notifications (Optional)
+
 1. **Create Slack App**
    - Go to https://api.slack.com/apps
    - Click **"Create New App"** → **"From scratch"**
@@ -134,11 +144,13 @@ TEAM_EMAIL=team@yourcompany.com
    - **Secret Value**: Your webhook URL (starts with `https://hooks.slack.com/`)
 
 ##### **Optional Secrets** (Can be skipped initially)
+
 - **NETLIFY_AUTH_TOKEN**: Only if using Netlify instead of Vercel
-- **AWS_*** secrets**: Only if deploying to AWS
-- **EMAIL_*** secrets**: Only if you want email notifications
+- **AWS\_\*** secrets\*\*: Only if deploying to AWS
+- **EMAIL\_\*** secrets\*\*: Only if you want email notifications
 - **MONITORING_URL**: Add your monitoring dashboard URL when you set one up
-```
+
+````
 
 #### Environment Configuration
 Create these environment files:
@@ -166,7 +178,7 @@ NEXT_PUBLIC_HOTJAR_ID=your_hotjar_id
 NEXT_PUBLIC_ENABLE_ANALYTICS=true
 NEXT_PUBLIC_ENABLE_PWA=false
 NEXT_PUBLIC_DEBUG_MODE=false
-```
+````
 
 ### 2. **Install Required Dependencies**
 
@@ -204,7 +216,7 @@ npm run prepare
 # Add pre-commit hook
 echo 'npx lint-staged' > .husky/pre-commit
 
-# Add pre-push hook  
+# Add pre-push hook
 echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ```
 
@@ -215,6 +227,7 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 **Triggered on**: Pull requests, pushes to main/develop
 
 **Jobs Include**:
+
 - **Lint & Format**: ESLint, Prettier, TypeScript checks
 - **Build**: Application build verification
 - **Test**: Unit tests across Node.js versions (18, 20)
@@ -224,6 +237,7 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 - **Bundle Analysis**: Bundle size monitoring
 
 **Key Features**:
+
 - **Parallel Execution**: Jobs run concurrently for faster feedback
 - **Matrix Testing**: Tests across multiple Node.js versions
 - **Skip Logic**: Avoids duplicate runs for same content
@@ -235,6 +249,7 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 **Triggered on**: Pushes to main, tags, manual dispatch
 
 **Deployment Stages**:
+
 1. **Pre-deployment**: Version calculation, environment determination
 2. **Build Production**: Optimized production build
 3. **Test Production**: Production-ready testing suite
@@ -244,8 +259,9 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 7. **Notify**: Team notifications via Slack/Email
 
 **Deployment Targets**:
+
 - **Vercel**: Primary deployment platform
-- **Netlify**: Alternative deployment option  
+- **Netlify**: Alternative deployment option
 - **AWS S3 + CloudFront**: Custom infrastructure option
 
 ### 🔄 **Dependency Updates** (`.github/workflows/dependency-updates.yml`)
@@ -253,6 +269,7 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 **Triggered on**: Weekly schedule (Mondays 9 AM UTC), manual dispatch
 
 **Features**:
+
 - **Automated Updates**: Minor and patch version updates
 - **Security Auditing**: Vulnerability scanning and reporting
 - **Pull Request Creation**: Automated PRs with update summaries
@@ -264,32 +281,38 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ### **Test Types Implemented**:
 
 #### 1. **Unit Tests** (`npm run test:ci`)
+
 - Component testing with React Testing Library
 - Redux store testing
 - Utility function testing
 - 70% coverage threshold requirement
 
 #### 2. **Integration Tests** (`npm run test:integration`)
+
 - Component interaction testing
 - API integration testing
 - State management integration
 
 #### 3. **End-to-End Tests** (`npm run test:e2e`)
+
 - Full user journey testing
 - Cross-browser compatibility (Chrome, Firefox, Safari)
 - Mobile responsiveness testing
 
 #### 4. **Accessibility Tests** (`npm run test:a11y`)
+
 - WCAG 2.1 AA compliance testing
 - Screen reader compatibility
 - Keyboard navigation testing
 
 #### 5. **Performance Tests**
+
 - Lighthouse CI for Core Web Vitals
 - Bundle size analysis
 - Runtime performance monitoring
 
 #### 6. **Security Tests**
+
 - Dependency vulnerability scanning
 - OWASP security checks
 - Code security analysis with Snyk
@@ -297,16 +320,18 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ### **Test Configuration Files**:
 
 #### **jest.config.js**
+
 ```javascript
 // Comprehensive Jest configuration with:
 // - Next.js integration
-// - TypeScript support  
+// - TypeScript support
 // - Module path mapping
 // - Coverage thresholds
 // - Custom test environment setup
 ```
 
-#### **playwright.config.ts**  
+#### **playwright.config.ts**
+
 ```typescript
 // Playwright E2E testing configuration with:
 // - Multi-browser testing
@@ -318,14 +343,16 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ## 📈 Quality Gates
 
 ### **Pull Request Requirements**:
+
 - [ ] All lint checks pass
-- [ ] TypeScript compilation succeeds  
+- [ ] TypeScript compilation succeeds
 - [ ] Unit test coverage ≥ 70%
 - [ ] Build completes successfully
 - [ ] No security vulnerabilities
 - [ ] Accessibility tests pass
 
 ### **Deployment Requirements**:
+
 - [ ] All CI checks pass
 - [ ] Production build succeeds
 - [ ] E2E tests pass
@@ -335,11 +362,12 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ## 🔧 Configuration Files
 
 ### **Package.json Scripts**
+
 ```json
 {
   "scripts": {
     "dev": "next dev",
-    "build": "next build", 
+    "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
@@ -352,15 +380,17 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ```
 
 ### **Lighthouse CI** (`.lighthouserc.js`)
+
 ```javascript
 // Performance benchmarks:
 // - Performance: ≥ 80%
-// - Accessibility: ≥ 90% 
+// - Accessibility: ≥ 90%
 // - Best Practices: ≥ 85%
 // - SEO: ≥ 80%
 ```
 
 ### **Prettier Configuration** (`.prettierrc.json`)
+
 ```json
 {
   "semi": false,
@@ -374,6 +404,7 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ## 🚀 Deployment Strategies
 
 ### **Environment Strategy**:
+
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │ Development │    │   Staging   │    │ Production  │
@@ -386,18 +417,21 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ```
 
 ### **Deployment Triggers**:
+
 - **Staging**: Push to `develop` branch
 - **Production**: Push to `main` branch or tagged release
 - **Manual**: Workflow dispatch for emergency deployments
 
 ### **Rollback Strategy**:
+
 - **Vercel**: Instant rollback to previous deployment
-- **Git-based**: Revert commit and redeploy  
+- **Git-based**: Revert commit and redeploy
 - **Feature Flags**: Disable features without redeployment
 
 ## 📊 Monitoring & Observability
 
 ### **Metrics Tracked**:
+
 - **Build Performance**: Build time, bundle size
 - **Test Results**: Coverage percentages, test duration
 - **Deployment Success**: Success rate, deployment time
@@ -405,20 +439,23 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 - **Security**: Vulnerability count, audit results
 
 ### **Alerts & Notifications**:
+
 - **Slack Integration**: Real-time deployment notifications
-- **Email Alerts**: Critical failure notifications  
+- **Email Alerts**: Critical failure notifications
 - **GitHub Issues**: Automated security vulnerability issues
 - **Status Dashboards**: Deployment and performance monitoring
 
 ## 🔒 Security Implementation
 
 ### **Security Scanning**:
+
 - **Dependency Auditing**: Weekly automated scans
 - **Code Analysis**: Snyk integration for vulnerability detection
 - **Secret Detection**: GitHub Advanced Security (if available)
 - **License Compliance**: Dependency license checking
 
 ### **Security Policies**:
+
 - **Vulnerability Response**: High/Critical issues block deployment
 - **Dependency Updates**: Automated updates for security patches
 - **Access Control**: Least privilege for deployment secrets
@@ -429,6 +466,7 @@ echo 'npm run type-check && npm run test:ci' > .husky/pre-push
 ### **Common Issues & Solutions**:
 
 #### **Build Failures**:
+
 ```bash
 # Clear cache and reinstall
 npm run clean
@@ -440,6 +478,7 @@ node --version  # Should be 18.x or 20.x
 ```
 
 #### **Test Failures**:
+
 ```bash
 # Run tests locally with verbose output
 npm run test -- --verbose
@@ -452,6 +491,7 @@ npm run test -- --testNamePattern="ComponentName"
 ```
 
 #### **Deployment Issues**:
+
 ```bash
 # Verify environment variables
 echo $VERCEL_TOKEN
@@ -463,6 +503,7 @@ npm run start
 ```
 
 #### **Performance Issues**:
+
 ```bash
 # Analyze bundle size
 npm run analyze
@@ -473,6 +514,7 @@ lhci autorun
 ```
 
 ### **Debug Commands**:
+
 ```bash
 # Check workflow status
 gh workflow list
@@ -488,6 +530,7 @@ gh run rerun [RUN_ID]
 ## 📚 Best Practices
 
 ### **Development Workflow**:
+
 1. **Feature Branches**: Always work in feature branches
 2. **Small PRs**: Keep pull requests focused and small
 3. **Test Coverage**: Maintain high test coverage
@@ -495,6 +538,7 @@ gh run rerun [RUN_ID]
 5. **Conventional Commits**: Use semantic commit messages
 
 ### **Deployment Practices**:
+
 1. **Gradual Rollouts**: Use feature flags for new features
 2. **Health Checks**: Monitor post-deployment metrics
 3. **Rollback Plans**: Always have rollback procedures ready
@@ -502,6 +546,7 @@ gh run rerun [RUN_ID]
 5. **Team Communication**: Notify team of deployments
 
 ### **Security Practices**:
+
 1. **Secret Management**: Use GitHub Secrets, never commit secrets
 2. **Dependency Updates**: Keep dependencies up to date
 3. **Audit Regular**: Regular security audits and reviews
@@ -511,38 +556,41 @@ gh run rerun [RUN_ID]
 ## 🎯 Performance Optimization
 
 ### **CI/CD Performance Tips**:
+
 - **Caching**: Use dependency caching for faster builds
-- **Parallel Jobs**: Run independent jobs in parallel  
+- **Parallel Jobs**: Run independent jobs in parallel
 - **Skip Logic**: Avoid unnecessary runs for unchanged code
 - **Artifact Reuse**: Share build artifacts between jobs
 - **Resource Limits**: Optimize resource usage in workflows
 
 ### **Build Optimization**:
+
 ```javascript
 // next.config.js optimizations
 module.exports = {
   // Enable SWC minification
   swcMinify: true,
-  
+
   // Optimize images
   images: {
     formats: ['image/webp', 'image/avif'],
   },
-  
+
   // Bundle analyzer
-  webpack: (config) => {
+  webpack: config => {
     if (process.env.ANALYZE === 'true') {
       const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
       config.plugins.push(new BundleAnalyzerPlugin())
     }
     return config
-  }
+  },
 }
 ```
 
 ## 📋 Checklist for New Projects
 
 ### **Initial Setup**:
+
 - [ ] Add all required GitHub secrets
 - [ ] Configure environment variables
 - [ ] Set up deployment platforms (Vercel/Netlify)
@@ -551,6 +599,7 @@ module.exports = {
 - [ ] Configure branch protection rules
 
 ### **Testing Setup**:
+
 - [ ] Configure Jest and testing environment
 - [ ] Set up Playwright for E2E tests
 - [ ] Configure Lighthouse CI
@@ -558,6 +607,7 @@ module.exports = {
 - [ ] Add accessibility testing
 
 ### **Security Setup**:
+
 - [ ] Enable Dependabot
 - [ ] Configure Snyk scanning
 - [ ] Set up security issue templates
@@ -565,6 +615,7 @@ module.exports = {
 - [ ] Enable secret scanning (if available)
 
 ### **Monitoring Setup**:
+
 - [ ] Set up Slack/email notifications
 - [ ] Configure deployment dashboards
 - [ ] Set up error tracking (Sentry, etc.)
@@ -573,6 +624,10 @@ module.exports = {
 
 ---
 
-This CI/CD implementation provides a robust, secure, and efficient pipeline that ensures high-quality deployments while maintaining developer productivity. The automated workflows reduce manual effort and human error while providing comprehensive testing and security scanning.
+This CI/CD implementation provides a robust, secure, and efficient pipeline that
+ensures high-quality deployments while maintaining developer productivity. The
+automated workflows reduce manual effort and human error while providing
+comprehensive testing and security scanning.
 
-For questions or issues with the CI/CD pipeline, refer to the troubleshooting section or create an issue using our GitHub issue templates. 🚀
+For questions or issues with the CI/CD pipeline, refer to the troubleshooting
+section or create an issue using our GitHub issue templates. 🚀

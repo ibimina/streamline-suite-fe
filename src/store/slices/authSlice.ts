@@ -1,19 +1,18 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface User {
-  id?: string;
-  email: string;
-  name: string;
-  role: "admin" | "user" | "manager";
-  company?: string;
+  id?: string
+  email: string
+  name: string
+  role: 'admin' | 'user' | 'manager'
+  company?: string
 }
 
-
 interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  error: string | null
 }
 
 const initialState: AuthState = {
@@ -21,50 +20,50 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
-};
+}
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
-    loginStart: (state) => {
-      state.isLoading = true;
-      state.error = null;
+    loginStart: state => {
+      state.isLoading = true
+      state.error = null
     },
     loginSuccess: (state, action: PayloadAction<User>) => {
-      state.isLoading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload;
-      state.error = null;
+      state.isLoading = false
+      state.isAuthenticated = true
+      state.user = action.payload
+      state.error = null
     },
     loginFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
-      state.isAuthenticated = false;
-      state.user = null;
-      state.error = action.payload;
+      state.isLoading = false
+      state.isAuthenticated = false
+      state.user = null
+      state.error = action.payload
     },
-    logout: (state) => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.isLoading = false;
-      state.error = null;
+    logout: state => {
+      state.user = null
+      state.isAuthenticated = false
+      state.isLoading = false
+      state.error = null
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
-        state.user = { ...state.user, ...action.payload };
+        state.user = { ...state.user, ...action.payload }
       }
     },
-    clearError: (state) => {
-      state.error = null;
-      },
-      signUpSuccess: (state, action: PayloadAction<User>) => {
-          state.isLoading = false;
-          state.isAuthenticated = true;
-          state.user = action.payload;
-          state.error = null;
-      },
+    clearError: state => {
+      state.error = null
+    },
+    signUpSuccess: (state, action: PayloadAction<User>) => {
+      state.isLoading = false
+      state.isAuthenticated = true
+      state.user = action.payload
+      state.error = null
+    },
   },
-});
+})
 
 export const {
   loginStart,
@@ -72,8 +71,8 @@ export const {
   loginFailure,
   logout,
   updateUser,
-    clearError,
-    signUpSuccess
-} = authSlice.actions;
+  clearError,
+  signUpSuccess,
+} = authSlice.actions
 
-export default authSlice.reducer;
+export default authSlice.reducer

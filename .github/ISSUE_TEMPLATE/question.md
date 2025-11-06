@@ -7,10 +7,13 @@ assignees: ''
 ---
 
 ## ❓ Your Question
+
 <!-- What would you like to know or discuss? -->
 
 ## 🎯 Category
+
 <!-- What area is your question about? -->
+
 - [ ] 🏗️ Architecture/Design Patterns
 - [ ] 🛠️ Development Setup
 - [ ] 🎨 Styling/Theme System
@@ -22,24 +25,30 @@ assignees: ''
 - [ ] 🧪 Testing
 - [ ] 🚀 Deployment
 - [ ] 🤝 Contributing Process
-- [ ] Other: ___________
+- [ ] Other: ****\_\_\_****
 
 ## 🔍 Context
+
 <!-- Provide any relevant context or background information -->
 
 ## 🎯 What You've Tried
+
 <!-- What have you already attempted or researched? -->
 
 ## 📚 Documentation Checked
+
 <!-- What documentation have you already reviewed? -->
+
 - [ ] README.md
 - [ ] CONTRIBUTING.md
 - [ ] Code comments
 - [ ] GitHub Issues/Discussions
-- [ ] Other: ___________
+- [ ] Other: ****\_\_\_****
 
 ## 💭 Expected Outcome
+
 <!-- What kind of answer or discussion are you hoping for? -->
 
 ## 🔗 Related Resources
+
 <!-- Any links or references related to your question -->

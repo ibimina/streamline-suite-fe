@@ -1,10 +1,12 @@
 # Pull Request Guide 🔄
 
-This guide outlines the process and standards for contributing to Streamline Suite through Pull Requests.
+This guide outlines the process and standards for contributing to Streamline
+Suite through Pull Requests.
 
 ## 📋 Before You Start
 
 ### Prerequisites
+
 - [ ] Fork the repository to your GitHub account
 - [ ] Clone your fork locally
 - [ ] Set up the development environment (see [README.md](./README.md))
@@ -12,12 +14,15 @@ This guide outlines the process and standards for contributing to Streamline Sui
 - [ ] Ensure you have the latest changes from the main branch
 
 ### Branch Naming Convention
+
 Use descriptive branch names that follow this pattern:
+
 ```
 <type>/<short-description>
 ```
 
 **Types:**
+
 - `feature/` - New features or enhancements
 - `fix/` - Bug fixes
 - `hotfix/` - Critical fixes that need immediate attention
@@ -28,6 +33,7 @@ Use descriptive branch names that follow this pattern:
 - `chore/` - Maintenance tasks, dependency updates
 
 **Examples:**
+
 ```bash
 feature/dark-theme-implementation
 fix/sidebar-navigation-bug
@@ -39,6 +45,7 @@ hotfix/login-authentication-issue
 ## 🚀 Creating a Pull Request
 
 ### Step 1: Prepare Your Branch
+
 ```bash
 # Create and checkout a new branch
 git checkout -b feature/your-feature-name
@@ -55,7 +62,9 @@ git push origin feature/your-feature-name
 ```
 
 ### Step 2: Commit Message Standards
-Follow [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/)
+specification:
 
 ```
 <type>[optional scope]: <description>
@@ -66,6 +75,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/) specificatio
 ```
 
 **Types:**
+
 - `feat` - A new feature
 - `fix` - A bug fix
 - `docs` - Documentation only changes
@@ -76,6 +86,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/) specificatio
 - `chore` - Changes to build process or auxiliary tools
 
 **Examples:**
+
 ```bash
 feat(auth): add OAuth2 login integration
 fix(sidebar): resolve navigation link routing issues
@@ -85,6 +96,7 @@ style(components): apply consistent formatting across components
 ```
 
 ### Step 3: Pre-PR Checklist
+
 Before creating your PR, ensure:
 
 - [ ] **Code Quality**
@@ -110,6 +122,7 @@ Before creating your PR, ensure:
   - [ ] New features documented
 
 ### Step 4: Create the Pull Request
+
 1. Navigate to the original repository on GitHub
 2. Click "New Pull Request"
 3. Select your branch as the source
@@ -122,12 +135,15 @@ Use this template when creating your PR:
 
 ```markdown
 ## 🎯 Description
+
 Brief description of what this PR does and why.
 
 ## 🔄 Type of Change
+
 - [ ] 🐛 Bug fix (non-breaking change that fixes an issue)
 - [ ] ✨ New feature (non-breaking change that adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] 💥 Breaking change (fix or feature that would cause existing functionality
+      to not work as expected)
 - [ ] 📚 Documentation update
 - [ ] 🎨 Style/formatting changes
 - [ ] ♻️ Code refactoring
@@ -135,11 +151,13 @@ Brief description of what this PR does and why.
 - [ ] 🧪 Test updates
 
 ## 📋 Changes Made
+
 - Change 1: Description of specific change
 - Change 2: Description of specific change
 - Change 3: Description of specific change
 
 ## 🧪 Testing Done
+
 - [ ] Tested locally in development environment
 - [ ] Tested in both light and dark themes
 - [ ] Tested responsive design on mobile/tablet/desktop
@@ -147,19 +165,23 @@ Brief description of what this PR does and why.
 - [ ] Cross-browser testing completed
 
 ## 📷 Screenshots (if applicable)
-| Before | After |
-|--------|-------|
+
+| Before         | After         |
+| -------------- | ------------- |
 | ![before](url) | ![after](url) |
 
 ## 🔗 Related Issues
+
 - Closes #123
 - Relates to #456
 - Fixes #789
 
 ## 📝 Additional Notes
+
 Any additional information, considerations, or context for reviewers.
 
 ## ✅ Reviewer Checklist
+
 - [ ] Code follows project conventions
 - [ ] Changes are well-documented
 - [ ] No unnecessary code changes
@@ -170,18 +192,21 @@ Any additional information, considerations, or context for reviewers.
 ## 👥 Review Process
 
 ### For Contributors
+
 1. **Self-Review**: Review your own PR first
 2. **Request Reviews**: Tag appropriate reviewers
 3. **Respond to Feedback**: Address all review comments promptly
 4. **Update Documentation**: Keep PR description updated with changes
 
 ### For Reviewers
+
 1. **Timely Reviews**: Aim to review within 24-48 hours
 2. **Constructive Feedback**: Provide clear, actionable feedback
 3. **Test Locally**: Pull and test significant changes
 4. **Approve When Ready**: Only approve when confident in the changes
 
 ### Review Criteria
+
 Reviewers should check for:
 
 - [ ] **Code Quality**
@@ -209,17 +234,21 @@ Reviewers should check for:
 ## 🔄 PR Lifecycle
 
 ### Draft PRs
+
 - Use draft PRs for work in progress
 - Good for getting early feedback
 - Mark as ready for review when complete
 
 ### Review States
+
 - **Changes Requested**: Address feedback before re-requesting review
 - **Approved**: PR is ready for merge
 - **Merged**: Changes are now in the main branch
 
 ### Merge Requirements
+
 Before merging, ensure:
+
 - [ ] At least one approval from a code owner
 - [ ] All CI checks pass
 - [ ] No merge conflicts
@@ -228,6 +257,7 @@ Before merging, ensure:
 ## 🚨 Common Issues & Solutions
 
 ### Merge Conflicts
+
 ```bash
 # Update your branch with latest main
 git checkout main
@@ -242,12 +272,15 @@ git push --force-with-lease origin your-branch
 ```
 
 ### Failed CI Checks
+
 - **ESLint Errors**: Run `npm run lint` locally and fix issues
 - **TypeScript Errors**: Run `npm run build` and address type issues
 - **Test Failures**: Ensure all tests pass with `npm test`
 
 ### Large PRs
+
 If your PR is getting large:
+
 - Consider breaking it into smaller, focused PRs
 - Use draft PRs to get feedback early
 - Document the overall plan in the PR description
@@ -255,24 +288,28 @@ If your PR is getting large:
 ## 📊 PR Guidelines by Component
 
 ### Frontend Components
+
 - Include screenshots for UI changes
 - Test in both themes (light/dark)
 - Verify responsive design
 - Check accessibility (keyboard navigation, screen readers)
 
 ### State Management (Redux)
+
 - Document state shape changes
 - Ensure backwards compatibility
 - Test state persistence
 - Update related selectors/actions
 
 ### API Integration
+
 - Document new endpoints
 - Handle error cases
 - Update TypeScript interfaces
 - Test with mock data
 
 ### Styling Changes
+
 - Follow Tailwind CSS conventions
 - Maintain design system consistency
 - Test across different screen sizes
@@ -281,6 +318,7 @@ If your PR is getting large:
 ## 🏆 Best Practices
 
 ### Do's ✅
+
 - Keep PRs focused and small when possible
 - Write clear, descriptive commit messages
 - Test thoroughly before requesting review
@@ -289,6 +327,7 @@ If your PR is getting large:
 - Use semantic commit messages
 
 ### Don'ts ❌
+
 - Don't mix unrelated changes in one PR
 - Don't force push after someone has reviewed
 - Don't ignore CI failures
@@ -299,6 +338,7 @@ If your PR is getting large:
 ## 📞 Getting Help
 
 If you need help with your PR:
+
 - Ask questions in PR comments
 - Reach out to maintainers
 - Check existing issues and PRs for similar problems
@@ -320,4 +360,5 @@ git push origin --delete your-branch-name
 
 ---
 
-Thank you for contributing to Streamline Suite! Your efforts help make this project better for everyone. 🚀
+Thank you for contributing to Streamline Suite! Your efforts help make this
+project better for everyone. 🚀

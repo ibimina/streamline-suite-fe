@@ -2,8 +2,8 @@
 const nextConfig = {
   /* config options here */
   images: {
-    domains: ['images.unsplash.com', "i.pravatar.cc"],
+    domains: ['images.unsplash.com', 'i.pravatar.cc'],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
