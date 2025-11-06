@@ -9,7 +9,7 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '<rootDir>/tests/e2e/'],
   moduleNameMapper: {
     // Handle module aliases (if you use them in your Next.js app)
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -36,8 +36,8 @@ const customJestConfig = {
   },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-    '<rootDir>/src/**/*.(test|spec).{js,jsx,ts,tsx}',
-    '<rootDir>/tests/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/src/**/*.(test).{js,jsx,ts,tsx}',
+    '<rootDir>/tests/**/*.(test).{js,jsx,ts,tsx}',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 }
