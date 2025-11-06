@@ -34,8 +34,10 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     // Additional ignores
     'coverage/**',
-    '*.config.js',
-    '*.config.mjs',
+    'next.config.mjs',
+    'postcss.config.mjs',
+    'tailwind.config.js',
+    'playwright.config.ts',
     'public/**',
     '.husky/**',
   ]),
