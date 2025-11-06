@@ -47,7 +47,7 @@ assignees: ''
 - [ ] Settings
 - [ ] Theme System
 - [ ] Navigation/Sidebar
-- [ ] New Module: ****\_\_\_****
+- [ ] New Module: \***\*\_\_\_\*\***
 
 ## 🔄 Feature Type
 
@@ -100,7 +100,7 @@ assignees: ''
 - [ ] Inventory Managers
 - [ ] HR Teams
 - [ ] All Users
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 🔗 Related Issues/Features
 

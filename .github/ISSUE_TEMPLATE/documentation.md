@@ -21,7 +21,7 @@ assignees: ''
 - [ ] API documentation
 - [ ] Setup/Installation guide
 - [ ] Component documentation
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 🎯 Type of Documentation
 
