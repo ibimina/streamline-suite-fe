@@ -1,0 +1,193 @@
+name: 🔄 Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: dependency-updates
+  cancel-in-progress: true
+
+jobs:
+  # Update npm dependencies
+  update-dependencies:
+    name: 📦 Update Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 🔍 Check for updates
+        id: updates
+        run: |
+          npm outdated --json > outdated.json || true
+          
+          if [ -s outdated.json ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "📦 Found dependency updates"
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "✅ All dependencies up to date"
+          fi
+
+      - name: 📦 Update dependencies
+        if: steps.updates.outputs.has_updates == 'true'
+        run: |
+          # Update patch and minor versions only
+          npx npm-check-updates -u --target minor
+          npm install
+
+      - name: 🧪 Run tests
+        if: steps.updates.outputs.has_updates == 'true'
+        run: |
+          npm run lint
+          npm run type-check
+          npm run test:ci
+          npm run build
+
+      - name: 📝 Create update summary
+        if: steps.updates.outputs.has_updates == 'true'
+        id: summary
+        run: |
+          echo "## 📦 Dependency Updates" > update_summary.md
+          echo "" >> update_summary.md
+          echo "The following dependencies have been updated:" >> update_summary.md
+          echo "" >> update_summary.md
+          
+          # Compare package.json changes
+          git diff package.json | grep "^+" | grep -v "^+++" | sed 's/^+/- /' >> update_summary.md
+          
+          echo "" >> update_summary.md
+          echo "### ✅ Tests Passed" >> update_summary.md
+          echo "- Linting: ✅" >> update_summary.md
+          echo "- Type checking: ✅" >> update_summary.md
+          echo "- Unit tests: ✅" >> update_summary.md
+          echo "- Build: ✅" >> update_summary.md
+
+      - name: 🔀 Create Pull Request
+        if: steps.updates.outputs.has_updates == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: '📦 Automated Dependency Updates'
+          body-path: update_summary.md
+          branch: automated/dependency-updates
+          labels: |
+            dependencies
+            automated
+          reviewers: |
+            # Add your team members here
+          assignees: |
+            # Add assignees here
+
+  # Security audit
+  security-audit:
+    name: 🛡️ Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🛡️ Run security audit
+        id: audit
+        run: |
+          # Run audit and capture output
+          npm audit --audit-level=moderate --json > audit-results.json || true
+          
+          # Check if there are vulnerabilities
+          VULN_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0')
+          
+          if [ "$VULN_COUNT" -gt 0 ]; then
+            echo "vulnerabilities_found=true" >> $GITHUB_OUTPUT
+            echo "vulnerability_count=$VULN_COUNT" >> $GITHUB_OUTPUT
+            
+            # Create human-readable report
+            echo "# 🛡️ Security Audit Report" > security-report.md
+            echo "" >> security-report.md
+            echo "Found **$VULN_COUNT** security vulnerabilities that need attention." >> security-report.md
+            echo "" >> security-report.md
+            
+            # Add vulnerability details
+            npm audit --audit-level=moderate >> security-report.md || true
+          else
+            echo "vulnerabilities_found=false" >> $GITHUB_OUTPUT
+            echo "✅ No security vulnerabilities found"
+          fi
+
+      - name: 🚨 Create security issue
+        if: steps.audit.outputs.vulnerabilities_found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read the security report
+            const reportContent = fs.readFileSync('security-report.md', 'utf8');
+            
+            // Check if issue already exists
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'security,vulnerability',
+              state: 'open'
+            });
+            
+            const existingIssue = issues.find(issue => 
+              issue.title.includes('Security Vulnerabilities Detected')
+            );
+            
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `## 🔄 Updated Security Report\n\n${reportContent}\n\n---\n*Updated: ${new Date().toISOString()}*`
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🛡️ Security Vulnerabilities Detected - Action Required',
+                body: reportContent,
+                labels: ['security', 'vulnerability', 'high-priority']
+              });
+            }
+
+      - name: 📢 Notify team about vulnerabilities
+        if: steps.audit.outputs.vulnerabilities_found == 'true'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'warning'
+          channel: '#security'
+          username: 'Security Bot'
+          icon_emoji: ':warning:'
+          text: |
+            🛡️ Security Alert: ${{ steps.audit.outputs.vulnerability_count }} vulnerabilities detected in Streamline Suite dependencies.
+            
+            Please review the security issue created in GitHub and take appropriate action.
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SECURITY_SLACK_WEBHOOK_URL }}

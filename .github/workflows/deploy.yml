@@ -1,0 +1,402 @@
+name: 🚀 CD - Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      skip_tests:
+        description: 'Skip tests and deploy directly'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Pre-deployment checks
+  pre-deploy:
+    name: 🔍 Pre-deployment Checks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      environment: ${{ steps.env.outputs.environment }}
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Get version
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
+
+      - name: 🌍 Determine environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [[ $GITHUB_REF == refs/tags/* ]]; then
+            ENV="production"
+          else
+            ENV="staging"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "🌍 Environment: $ENV"
+
+  # Build for production
+  build-production:
+    name: 🏗️ Build for Production
+    runs-on: ubuntu-latest
+    needs: pre-deploy
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔧 Setup environment
+        run: |
+          echo "NEXT_PUBLIC_VERSION=${{ needs.pre-deploy.outputs.version }}" >> .env.production
+          echo "NEXT_PUBLIC_BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> .env.production
+          echo "NEXT_PUBLIC_COMMIT_SHA=${GITHUB_SHA}" >> .env.production
+
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: 🗜️ Compress build
+        run: |
+          tar -czf build-${{ needs.pre-deploy.outputs.version }}.tar.gz .next/ out/ public/ package.json
+
+      - name: 📤 Upload production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: build-${{ needs.pre-deploy.outputs.version }}.tar.gz
+          retention-days: 30
+
+  # Run tests (optional for workflow_dispatch)
+  test-production:
+    name: 🧪 Production Tests
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, build-production]
+    if: github.event.inputs.skip_tests != 'true'
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 📤 Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+
+      - name: 🗜️ Extract build
+        run: tar -xzf build-${{ needs.pre-deploy.outputs.version }}.tar.gz
+
+      - name: 🧪 Run production tests
+        run: npm run test:production
+
+      - name: 🚀 Start production server
+        run: |
+          npm run start &
+          sleep 15
+        env:
+          NODE_ENV: production
+
+      - name: 🌐 Run E2E tests
+        run: npm run test:e2e:production
+
+  # Deploy to Vercel
+  deploy-vercel:
+    name: 🚀 Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, build-production, test-production]
+    if: always() && (needs.test-production.result == 'success' || needs.test-production.result == 'skipped')
+    environment: ${{ needs.pre-deploy.outputs.environment }}
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: ${{ needs.pre-deploy.outputs.environment == 'production' && '--prod' || '' }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+
+  # Deploy to Netlify (alternative)
+  deploy-netlify:
+    name: 🌐 Deploy to Netlify
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, build-production, test-production]
+    if: false # Set to true to enable Netlify deployment
+    environment: ${{ needs.pre-deploy.outputs.environment }}
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📤 Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+
+      - name: 🗜️ Extract build
+        run: tar -xzf build-${{ needs.pre-deploy.outputs.version }}.tar.gz
+
+      - name: 🌐 Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './out'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions - ${{ needs.pre-deploy.outputs.version }}"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  # Deploy to AWS S3 + CloudFront
+  deploy-aws:
+    name: ☁️ Deploy to AWS
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, build-production, test-production]
+    if: false # Set to true to enable AWS deployment
+    environment: ${{ needs.pre-deploy.outputs.environment }}
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📤 Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+
+      - name: 🗜️ Extract build
+        run: tar -xzf build-${{ needs.pre-deploy.outputs.version }}.tar.gz
+
+      - name: 🔧 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 📤 Sync to S3
+        run: |
+          aws s3 sync ./out s3://${{ secrets.AWS_S3_BUCKET }} --delete --cache-control max-age=31536000,public
+          aws s3 cp ./out/index.html s3://${{ secrets.AWS_S3_BUCKET }}/index.html --cache-control max-age=0,no-cache,no-store,must-revalidate
+
+      - name: 🔄 Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+  # Post-deployment tests
+  post-deploy:
+    name: 🧪 Post-deployment Tests
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, deploy-vercel]
+    if: always() && needs.deploy-vercel.result == 'success'
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🌐 Wait for deployment
+        run: sleep 30
+
+      - name: 🧪 Run smoke tests
+        run: npm run test:smoke
+        env:
+          BASE_URL: ${{ needs.pre-deploy.outputs.environment == 'production' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}
+
+      - name: 🚀 Run Lighthouse on live site
+        run: npm run lighthouse:production
+        env:
+          LIGHTHOUSE_URL: ${{ needs.pre-deploy.outputs.environment == 'production' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}
+
+  # Create GitHub release
+  create-release:
+    name: 📦 Create Release
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, post-deploy]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && needs.post-deploy.result == 'success'
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          
+          # Generate changelog
+          if [ -n "$PREV_TAG" ]; then
+            CHANGELOG=$(git log $PREV_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # Save to file for multiline output
+          echo "$CHANGELOG" > changelog.txt
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 📤 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build
+
+      - name: 📦 Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ needs.pre-deploy.outputs.version }}
+          body: |
+            ## 🚀 What's Changed
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## 📊 Deployment Info
+            - **Version**: ${{ needs.pre-deploy.outputs.version }}
+            - **Environment**: Production
+            - **Commit**: ${{ github.sha }}
+            - **Build Date**: ${{ github.event.head_commit.timestamp }}
+            
+            ## 🔗 Links
+            - [🌐 Live Application](${{ secrets.PRODUCTION_URL }})
+            - [📊 Monitoring Dashboard](${{ secrets.MONITORING_URL }})
+            
+            ---
+            
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.changelog.outputs.previous_tag }}...${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: 📤 Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build-${{ needs.pre-deploy.outputs.version }}.tar.gz
+          asset_name: streamline-suite-${{ needs.pre-deploy.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+
+  # Notify team
+  notify:
+    name: 📢 Notify Team
+    runs-on: ubuntu-latest
+    needs: [pre-deploy, post-deploy]
+    if: always()
+    
+    steps:
+      - name: 📢 Notify Slack
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          username: 'GitHub Actions'
+          icon_emoji: ':rocket:'
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          text: |
+            🚀 Deployment ${{ needs.post-deploy.result == 'success' && 'completed successfully' || 'failed' }}!
+            
+            📦 Version: ${{ needs.pre-deploy.outputs.version }}
+            🌍 Environment: ${{ needs.pre-deploy.outputs.environment }}
+            👤 Triggered by: ${{ github.actor }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: always()
+
+      - name: 📧 Send email notification
+        uses: dawidd6/action-send-mail@v3
+        env:
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+        if: always() && env.EMAIL_USERNAME != ''
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: 'Streamline Suite Deployment - ${{ needs.pre-deploy.outputs.environment }}'
+          body: |
+            Deployment Status: ${{ needs.post-deploy.result == 'success' && '✅ Success' || '❌ Failed' }}
+            
+            Version: ${{ needs.pre-deploy.outputs.version }}
+            Environment: ${{ needs.pre-deploy.outputs.environment }}
+            Commit: ${{ github.sha }}
+            Triggered by: ${{ github.actor }}
+            
+            View deployment: ${{ needs.pre-deploy.outputs.environment == 'production' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}
+          to: ${{ secrets.TEAM_EMAIL }}
+          from: 'Streamline Suite Bot <noreply@streamlinesuite.com>'
