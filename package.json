@@ -71,13 +71,13 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "eslint --fix --max-warnings=0",
+      "eslint --fix --max-warnings=0 --cache",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml,css,scss}": [
       "prettier --write"
     ],
-    "*.{html,xml}": [
+    "*.html": [
       "prettier --write"
     ]
   },
