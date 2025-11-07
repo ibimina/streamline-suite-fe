@@ -8,9 +8,5 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  return (
-    <ReduxProvider>
-      <PublicWebsiteLayout>{children}</PublicWebsiteLayout>
-    </ReduxProvider>
-  )
+  return <PublicWebsiteLayout>{children}</PublicWebsiteLayout>
 }

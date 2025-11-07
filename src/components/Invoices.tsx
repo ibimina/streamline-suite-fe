@@ -29,22 +29,6 @@ const ACCENT_COLORS: Record<AccentColor, string> = {
   slate: '#64748B',
 }
 
-// Helper function to generate company initials
-const getCompanyInitials = (name: string): string => {
-  if (!name) return '..'
-  const words = name.trim().split(/\s+/).filter(Boolean)
-  if (words.length > 1) {
-    return `${words[0][0]}${words[1][0]}`.toUpperCase()
-  }
-  if (words[0]?.length > 1) {
-    return words[0].substring(0, 2).toUpperCase()
-  }
-  if (words[0]?.length === 1) {
-    return words[0][0].toUpperCase()
-  }
-  return '..'
-}
-
 // Helper function to add company logo or initials fallback
 const addCompanyLogoOrInitials = (
   doc: jsPDF,
@@ -54,83 +38,15 @@ const addCompanyLogoOrInitials = (
   width: number,
   height: number
 ) => {
-  let logoAdded = false
-
   // Try to add logo first
   if (companyDetails.logoUrl && companyDetails.logoUrl.startsWith('http')) {
-    try {
-      doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
-      logoAdded = true
-    } catch (logoError) {
-      console.warn('Could not load company logo:', logoError)
-    }
+    doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
   }
 }
 export const defaultTerms = `1. Payment is due within 30 days of the invoice date.
 2. Late payments are subject to a 1.5% monthly interest charge.
 3. Please make all checks payable to Your Company Name.`
 
-export const mockInvoices: Invoice[] = [
-  {
-    id: 'inv-2024-001',
-    customerName: 'Tech Solutions',
-    customerAddress: '123 Tech Avenue, Silicon Valley, CA 94043',
-    date: '2024-07-29',
-    dueDate: '2024-08-28',
-    status: 'Paid',
-    items: [
-      {
-        id: '1',
-        description: 'Server Setup & Configuration',
-        quantity: 1,
-        unitPrice: 2500,
-        sku: 'HW-SRV-001',
-      },
-    ],
-    subtotal: 2500,
-    vat: 187.5,
-    total: 2687.5,
-    terms: defaultTerms,
-    quotationId: 'q-2024-001',
-    template: 'classic',
-    accentColor: 'teal',
-  },
-  {
-    id: 'inv-2024-002',
-    customerName: 'Global Corp',
-    customerAddress: '456 Business Blvd, New York, NY 10001',
-    date: '2024-07-26',
-    dueDate: '2024-08-25',
-    status: 'Sent',
-    items: [
-      { id: '1', description: 'Network Security Audit', quantity: 1, unitPrice: 4000, sku: '' },
-    ],
-    subtotal: 4000,
-    vat: 300,
-    total: 4300,
-    terms: defaultTerms,
-    quotationId: 'q-2024-002',
-    template: 'modern',
-    accentColor: 'blue',
-  },
-  {
-    id: 'inv-2024-003',
-    customerName: 'Innovate Inc.',
-    customerAddress: '789 Innovation Drive, Austin, TX 78701',
-    date: '2024-06-15',
-    dueDate: '2024-07-15',
-    status: 'Overdue',
-    items: [
-      { id: '1', description: 'Cloud Migration Service', quantity: 1, unitPrice: 6000, sku: '' },
-    ],
-    subtotal: 6000,
-    vat: 450,
-    total: 6450,
-    terms: defaultTerms,
-    template: 'minimalist',
-    accentColor: 'slate',
-  },
-]
 // --- END MOCK DATA ---
 
 const StatusBadge: React.FC<{ status: InvoiceStatus }> = ({ status }) => {
@@ -256,7 +172,9 @@ const Invoices = () => {
         case 'modern':
           doc.setFillColor(accentColor)
           doc.rect(0, 0, pageWidth, 40, 'F')
-          addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 30, 10)
+          if (companyDetails.logoUrl) {
+            addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 30, 10)
+          }
           doc.setFontSize(22)
           doc.setTextColor('#FFFFFF')
           doc.setFont('helvetica', 'bold')
@@ -266,7 +184,9 @@ const Invoices = () => {
           doc.setFillColor(accentColor)
           doc.rect(0, 0, 50, pageHeight, 'F')
           doc.setTextColor('#FFFFFF')
-          addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 22, 22)
+          if (companyDetails.logoUrl) {
+            addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 22, 22)
+          }
           doc.setFontSize(10)
           doc.setFont('helvetica', 'bold')
           doc.text(companyDetails.name, 25, 45, { align: 'center', maxWidth: 40 })
@@ -280,7 +200,9 @@ const Invoices = () => {
           drawWatermark()
         // fallthrough for other elements
         default: // classic, minimalist
-          addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 30, 10)
+          if (companyDetails.logoUrl) {
+            addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 30, 10)
+          }
           doc.setFontSize(20)
           doc.setFont('helvetica', 'bold')
           doc.setTextColor(accentColor)

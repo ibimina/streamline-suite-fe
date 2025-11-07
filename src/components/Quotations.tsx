@@ -51,19 +51,11 @@ const addCompanyLogoOrInitials = (
   x: number,
   y: number,
   width: number,
-  height: number,
-  backgroundColor: string = '#3B82F6'
+  height: number
 ) => {
-  let logoAdded = false
-
   // Try to add logo first
   if (companyDetails.logoUrl && companyDetails.logoUrl.startsWith('http')) {
-    try {
-      doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
-      logoAdded = true
-    } catch (logoError) {
-      console.warn('Could not load company logo:', logoError)
-    }
+    doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
   }
 }
 
@@ -168,14 +160,18 @@ const Quotations = () => {
       doc.setFillColor(accentColor)
       if (quotation.template === 'modern') {
         doc.rect(0, 0, pageWidth, 40, 'F')
-        addCompanyLogoOrInitials(doc, companyDetails, 15, 10, 20, 16, accentColor)
+        if (companyDetails.logoUrl) {
+          addCompanyLogoOrInitials(doc, companyDetails, 15, 10, 20, 16)
+        }
         doc.setFontSize(22)
         doc.setTextColor('#FFFFFF')
         doc.text('QUOTATION', pageWidth - 15, 25, { align: 'right' })
       } else {
         // Corporate
         doc.rect(0, 0, 45, pageHeight, 'F')
-        addCompanyLogoOrInitials(doc, companyDetails, 10, 15, 25, 18, accentColor)
+        if (companyDetails.logoUrl) {
+          addCompanyLogoOrInitials(doc, companyDetails, 10, 15, 25, 18)
+        }
         doc.setFontSize(10)
         doc.setTextColor('#FFFFFF')
         doc.text(companyDetails.name, 22.5, 40, { align: 'center' })
@@ -183,7 +179,9 @@ const Quotations = () => {
       }
     } else {
       // Classic, Minimalist, Creative
-      addCompanyLogoOrInitials(doc, companyDetails, 15, 15, 30, 20, accentColor)
+      if (companyDetails.logoUrl) {
+        addCompanyLogoOrInitials(doc, companyDetails, 15, 15, 30, 20)
+      }
       doc.setFontSize(22)
       doc.setTextColor(accentColor)
       doc.text('QUOTATION', pageWidth - 15, 25, { align: 'right' })

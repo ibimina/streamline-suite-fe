@@ -1,5 +1,4 @@
 import DashboardLayout from '@/layouts/DashboardLayout'
-import ReduxProvider from '@/providers/ReduxProvider'
 import '../globals.css'
 
 export const metadata = {
@@ -8,9 +7,5 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  return (
-    <ReduxProvider>
-      <DashboardLayout>{children}</DashboardLayout>
-    </ReduxProvider>
-  )
+  return <DashboardLayout>{children}</DashboardLayout>
 }
