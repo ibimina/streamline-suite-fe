@@ -18,12 +18,45 @@ import { setQuotations } from '@/store/slices/quotationSlice'
 import { setInvoiceToCreate } from '@/store/slices/invoiceSlice'
 import Image from 'next/image'
 import { defaultTerms } from './Invoices'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const ACCENT_COLORS: Record<AccentColor, string> = {
   teal: '#14B8A6',
   blue: '#3B82F6',
   crimson: '#DC2626',
   slate: '#64748B',
+}
+
+// Helper function to generate company initials
+const getCompanyInitials = (name: string): string => {
+  if (!name) return '..'
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length > 1) {
+    return `${words[0][0]}${words[1][0]}`.toUpperCase()
+  }
+  if (words[0]?.length > 1) {
+    return words[0].substring(0, 2).toUpperCase()
+  }
+  if (words[0]?.length === 1) {
+    return words[0][0].toUpperCase()
+  }
+  return '..'
+}
+
+// Helper function to add company logo or initials fallback
+const addCompanyLogoOrInitials = (
+  doc: jsPDF,
+  companyDetails: any,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => {
+  // Try to add logo first
+  if (companyDetails.logoUrl && companyDetails.logoUrl.startsWith('http')) {
+    doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
+  }
 }
 
 const StatusBadge: React.FC<{ status: QuotationStatus }> = ({ status }) => {
@@ -51,6 +84,8 @@ const Quotations = () => {
     accentColor: AccentColor
   } | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { quotations } = useAppSelector(state => state.quotation)
   const filteredQuotations = quotations.filter(
@@ -108,8 +143,13 @@ const Quotations = () => {
     setActiveDropdown(null)
   }
 
+  const showToastMessage = (message: string) => {
+    setToastMessage(message)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000) // Hide after 3 seconds
+  }
+
   const generatePdf = (quotation: Quotation) => {
-    const { jsPDF } = window.jspdf
     const doc = new jsPDF()
     const accentColor = ACCENT_COLORS[quotation.accentColor]
     const pageHeight = doc.internal.pageSize.getHeight()
@@ -120,14 +160,18 @@ const Quotations = () => {
       doc.setFillColor(accentColor)
       if (quotation.template === 'modern') {
         doc.rect(0, 0, pageWidth, 40, 'F')
-        if (companyDetails.logoUrl) doc.addImage(companyDetails.logoUrl, 'PNG', 15, 12, 24, 16)
+        if (companyDetails.logoUrl) {
+          addCompanyLogoOrInitials(doc, companyDetails, 15, 10, 20, 16)
+        }
         doc.setFontSize(22)
         doc.setTextColor('#FFFFFF')
         doc.text('QUOTATION', pageWidth - 15, 25, { align: 'right' })
       } else {
         // Corporate
         doc.rect(0, 0, 45, pageHeight, 'F')
-        if (companyDetails.logoUrl) doc.addImage(companyDetails.logoUrl, 'PNG', 10, 15, 25, 18)
+        if (companyDetails.logoUrl) {
+          addCompanyLogoOrInitials(doc, companyDetails, 10, 15, 25, 18)
+        }
         doc.setFontSize(10)
         doc.setTextColor('#FFFFFF')
         doc.text(companyDetails.name, 22.5, 40, { align: 'center' })
@@ -135,7 +179,9 @@ const Quotations = () => {
       }
     } else {
       // Classic, Minimalist, Creative
-      if (companyDetails.logoUrl) doc.addImage(companyDetails.logoUrl, 'PNG', 15, 15, 30, 20)
+      if (companyDetails.logoUrl) {
+        addCompanyLogoOrInitials(doc, companyDetails, 15, 15, 30, 20)
+      }
       doc.setFontSize(22)
       doc.setTextColor(accentColor)
       doc.text('QUOTATION', pageWidth - 15, 25, { align: 'right' })
@@ -145,18 +191,39 @@ const Quotations = () => {
     const startX = quotation.template === 'corporate' ? 55 : 15
 
     // Creative template watermark
-    if (quotation.template === 'creative' && companyDetails.logoUrl) {
-      doc.saveGraphicsState()
-      doc.setGState(new doc.GState({ opacity: 0.1 }))
-      doc.addImage(
-        companyDetails.logoUrl,
-        'PNG',
-        pageWidth / 4,
-        pageHeight / 3,
-        pageWidth / 2,
-        pageHeight / 3
-      )
-      doc.restoreGraphicsState()
+    if (quotation.template === 'creative') {
+      let watermarkAdded = false
+
+      if (companyDetails.logoUrl && companyDetails.logoUrl.startsWith('http')) {
+        try {
+          doc.saveGraphicsState()
+          doc.setGState(new (doc as any).GState({ opacity: 0.1 }))
+          doc.addImage(
+            companyDetails.logoUrl,
+            'PNG',
+            pageWidth / 4,
+            pageHeight / 3,
+            pageWidth / 2,
+            pageHeight / 3
+          )
+          doc.restoreGraphicsState()
+          watermarkAdded = true
+        } catch (logoError) {
+          console.warn('Could not load watermark logo:', logoError)
+        }
+      }
+
+      // Fallback to initials watermark
+      if (!watermarkAdded) {
+        const initials = getCompanyInitials(companyDetails.name || 'Company')
+        doc.saveGraphicsState()
+        doc.setGState(new (doc as any).GState({ opacity: 0.05 }))
+        doc.setFontSize(120)
+        doc.setTextColor(accentColor)
+        doc.setFont('helvetica', 'bold')
+        doc.text(initials, pageWidth / 2, pageHeight / 2, { align: 'center' })
+        doc.restoreGraphicsState()
+      }
     }
 
     // Company and Client Details
@@ -190,7 +257,7 @@ const Quotations = () => {
       `$${(item.quantity * item.unitPrice).toFixed(2)}`,
     ])
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: detailsY + 40,
       head: [['Description', 'Quantity', 'Unit Price', 'Total']],
       body: tableBody,
@@ -222,12 +289,21 @@ const Quotations = () => {
     doc.save(`Quotation-${quotation.id}.pdf`)
     setActiveDropdown(null)
   }
+
   const handleConvertToInvoice = (quotationId: string) => {
     const quotation = quotations.find(q => q.id === quotationId)
     if (quotation) {
+      const currentDate = new Date()
+      const dueDate = new Date(currentDate)
+      dueDate.setDate(currentDate.getDate() + 30) // Default 30 days payment term
+
       const newInvoice: Partial<Invoice> = {
+        id: `inv-${Date.now()}`,
         customerName: quotation.customerName,
         customerAddress: quotation.customerAddress,
+        date: currentDate.toISOString().split('T')[0],
+        dueDate: dueDate.toISOString().split('T')[0],
+        status: 'Draft' as any,
         items: quotation.items.map(item => ({
           id: `li-${Date.now()}-${Math.random()}`,
           description: item.description,
@@ -235,12 +311,17 @@ const Quotations = () => {
           unitPrice: item.unitPrice,
           sku: (item as any).sku, // Ensure SKU is carried over
         })),
+        subtotal: quotation.subtotal,
+        vat: quotation.vat,
+        total: quotation.total,
         terms: quotation.terms,
         quotationId: quotation.id,
         template: quotation.template,
         accentColor: quotation.accentColor,
       }
       dispatch(setInvoiceToCreate(newInvoice))
+      showToastMessage(`Quotation ${quotation.id} successfully converted to invoice!`)
+      setActiveDropdown(null)
     }
   }
   return (
@@ -410,6 +491,20 @@ const Quotations = () => {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
         />
+      )}
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div className='fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transition-all duration-300 ease-in-out transform animate-pulse'>
+          <CheckCircleIcon className='w-5 h-5' />
+          <span className='font-medium'>{toastMessage}</span>
+          <button
+            onClick={() => setShowToast(false)}
+            className='ml-2 text-white hover:text-gray-200 transition-colors'
+          >
+            <XIcon className='w-4 h-4' />
+          </button>
+        </div>
       )}
     </div>
   )
@@ -782,7 +877,13 @@ const QuotationPreviewModal: React.FC<{
               className='p-8 text-white rounded-t-lg flex justify-between items-center'
             >
               {companyDetails.logoUrl && (
-                <Image src={companyDetails.logoUrl} alt='Company Logo' className='h-16 w-auto' />
+                <Image
+                  src={companyDetails?.logoUrl}
+                  alt='Company Logo'
+                  className='h-16 w-auto'
+                  width={40}
+                  height={40}
+                />
               )}
               <h1 className='text-4xl font-bold uppercase'>Quotation</h1>
             </div>
@@ -790,11 +891,13 @@ const QuotationPreviewModal: React.FC<{
           <div className='p-8'>
             <div className='grid grid-cols-2 gap-8 mb-8'>
               <div>
-                {quotation.template !== 'modern' && companyDetails.logoUrl && (
+                {quotation.template !== 'modern' && companyDetails?.logoUrl && (
                   <Image
                     src={companyDetails.logoUrl}
                     alt='Company Logo'
                     className='h-16 w-auto mb-4'
+                    width={40}
+                    height={40}
                   />
                 )}
                 <p className='font-bold'>{companyDetails.name}</p>

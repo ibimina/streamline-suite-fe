@@ -59,6 +59,32 @@ export const mockQuotations: Quotation[] = [
     template: 'modern',
     accentColor: 'blue',
   },
+  {
+    id: 'q-2024-003',
+    customerName: 'Innovatech Ltd.',
+    customerAddress: '789 Innovation Drive, Austin, TX 78701',
+    date: '2024-07-20',
+    status: 'Accepted',
+    items: [
+      {
+        id: '1',
+        description: 'Custom Software Development',
+        quantity: 1,
+        sellingPricePercentage: 20,
+        costPrice: 5000,
+        unitPrice: 6000,
+        sku: '',
+      },
+    ],
+    vatRate: 7.5,
+    whtRate: 5,
+    subtotal: 6000,
+    vat: 450,
+    total: 6450,
+    terms: defaultTerms,
+    template: 'minimalist',
+    accentColor: 'crimson',
+  },
 ]
 // --- END MOCK DATA ---
 
