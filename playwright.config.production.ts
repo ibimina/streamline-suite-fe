@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Production Playwright configuration
+ * WebKit/Safari browsers are disabled in CI due to system dependency issues
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
@@ -33,29 +34,38 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    /* Test against mobile viewports. */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
-  ],
+  projects: (() => {
+    const baseProjects = [
+      {
+        name: 'chromium',
+        use: { ...devices['Desktop Chrome'] },
+      },
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+      },
+      {
+        name: 'Mobile Chrome',
+        use: { ...devices['Pixel 5'] },
+      },
+    ]
+
+    // Only add WebKit browsers if not in CI (due to system dependency issues)
+    if (!process.env.CI) {
+      baseProjects.push(
+        {
+          name: 'webkit',
+          use: { ...devices['Desktop Safari'] },
+        },
+        {
+          name: 'Mobile Safari',
+          use: { ...devices['iPhone 12'] },
+        }
+      )
+    }
+
+    return baseProjects
+  })(),
 
   /* Run your local dev server before starting the tests */
   webServer: {

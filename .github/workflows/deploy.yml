@@ -159,10 +159,14 @@ jobs:
         with:
           path: |
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-playwright-chromium-firefox-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🎭 Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: |
+          # Install browsers (excluding WebKit in CI)
+          npx playwright install chromium firefox
+          # Install system dependencies
+          npx playwright install-deps chromium firefox
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: �🏗️ Build application
@@ -170,18 +174,34 @@ jobs:
         env:
           NODE_ENV: production
 
-      - name: 🧪 Run production tests
-        run: npm run test:production
+      - name: 🧪 Run unit tests
+        run: npm run test:ci
 
       - name: 🚀 Start production server
         run: |
           npm run start &
+          SERVER_PID=$!
           sleep 15
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
         env:
           NODE_ENV: production
 
+      - name: 🔍 Check Playwright config
+        run: |
+          echo "CI environment detected: $CI"
+          npx playwright test --list --config=playwright.config.production.ts | head -20
+
       - name: 🌐 Run E2E tests
         run: npm run test:e2e:production
+
+      - name: 🛑 Stop production server
+        if: always()
+        run: |
+          if [ -n "$SERVER_PID" ]; then
+            kill $SERVER_PID || true
+          fi
+          # Also kill any remaining Node processes
+          pkill -f "next start" || true
 
   # Deploy to Vercel
   deploy-vercel:
