@@ -113,9 +113,9 @@ const Invoices = () => {
   const handleSaveInvoice = (invoice: Invoice) => {
     const index = invoices.findIndex(i => i.id === invoice.id)
     if (index > -1) {
-      setInvoices(invoices.map(i => (i.id === invoice.id ? invoice : i)))
+      dispatch(setInvoices(invoices.map(i => (i.id === invoice.id ? invoice : i))))
     } else {
-      setInvoices([invoice, ...invoices])
+      dispatch(setInvoices([invoice, ...invoices]))
     }
     setCreateModalOpen(false)
   }
@@ -128,7 +128,7 @@ const Invoices = () => {
 
   const confirmDelete = () => {
     if (selectedInvoice) {
-      setInvoices(invoices.filter(i => i.id !== selectedInvoice.id))
+      dispatch(setInvoices(invoices.filter(i => i.id !== selectedInvoice.id)))
       setDeleteModalOpen(false)
       setSelectedInvoice(null)
     }

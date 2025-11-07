@@ -5,6 +5,7 @@ export const defaultCompanyDetails: CompanyDetails = {
   name: 'Coutvel',
   address: '123 Business Avenue, Suite 100',
   contact: 'contact@yourcompany.com | (555) 555-5555',
+  tagline: 'Your trusted partner in business solutions.',
   logoUrl: '',
 }
 

@@ -1,7 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { Quotation, QuotationStatus, LineItem, Template, AccentColor, Invoice } from '../types'
-// Fix: Import `CheckCircleIcon` from `./Icons` to resolve reference error.
 import {
   DownloadIcon,
   EyeIcon,
@@ -113,9 +112,9 @@ const Quotations = () => {
   const handleSaveQuotation = (quotation: Quotation) => {
     const index = quotations.findIndex(q => q.id === quotation.id)
     if (index > -1) {
-      setQuotations(quotations.map(q => (q.id === quotation.id ? quotation : q)))
+      dispatch(setQuotations(quotations.map(q => (q.id === quotation.id ? quotation : q))))
     } else {
-      setQuotations([quotation, ...quotations])
+      dispatch(setQuotations([quotation, ...quotations]))
     }
     setCreateModalOpen(false)
   }

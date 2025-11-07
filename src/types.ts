@@ -4,10 +4,17 @@ export interface CompanyDetails {
   address: string
   contact: string
   logoUrl: string
+  tagline: string
 }
 
 // Used in Invoices, Quotations, TemplateSelectionModal
-export type Template = 'classic' | 'modern' | 'minimalist' | 'corporate' | 'creative'
+export type Template =
+  | 'classic'
+  | 'modern'
+  | 'minimalist'
+  | 'corporate'
+  | 'creative'
+  | 'professional'
 export type AccentColor = 'teal' | 'blue' | 'crimson' | 'slate'
 
 export interface LineItem {
