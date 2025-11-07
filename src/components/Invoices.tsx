@@ -1,6 +1,9 @@
 'use client'
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import Image from 'next/image'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 import { Invoice, InvoiceStatus, InvoiceLineItem, Template, AccentColor } from '../types'
 import {
   DownloadIcon,
@@ -16,13 +19,6 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { TemplateSelectionModal } from './TemplateSelectionModal'
 import { setInvoices, updateInvoiceStatus } from '@/store/slices/invoiceSlice'
 
-// Fix: Add declaration for jsPDF on the window object to resolve TypeScript error.
-declare global {
-  interface Window {
-    jspdf: any
-  }
-}
-
 // --- MOCK DATA ---
 // --- CONFIGURATION ---
 const VAT_RATE = 0.075 // 7.5%
@@ -31,6 +27,44 @@ const ACCENT_COLORS: Record<AccentColor, string> = {
   blue: '#3B82F6',
   crimson: '#DC2626',
   slate: '#64748B',
+}
+
+// Helper function to generate company initials
+const getCompanyInitials = (name: string): string => {
+  if (!name) return '..'
+  const words = name.trim().split(/\s+/).filter(Boolean)
+  if (words.length > 1) {
+    return `${words[0][0]}${words[1][0]}`.toUpperCase()
+  }
+  if (words[0]?.length > 1) {
+    return words[0].substring(0, 2).toUpperCase()
+  }
+  if (words[0]?.length === 1) {
+    return words[0][0].toUpperCase()
+  }
+  return '..'
+}
+
+// Helper function to add company logo or initials fallback
+const addCompanyLogoOrInitials = (
+  doc: jsPDF,
+  companyDetails: any,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) => {
+  let logoAdded = false
+
+  // Try to add logo first
+  if (companyDetails.logoUrl && companyDetails.logoUrl.startsWith('http')) {
+    try {
+      doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
+      logoAdded = true
+    } catch (logoError) {
+      console.warn('Could not load company logo:', logoError)
+    }
+  }
 }
 export const defaultTerms = `1. Payment is due within 30 days of the invoice date.
 2. Late payments are subject to a 1.5% monthly interest charge.
@@ -140,8 +174,8 @@ const Invoices = () => {
 
   const filteredInvoices = invoices.filter(
     i =>
-      i.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      i.customerName.toLowerCase().includes(searchTerm.toLowerCase())
+      i?.id?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
+      i?.customerName?.toLowerCase()?.includes(searchTerm?.toLowerCase())
   )
 
   useEffect(() => {
@@ -197,134 +231,132 @@ const Invoices = () => {
   }
 
   const generatePdf = (invoice: Invoice) => {
-    const { jsPDF } = window.jspdf
-    const doc = new jsPDF()
-    const accentColor = ACCENT_COLORS[invoice.accentColor]
-    const pageHeight = doc.internal.pageSize.height
-    const pageWidth = doc.internal.pageSize.width
+    try {
+      const doc = new jsPDF()
+      const accentColor = ACCENT_COLORS[invoice.accentColor]
+      const pageHeight = doc.internal.pageSize.height
+      const pageWidth = doc.internal.pageSize.width
 
-    const drawWatermark = () => {
-      doc.saveGraphicsState()
-      doc.setFontSize(80)
-      doc.setTextColor(150, 150, 150)
-      const gState = new doc.GState({ opacity: 0.08 })
-      doc.setGState(gState)
-      doc.text(companyDetails.name, pageWidth / 2, pageHeight / 2, {
-        align: 'center',
-        baseline: 'middle',
-        angle: -45,
+      const drawWatermark = () => {
+        doc.saveGraphicsState()
+        doc.setFontSize(80)
+        doc.setTextColor(150, 150, 150)
+        const gState = new (doc as any).GState({ opacity: 0.08 })
+        doc.setGState(gState)
+        doc.text(companyDetails.name, pageWidth / 2, pageHeight / 2, {
+          align: 'center',
+          baseline: 'middle',
+          angle: -45,
+        })
+        doc.restoreGraphicsState()
+      }
+
+      // Header
+      switch (invoice.template) {
+        case 'modern':
+          doc.setFillColor(accentColor)
+          doc.rect(0, 0, pageWidth, 40, 'F')
+          addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 30, 10)
+          doc.setFontSize(22)
+          doc.setTextColor('#FFFFFF')
+          doc.setFont('helvetica', 'bold')
+          doc.text('INVOICE', pageWidth - 14, 25, { align: 'right' })
+          break
+        case 'corporate':
+          doc.setFillColor(accentColor)
+          doc.rect(0, 0, 50, pageHeight, 'F')
+          doc.setTextColor('#FFFFFF')
+          addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 22, 22)
+          doc.setFontSize(10)
+          doc.setFont('helvetica', 'bold')
+          doc.text(companyDetails.name, 25, 45, { align: 'center', maxWidth: 40 })
+          doc.setFont('helvetica', 'normal')
+          const splitAddress = doc.splitTextToSize(companyDetails.address, 40)
+          doc.text(splitAddress, 25, 55, { align: 'center' })
+          const splitContact = doc.splitTextToSize(companyDetails.contact, 40)
+          doc.text(splitContact, 25, 75, { align: 'center' })
+          break
+        case 'creative':
+          drawWatermark()
+        // fallthrough for other elements
+        default: // classic, minimalist
+          addCompanyLogoOrInitials(doc, companyDetails, 14, 15, 30, 10)
+          doc.setFontSize(20)
+          doc.setFont('helvetica', 'bold')
+          doc.setTextColor(accentColor)
+          doc.text('INVOICE', pageWidth - 14, 25, { align: 'right' })
+          doc.setFont('helvetica', 'normal')
+          doc.setTextColor('#000000')
+          doc.setFontSize(10)
+          doc.text(companyDetails.name, 14, 32)
+          doc.text(companyDetails.address, 14, 37)
+          break
+      }
+
+      const contentX = invoice.template === 'corporate' ? 60 : 14
+      const contentWidth = invoice.template === 'corporate' ? pageWidth - 70 : pageWidth - 28
+
+      // Bill To and Invoice Details
+      doc.setTextColor('#000000')
+      doc.setFontSize(10)
+      doc.text('Bill To:', contentX, 70)
+      doc.text(invoice.customerName, contentX, 75)
+      doc.text(invoice.customerAddress, contentX, 80)
+
+      doc.text(`Invoice ID: ${invoice.id}`, contentX + contentWidth, 70, { align: 'right' })
+      doc.text(`Date: ${invoice.date}`, contentX + contentWidth, 75, { align: 'right' })
+      doc.setFont('helvetica', 'bold')
+      doc.text(`Due Date: ${invoice.dueDate}`, contentX + contentWidth, 80, { align: 'right' })
+      doc.setFont('helvetica', 'normal')
+
+      const tableColumn = ['#', 'Description', 'Quantity', 'SKU', 'Unit Price', 'Total']
+      const tableRows = invoice.items.map((item, index) => [
+        index + 1,
+        item.description ?? '',
+        item.quantity ?? 0,
+        item.sku ?? '',
+        `$${(item.unitPrice ?? 0).toFixed(2)}`,
+        `$${((item.quantity ?? 0) * (item.unitPrice ?? 0)).toFixed(2)}`,
+      ]) as (string | number)[][]
+
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 90,
+        theme: invoice.template === 'minimalist' ? 'grid' : 'striped',
+        headStyles: { fillColor: accentColor },
+        margin: { left: contentX },
       })
-      doc.restoreGraphicsState()
+
+      const finalY = (doc as any).lastAutoTable?.finalY || 200
+      doc.setFontSize(10)
+      doc.text(`Subtotal: $${invoice.subtotal.toFixed(2)}`, contentX + contentWidth, finalY + 10, {
+        align: 'right',
+      })
+      doc.text(
+        `VAT (${(VAT_RATE * 100).toFixed(1)}%): $${invoice.vat.toFixed(2)}`,
+        contentX + contentWidth,
+        finalY + 15,
+        { align: 'right' }
+      )
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`Total Due: $${invoice.total.toFixed(2)}`, contentX + contentWidth, finalY + 22, {
+        align: 'right',
+      })
+
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(10)
+      doc.text('Payment Terms:', contentX, finalY + 30)
+      const splitTerms = doc.splitTextToSize(invoice.terms, contentWidth)
+      doc.text(splitTerms, contentX, finalY + 35)
+
+      doc.save(`Invoice-${invoice.id}.pdf`)
+      setActiveDropdown(null)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Error generating PDF. Please try again.')
     }
-
-    // Header
-    switch (invoice.template) {
-      case 'modern':
-        doc.setFillColor(accentColor)
-        doc.rect(0, 0, pageWidth, 40, 'F')
-        if (companyDetails.logoUrl) {
-          doc.addImage(companyDetails.logoUrl, 'PNG', 14, 15, 30, 10)
-        }
-        doc.setFontSize(22)
-        doc.setTextColor('#FFFFFF')
-        doc.setFont('helvetica', 'bold')
-        doc.text('INVOICE', pageWidth - 14, 25, { align: 'right' })
-        break
-      case 'corporate':
-        doc.setFillColor(accentColor)
-        doc.rect(0, 0, 50, pageHeight, 'F')
-        doc.setTextColor('#FFFFFF')
-        if (companyDetails.logoUrl) {
-          doc.addImage(companyDetails.logoUrl, 'PNG', 14, 15, 22, 22)
-        }
-        doc.setFontSize(10)
-        doc.setFont('helvetica', 'bold')
-        doc.text(companyDetails.name, 25, 45, { align: 'center', maxWidth: 40 })
-        doc.setFont('helvetica', 'normal')
-        const splitAddress = doc.splitTextToSize(companyDetails.address, 40)
-        doc.text(splitAddress, 25, 55, { align: 'center' })
-        const splitContact = doc.splitTextToSize(companyDetails.contact, 40)
-        doc.text(splitContact, 25, 75, { align: 'center' })
-        break
-      case 'creative':
-        drawWatermark()
-      // fallthrough for other elements
-      default: // classic, minimalist
-        if (companyDetails.logoUrl) {
-          doc.addImage(companyDetails.logoUrl, 'PNG', 14, 15, 30, 10)
-        }
-        doc.setFontSize(20)
-        doc.setFont('helvetica', 'bold')
-        doc.setTextColor(accentColor)
-        doc.text('INVOICE', pageWidth - 14, 25, { align: 'right' })
-        doc.setFont('helvetica', 'normal')
-        doc.setTextColor('#000000')
-        doc.setFontSize(10)
-        doc.text(companyDetails.name, 14, 32)
-        doc.text(companyDetails.address, 14, 37)
-        break
-    }
-
-    const contentX = invoice.template === 'corporate' ? 60 : 14
-    const contentWidth = invoice.template === 'corporate' ? pageWidth - 70 : pageWidth - 28
-
-    // Bill To and Invoice Details
-    doc.setTextColor('#000000')
-    doc.setFontSize(10)
-    doc.text('Bill To:', contentX, 70)
-    doc.text(invoice.customerName, contentX, 75)
-    doc.text(invoice.customerAddress, contentX, 80)
-
-    doc.text(`Invoice ID: ${invoice.id}`, contentX + contentWidth, 70, { align: 'right' })
-    doc.text(`Date: ${invoice.date}`, contentX + contentWidth, 75, { align: 'right' })
-    doc.setFont('helvetica', 'bold')
-    doc.text(`Due Date: ${invoice.dueDate}`, contentX + contentWidth, 80, { align: 'right' })
-    doc.setFont('helvetica', 'normal')
-
-    const tableColumn = ['#', 'Description', 'Quantity', 'SKU', 'Unit Price', 'Total']
-    const tableRows = invoice.items.map((item, index) => [
-      index + 1,
-      item.description,
-      item.quantity,
-      item.sku,
-      `$${item.unitPrice.toFixed(2)}`,
-      `$${(item.quantity * item.unitPrice).toFixed(2)}`,
-    ])
-
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 90,
-      theme: invoice.template === 'minimalist' ? 'grid' : 'striped',
-      headStyles: { fillColor: accentColor },
-      margin: { left: contentX },
-    })
-
-    const finalY = doc.autoTable.previous.finalY
-    doc.setFontSize(10)
-    doc.text(`Subtotal: $${invoice.subtotal.toFixed(2)}`, contentX + contentWidth, finalY + 10, {
-      align: 'right',
-    })
-    doc.text(
-      `VAT (${(VAT_RATE * 100).toFixed(1)}%): $${invoice.vat.toFixed(2)}`,
-      contentX + contentWidth,
-      finalY + 15,
-      { align: 'right' }
-    )
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text(`Total Due: $${invoice.total.toFixed(2)}`, contentX + contentWidth, finalY + 22, {
-      align: 'right',
-    })
-
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(10)
-    doc.text('Payment Terms:', contentX, finalY + 30)
-    const splitTerms = doc.splitTextToSize(invoice.terms, contentWidth)
-    doc.text(splitTerms, contentX, finalY + 35)
-
-    doc.save(`Invoice-${invoice.id}.pdf`)
-    setActiveDropdown(null)
   }
 
   return (
@@ -371,15 +403,15 @@ const Invoices = () => {
                 className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
               >
                 <td className='px-6 py-4 font-medium'>
-                  {i.id}
-                  {i.quotationId && (
-                    <span className='block text-xs text-gray-500'>From {i.quotationId}</span>
+                  {i?.id}
+                  {i?.quotationId && (
+                    <span className='block text-xs text-gray-500'>From {i?.quotationId}</span>
                   )}
                 </td>
-                <td className='px-6 py-4'>{i.customerName}</td>
-                <td className='px-6 py-4 hidden md:table-cell'>{i.dueDate}</td>
+                <td className='px-6 py-4'>{i?.customerName}</td>
+                <td className='px-6 py-4 hidden md:table-cell'>{i?.dueDate}</td>
                 <td className='px-6 py-4 font-semibold'>
-                  ${i.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  ${i?.total?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </td>
                 <td className='px-6 py-4'>
                   <StatusBadge status={i.status} />
