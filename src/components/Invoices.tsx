@@ -44,18 +44,8 @@ const Invoices = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const [invoiceToCreate] = useState<Partial<Invoice> | null>(null)
-  const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    if (invoiceToCreate) {
-      // Defer state updates to the next tick to avoid synchronous state updates inside the effect
-      const timeoutId = window.setTimeout(() => {
-        setSelectedInvoice(null) // Ensure we are in create mode
-      }, 0)
-      return () => window.clearTimeout(timeoutId)
-    }
-  }, [invoiceToCreate])
+  const dispatch = useAppDispatch()
 
   const filteredInvoices = invoices.filter(
     i =>
@@ -226,6 +216,8 @@ const Invoices = () => {
           pdfData={selectedInvoice}
           onClose={() => setViewModalOpen(false)}
           documentTitle={`Invoice ${selectedInvoice.id}`}
+          documentType='Invoice'
+          title=''
         />
       )}
       {isDeleteModalOpen && (

@@ -41,13 +41,11 @@ const useGeneratePdf = () => {
 
         if (customTemplate) {
           try {
-            await generateCustomTemplatePDF(customTemplate, data, companyDetails, title)
-            // showToastMessage('PDF generated successfully!')
-            //   setActiveDropdown(null)
+            await generateCustomTemplatePDF(customTemplate, data, companyDetails, pdfType, title)
+
             return
           } catch (error) {
             console.error('Error generating custom template PDF:', error)
-            // showToastMessage('Error generating PDF with custom template')
             return
           }
         } else {
@@ -55,7 +53,6 @@ const useGeneratePdf = () => {
             'Custom template not found, available templates:',
             companyDetails?.customTemplates?.map(t => ({ id: t.id, name: t.name }))
           )
-          // showToastMessage('Custom template not found')
           return
         }
       case 'modern':
@@ -87,7 +84,6 @@ const useGeneratePdf = () => {
         break
       case 'creative':
         drawWatermark()
-      // fallthrough for other elements
       default: // classic, minimalist
         if (companyDetails.logoUrl) {
           addCompanyLogo(doc, companyDetails, 14, 15, 30, 10)

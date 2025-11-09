@@ -16,7 +16,9 @@ const PdfPreviewModal: React.FC<{
   pdfData: Invoice | Quotation
   onClose: () => void
   documentTitle: string
-}> = ({ pdfData, documentTitle, onClose }) => {
+  documentType: string
+  title: string
+}> = ({ pdfData, documentTitle, onClose, documentType, title }) => {
   const companyDetails = useAppSelector(state => state.company.details)
   const accentColor = ACCENT_COLORS[pdfData.accentColor]
 
@@ -80,14 +82,16 @@ const PdfPreviewModal: React.FC<{
 
     switch (pdfData.template) {
       case 'custom':
-        return <CustomTemplatePDFPreview pdfData={pdfData} />
+        return (
+          <CustomTemplatePDFPreview pdfData={pdfData} documentType={documentType} title={title} />
+        )
       case 'modern':
         return (
           <div className='bg-white dark:bg-gray-800'>
             <div style={{ backgroundColor: accentColor }} className='p-8 text-white'>
               <div className='flex justify-between items-start'>
                 {companyDetails.logoUrl && (
-                  <Image src={companyDetails.logoUrl} alt='Company Logo' className='h-12' />
+                  <Image src={companyDetails.logoUrl} alt='Company Logo' width={48} height={48} />
                 )}
                 <h2 className='text-4xl font-bold'>{documentTitle}</h2>
               </div>
@@ -125,7 +129,13 @@ const PdfPreviewModal: React.FC<{
           <div className='flex bg-white dark:bg-gray-800'>
             <div style={{ backgroundColor: accentColor }} className='w-1/4 p-8 text-white'>
               {companyDetails.logoUrl && (
-                <Image src={companyDetails.logoUrl} alt='Company Logo' className='h-12 mb-4' />
+                <Image
+                  src={companyDetails.logoUrl}
+                  alt='Company Logo'
+                  className=' mb-4'
+                  width={80}
+                  height={48}
+                />
               )}
               <h2 className='text-2xl font-bold mb-2'>{companyDetails.name}</h2>
             </div>
@@ -176,7 +186,13 @@ const PdfPreviewModal: React.FC<{
             <div className='flex justify-between items-start mb-6 relative'>
               <div>
                 {companyDetails.logoUrl && (
-                  <Image src={companyDetails.logoUrl} alt='Company Logo' className='h-10 mb-2' />
+                  <Image
+                    src={companyDetails.logoUrl}
+                    alt='Company Logo'
+                    className='mb-2'
+                    width={120}
+                    height={40}
+                  />
                 )}
                 <h2
                   className={`text-2xl font-bold ${pdfData.template === 'minimalist' ? '' : 'text-gray-900 dark:text-white'}`}

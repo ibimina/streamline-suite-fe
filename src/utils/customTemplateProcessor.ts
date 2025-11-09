@@ -8,6 +8,7 @@ import {
   Invoice,
   CompanyDetails,
 } from '../types'
+import { title } from 'process'
 
 export class CustomTemplateProcessor {
   private doc: jsPDF
@@ -351,20 +352,22 @@ export const generateCustomTemplatePDF = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: string
+  documentType: string,
+  title: string
 ): Promise<void> => {
-  const doc = await generateCustomTemplate(template, document, companyDetails, documentType)
+  const doc = await generateCustomTemplate(template, document, companyDetails, documentType, title)
 
   // Save the PDF
   const filename = `${documentType === 'Invoice' ? 'Invoice' : 'Quotation'}-${document.id}.pdf`
   doc.save(filename)
 }
-// generate
+// Helper function to generate a custom template PDF
 export const generateCustomTemplate = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: string
+  documentType: string,
+  title: string
 ) => {
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -407,7 +410,7 @@ export const generateCustomTemplate = async (
   doc.text(document.customerAddress, companyX, detailsY + 10)
 
   doc.setFontSize(12)
-  doc.text(`Quotation #: ${document.id}`, clientX, detailsY, { align: 'right' })
+  doc.text(`${title} #: ${document.id}`, clientX, detailsY, { align: 'right' })
   // doc.text(`Date: ${document.date}`, startX, detailsY + 32)
 
   // Centered document type title
@@ -426,36 +429,61 @@ export const generateCustomTemplate = async (
   } catch (err) {
     console.warn('Could not draw underline for title:', err)
   }
-  doc.text(documentType, centerX, detailsY + 35, { align: 'center' })
+  doc.text(title, centerX, detailsY + 35, { align: 'center' })
 
-  // Table
-  const tableBody = document.items.map((item, index) => [
-    (index + 1).toString(),
-    item.description,
-    item.quantity.toString(),
-    `$${item.unitPrice.toFixed(2)}`,
-    `$${(item.quantity * item.unitPrice).toFixed(2)}`,
-  ])
+  if (documentType === 'QUOTATION') {
+    const tableBody = document.items.map((item, index) => [
+      index + 1,
+      item.description,
+      item.quantity,
+      `$${item.unitPrice.toFixed(2)}`,
+      `$${(item.quantity * item.unitPrice).toFixed(2)}`,
+    ])
 
-  autoTable(doc, {
-    startY: detailsY + 40,
-    head: [['S/N', 'Description', 'Qty', 'Unit Price', 'Amount']],
-    body: tableBody,
-    theme: 'striped',
-    headStyles: {
-      fillColor: '#4a5568',
-      textColor: '#ffffff',
-      fontSize: 10,
-      fontStyle: 'bold',
-    },
-    bodyStyles: {
-      fontSize: 9,
-    },
-    margin: { left: startX, right: 15 },
-    styles: {
-      cellPadding: 3,
-    },
-  })
+    autoTable(doc, {
+      startY: 90,
+      head: [['#', 'Description', 'Quantity', 'Unit Price', 'Total']],
+      body: tableBody,
+      theme: 'striped',
+      headStyles: {
+        fillColor: '#4a5568',
+        textColor: '#ffffff',
+        fontSize: 10,
+        fontStyle: 'bold',
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      margin: { left: startX, right: 15 },
+    })
+  } else {
+    const tableColumn = ['#', 'Description', 'Quantity', 'SKU', 'Unit Price', 'Total']
+    const tableRows = document.items.map((item, index) => [
+      index + 1,
+      item.description ?? '',
+      item.quantity ?? 0,
+      item.sku ?? '',
+      `$${(item.unitPrice ?? 0).toFixed(2)}`,
+      `$${((item.quantity ?? 0) * (item.unitPrice ?? 0)).toFixed(2)}`,
+    ]) as (string | number)[][]
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 90,
+      theme: document.template === 'minimalist' ? 'grid' : 'striped',
+      headStyles: {
+        fillColor: '#4a5568',
+        textColor: '#ffffff',
+        fontSize: 10,
+        fontStyle: 'bold',
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      margin: { left: startX, right: 15 },
+    })
+  }
 
   // Totals
   const finalY = (doc as any).lastAutoTable.finalY + 10
@@ -494,10 +522,11 @@ export const generateCustomTemplatePDFBlob = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: string
+  documentType: string,
+  title: string
 ): Promise<Blob> => {
   // Return the PDF as blob instead of saving
-  const doc = await generateCustomTemplate(template, document, companyDetails, documentType)
+  const doc = await generateCustomTemplate(template, document, companyDetails, documentType, title)
 
   const pdfBlob = doc.output('blob')
   return pdfBlob

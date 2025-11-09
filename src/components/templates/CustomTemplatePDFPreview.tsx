@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 
 const CustomTemplatePDFPreview: React.FC<{
   pdfData: Quotation | Invoice
-}> = ({ pdfData }) => {
+  documentType: string
+  title: string
+}> = ({ pdfData, documentType, title }) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -38,7 +40,8 @@ const CustomTemplatePDFPreview: React.FC<{
           customTemplate,
           pdfData,
           companyDetails,
-          'REQUEST FOR QUOTATION'
+          documentType,
+          title
         )
 
         // Create object URL for preview
@@ -61,7 +64,7 @@ const CustomTemplatePDFPreview: React.FC<{
         URL.revokeObjectURL(currentPdfUrl)
       }
     }
-  }, [pdfData, companyDetails])
+  }, [pdfData, companyDetails, documentType, title])
 
   if (isLoading) {
     return (
