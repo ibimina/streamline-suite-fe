@@ -160,7 +160,7 @@ export const mockQuotations: Quotation[] = [
     vat: 412.5,
     total: 5912.5,
     terms: defaultTerms,
-    template: 'professional',
+    template: 'corporate',
     accentColor: 'blue',
   },
 ]

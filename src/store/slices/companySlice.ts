@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CompanyDetails } from '../../types'
+import { CompanyDetails, CustomTemplate } from '../../types'
 
 export const defaultCompanyDetails: CompanyDetails = {
   name: 'Coutvel',
@@ -7,6 +7,7 @@ export const defaultCompanyDetails: CompanyDetails = {
   contact: 'contact@yourcompany.com | (555) 555-5555',
   tagline: 'Your trusted partner in business solutions.',
   logoUrl: '',
+  customTemplates: [],
 }
 
 interface CompanyState {
@@ -91,6 +92,41 @@ const companySlice = createSlice({
     clearCompanyError: state => {
       state.error = null
     },
+    addCustomTemplate: (state, action: PayloadAction<CustomTemplate>) => {
+      if (!state.details.customTemplates) {
+        state.details.customTemplates = []
+      }
+      state.details.customTemplates.push(action.payload)
+      state.error = null
+
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('companyDetails', JSON.stringify(state.details))
+        } catch (error) {
+          console.error('Failed to save company details to localStorage', error)
+          state.error = 'Failed to save custom template'
+        }
+      }
+    },
+    removeCustomTemplate: (state, action: PayloadAction<string>) => {
+      if (state.details.customTemplates) {
+        state.details.customTemplates = state.details.customTemplates.filter(
+          template => template.id !== action.payload
+        )
+        state.error = null
+
+        // Save to localStorage
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('companyDetails', JSON.stringify(state.details))
+          } catch (error) {
+            console.error('Failed to save company details to localStorage', error)
+            state.error = 'Failed to remove custom template'
+          }
+        }
+      }
+    },
   },
 })
 
@@ -101,6 +137,8 @@ export const {
   setCompanyLoading,
   setCompanyError,
   clearCompanyError,
+  addCustomTemplate,
+  removeCustomTemplate,
 } = companySlice.actions
 
 export default companySlice.reducer

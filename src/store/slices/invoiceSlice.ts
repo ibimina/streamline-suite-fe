@@ -35,7 +35,7 @@ export const mockInvoices: Invoice[] = [
   {
     id: 'inv-2024-002',
     customerName: 'Global Corp',
-    customerAddress: '456 Business Blvd, New York, NY 10001',
+    customerAddress: '456 Buiness Blvd, New York, NY 10001',
     date: '2024-07-26',
     dueDate: '2024-08-25',
     status: 'Sent',
