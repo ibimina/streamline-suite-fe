@@ -2,8 +2,6 @@
 import React, { useState } from 'react'
 import { Template, AccentColor, CustomTemplate } from '../types'
 import { XIcon } from './Icons'
-import { useSelector } from 'react-redux'
-import { RootState } from '../store'
 import TemplateUpload from './TemplateUpload'
 import { useAppSelector } from '@/store/hooks'
 

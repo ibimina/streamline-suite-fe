@@ -42,18 +42,11 @@ const Invoices = () => {
   const [isViewModalOpen, setViewModalOpen] = useState(false)
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
-
-  const [showToast, setShowToast] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const [invoiceToCreate] = useState<Partial<Invoice> | null>(null)
   const dispatch = useAppDispatch()
-  const showToastMessage = (message: string) => {
-    setToastMessage(message)
-    setShowToast(true)
-    setTimeout(() => setShowToast(false), 3000) // Hide after 3 seconds
-  }
+
   useEffect(() => {
     if (invoiceToCreate) {
       // Defer state updates to the next tick to avoid synchronous state updates inside the effect

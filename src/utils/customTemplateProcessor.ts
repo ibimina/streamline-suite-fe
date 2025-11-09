@@ -485,7 +485,7 @@ export const generateCustomTemplate = async (
   doc.setTextColor(150)
   doc.text('Thank you', startX, finalY + 48)
   doc.text('Yours faithfully', startX, finalY + 52)
-  doc.text('Coutvel Nig Ltd', startX, finalY + 56)
+  doc.text(companyDetails.name, startX, finalY + 56)
 
   return doc
 }

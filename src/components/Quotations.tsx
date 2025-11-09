@@ -7,7 +7,6 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  XIcon,
   DotsVerticalIcon,
   PlusIcon,
   CheckCircleIcon,
@@ -37,8 +36,6 @@ const Quotations = () => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedQuotation, setSelectedQuotation] = useState<Quotation | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [showToast, setShowToast] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { quotations } = useAppSelector(state => state.quotation)
   const filteredQuotations = quotations.filter(
@@ -78,12 +75,6 @@ const Quotations = () => {
     setSelectedQuotation(quotation || null)
     setter(true)
     setActiveDropdown(null)
-  }
-
-  const showToastMessage = (message: string) => {
-    setToastMessage(message)
-    setShowToast(true)
-    setTimeout(() => setShowToast(false), 3000) // Hide after 3 seconds
   }
 
   const downloadPdf = async (quotation: Quotation) => {
@@ -193,15 +184,7 @@ const Quotations = () => {
                                 Edit
                               </button>
                             )}
-                            {q.status === 'Accepted' && (
-                              <button
-                                // onClick={() => handleConvertToInvoice(q.id)}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-teal-600 dark:text-teal-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold'
-                              >
-                                <CheckCircleIcon className='w-5 h-5 mr-3' />
-                                Convert to Invoice
-                              </button>
-                            )}
+
                             <button
                               onClick={() => downloadPdf(q)}
                               className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -242,20 +225,6 @@ const Quotations = () => {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
         />
-      )}
-
-      {/* Toast Notification */}
-      {showToast && (
-        <div className='fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transition-all duration-300 ease-in-out transform animate-pulse'>
-          <CheckCircleIcon className='w-5 h-5' />
-          <span className='font-medium'>{toastMessage}</span>
-          <button
-            onClick={() => setShowToast(false)}
-            className='ml-2 text-white hover:text-gray-200 transition-colors'
-          >
-            <XIcon className='w-4 h-4' />
-          </button>
-        </div>
       )}
     </div>
   )

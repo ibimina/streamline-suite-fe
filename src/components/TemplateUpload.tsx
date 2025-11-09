@@ -1,9 +1,7 @@
 import React, { useState, useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../store'
 import { CustomTemplate, TemplatePlaceholder } from '../types'
 import { addCustomTemplate } from '../store/slices/companySlice'
-import { useAppSelector } from '@/store/hooks'
+import { useAppDispatch } from '@/store/hooks'
 
 interface TemplateUploadProps {
   onClose: () => void
@@ -11,9 +9,7 @@ interface TemplateUploadProps {
 }
 
 export default function TemplateUpload({ onClose, onTemplateUploaded }: TemplateUploadProps) {
-  const dispatch = useDispatch()
-  const { details } = useAppSelector(state => state.company)
-
+  const dispatch = useAppDispatch()
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -23,7 +19,6 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
   const [currentStep, setCurrentStep] = useState<'upload' | 'placeholders' | 'preview'>('upload')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Helper function to convert File to base64
   const fileToBase64 = (file: File): Promise<string> => {
