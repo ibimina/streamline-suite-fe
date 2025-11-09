@@ -1,12 +1,12 @@
 'use client'
-import React, { useMemo } from 'react'
+import React, { Suspense, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setQuotations } from '@/store/slices/quotationSlice'
 import { QuotationForm } from '@/components/QuotationForm'
 import { Quotation } from '@/types'
 
-export default function EditQuotationPage() {
+function EditQuotationContent() {
   const router = useRouter()
   const params = useParams()
   const dispatch = useAppDispatch()
@@ -100,5 +100,13 @@ export default function EditQuotationPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function EditQuotationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditQuotationContent />
+    </Suspense>
   )
 }
