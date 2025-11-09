@@ -4,10 +4,75 @@ export interface CompanyDetails {
   address: string
   contact: string
   logoUrl: string
+  tagline: string
+  customTemplates?: CustomTemplate[]
 }
 
 // Used in Invoices, Quotations, TemplateSelectionModal
-export type Template = 'classic' | 'modern' | 'minimalist' | 'corporate' | 'creative'
+export type Template = 'classic' | 'modern' | 'minimalist' | 'corporate' | 'creative' | 'custom'
+
+// Custom template system
+export interface TemplatePlaceholder {
+  id: string
+  type: 'text' | 'image' | 'table' | 'currency' | 'date'
+  x: number
+  y: number
+  width?: number
+  height?: number
+  fontSize?: number
+  fontColor?: string
+  fontWeight?: 'normal' | 'bold'
+  align?: 'left' | 'center' | 'right'
+  maxLines?: number
+  format?: string // For dates and currency
+}
+
+export interface CustomTemplate {
+  id: string
+  name: string
+  description?: string
+  thumbnailUrl?: string
+  templateFile: File | string // PDF file or base64
+  placeholders: TemplatePlaceholder[]
+  dimensions: {
+    width: number
+    height: number
+  }
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TemplateMapping {
+  // Company placeholders
+  // companyName: string
+  // companyAddress: string
+  // companyContact: string
+  // companyLogo: string
+  // companyTagline?: string
+
+  // Document placeholders
+  documentType: string // 'QUOTATION' or 'INVOICE'
+  documentNumber: string
+  documentDate: string
+
+  // Customer placeholders
+  customerName: string
+  customerAddress: string
+
+  // Items table placeholder
+  itemsTable: string
+
+  // Totals placeholders
+  subtotal: string
+  vat: string
+  vatRate: string
+  total: string
+
+  // Additional placeholders
+  terms: string
+  notes?: string
+  watermark?: string
+}
 export type AccentColor = 'teal' | 'blue' | 'crimson' | 'slate'
 
 export interface LineItem {
@@ -41,6 +106,7 @@ export interface Quotation {
   terms: string
   template: Template
   accentColor: AccentColor
+  customTemplateId?: string // For custom templates
 }
 
 // --- Invoice Types ---
@@ -67,6 +133,7 @@ export interface Invoice {
   quotationId?: string
   template: Template
   accentColor: AccentColor
+  customTemplateId?: string // For custom templates
 }
 
 // --- User & Staff Types ---

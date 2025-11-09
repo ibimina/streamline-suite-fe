@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   HomeIcon,
   ClipboardListIcon,
@@ -16,6 +16,10 @@ import {
   LogoutIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
+  PlusIcon,
+  EyeIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
 } from './Icons'
 import Logo from './Logo'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -41,21 +45,48 @@ export type View =
   | 'Admin'
   | 'Settings'
 
-const navigationItems: { name: View; icon: React.FC<React.SVGProps<SVGSVGElement>> }[] = [
-  { name: 'Dashboard', icon: HomeIcon },
-  { name: 'Quotations', icon: ClipboardListIcon },
-  { name: 'Invoices', icon: DocumentTextIcon },
-  { name: 'Inventory', icon: CollectionIcon },
-  { name: 'Expenses', icon: ReceiptRefundIcon },
-  { name: 'Analytics', icon: ChartPieIcon },
-  { name: 'Staff', icon: BriefcaseIcon },
-  { name: 'Payroll', icon: CashIcon },
-  { name: 'Taxes', icon: ReceiptTaxIcon },
+interface NavigationSubItem {
+  name: string
+  href: string
+  icon: React.FC<React.SVGProps<SVGSVGElement>>
+}
+
+interface NavigationItem {
+  name: View
+  icon: React.FC<React.SVGProps<SVGSVGElement>>
+  href?: string
+  subItems?: NavigationSubItem[]
+}
+
+const navigationItems: NavigationItem[] = [
+  { name: 'Dashboard', icon: HomeIcon, href: '/dashboard' },
+  {
+    name: 'Quotations',
+    icon: ClipboardListIcon,
+    subItems: [
+      { name: 'View All', href: '/quotations', icon: EyeIcon },
+      { name: 'Create New', href: '/quotations/create', icon: PlusIcon },
+    ],
+  },
+  {
+    name: 'Invoices',
+    icon: DocumentTextIcon,
+    subItems: [
+      { name: 'View All', href: '/invoices', icon: EyeIcon },
+      { name: 'Create New', href: '/invoices/create', icon: PlusIcon },
+    ],
+  },
+  { name: 'Inventory', icon: CollectionIcon, href: '/inventory' },
+  { name: 'Expenses', icon: ReceiptRefundIcon, href: '/expenses' },
+  { name: 'Analytics', icon: ChartPieIcon, href: '/analytics' },
+  { name: 'Staff', icon: BriefcaseIcon, href: '/staff' },
+  { name: 'Payroll', icon: CashIcon, href: '/payroll' },
+  { name: 'Taxes', icon: ReceiptTaxIcon, href: '/taxes' },
 ]
 
-const secondaryNavigationItems: { name: View; icon: React.FC<React.SVGProps<SVGSVGElement>> }[] = [
-  { name: 'Admin', icon: ShieldCheckIcon },
-  { name: 'Settings', icon: CogIcon },
+const secondaryNavigationItems: NavigationItem[] = [
+  { name: 'Admin', icon: ShieldCheckIcon, href: '/admin' },
+  { name: 'Settings', icon: CogIcon, href: '/settings' },
 ]
 
 const Sidebar = () => {
@@ -63,18 +94,80 @@ const Sidebar = () => {
   const { theme, currentPage, isMobileSidebarOpen, isDesktopSidebarCollapsed } = useAppSelector(
     state => state.ui
   )
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
+
+  const toggleExpanded = (itemName: string) => {
+    setExpandedItems(prev =>
+      prev.includes(itemName) ? prev.filter(name => name !== itemName) : [...prev, itemName]
+    )
+  }
   const onLogout = () => {
-    // Dispatch logout actionisMobileSidebarOpen
+    // Dispatch logout action
     dispatch(logout())
   }
 
-  const NavLink: React.FC<{
-    item: { name: View; icon: React.FC<React.SVGProps<SVGSVGElement>> }
-  }> = ({ item }) => {
+  const NavLink: React.FC<{ item: NavigationItem }> = ({ item }) => {
     const isActive = currentPage?.toLowerCase() === item?.name?.toLowerCase()
+    const isExpanded = expandedItems.includes(item.name)
+    const hasSubItems = item.subItems && item.subItems.length > 0
+
+    if (hasSubItems) {
+      return (
+        <div>
+          <button
+            onClick={() => !isDesktopSidebarCollapsed && toggleExpanded(item.name)}
+            className={`w-full flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 group ${
+              isActive
+                ? 'bg-teal-500 text-white shadow-md'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            } ${isDesktopSidebarCollapsed ? 'justify-center' : 'justify-between'}`}
+            title={isDesktopSidebarCollapsed ? item.name : undefined}
+          >
+            <div className='flex items-center'>
+              <item.icon
+                className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-gray-400 dark:text-gray-400'} ${!isDesktopSidebarCollapsed ? 'mr-3' : ''}`}
+              />
+              {!isDesktopSidebarCollapsed && <span>{item.name}</span>}
+            </div>
+            {!isDesktopSidebarCollapsed && (
+              <div className='flex items-center'>
+                {isExpanded ? (
+                  <ChevronDownIcon className='w-4 h-4' />
+                ) : (
+                  <ChevronRightIcon className='w-4 h-4' />
+                )}
+              </div>
+            )}
+          </button>
+
+          {/* Sub-items */}
+          {!isDesktopSidebarCollapsed && isExpanded && (
+            <div className='ml-6 mt-1 space-y-1'>
+              {item.subItems?.map(subItem => (
+                <Link
+                  key={subItem.name}
+                  href={subItem.href}
+                  onClick={() => {
+                    dispatch(setCurrentPage(item.name))
+                    if (isMobileSidebarOpen) {
+                      dispatch(setMobileSidebarOpen(false))
+                    }
+                  }}
+                  className='flex items-center px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200'
+                >
+                  <subItem.icon className='w-4 h-4 mr-3 shrink-0' />
+                  {subItem.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
     return (
       <Link
-        href={`/${item?.name?.toLowerCase()}`}
+        href={item.href || `/${item?.name?.toLowerCase()}`}
         onClick={() => {
           dispatch(setCurrentPage(item?.name))
           if (isMobileSidebarOpen) {
