@@ -4,7 +4,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setQuotations } from '@/store/slices/quotationSlice'
 import { QuotationForm } from '@/components/QuotationForm'
-import { Quotation, Template, AccentColor, CustomTemplate } from '@/types'
+import { Quotation } from '@/types'
 
 export default function EditQuotationPage() {
   const router = useRouter()

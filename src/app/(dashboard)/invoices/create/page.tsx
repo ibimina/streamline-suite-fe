@@ -1,6 +1,6 @@
 'use client'
-import React, { useState, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setInvoices } from '@/store/slices/invoiceSlice'
 import { InvoiceForm } from '@/components/InvoiceForm'
@@ -18,26 +18,6 @@ export default function CreateInvoicePage() {
     accentColor: AccentColor
     customTemplate?: CustomTemplate
   } | null>(null)
-
-  // Derive initial template config from invoiceToCreate
-  // const initialTemplateConfig = useMemo(() => {
-  //     if (invoiceToCreate) {
-  //         return {
-  //             template: invoiceToCreate.template || 'classic',
-  //             accentColor: invoiceToCreate.accentColor || 'teal',
-  //             customTemplate: undefined // TODO: Get from customTemplateId
-  //         }
-  //     }
-  //     return null
-  // }, [invoiceToCreate])
-
-  // Set initial config if we have invoiceToCreate
-  // React.useEffect(() => {
-  //     if (initialTemplateConfig && !templateConfig) {
-  //         setTemplateConfig(initialTemplateConfig)
-  //         setShowTemplateSelection(false)
-  //     }
-  // }, [initialTemplateConfig, templateConfig])
 
   const handleTemplateSelected = (
     template: Template,
