@@ -1,12 +1,12 @@
 'use client'
-import React, { useMemo } from 'react'
+import React, { Suspense, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setInvoices } from '@/store/slices/invoiceSlice'
 import { InvoiceForm } from '@/components/InvoiceForm'
 import { Invoice } from '@/types'
 
-export default function EditInvoicePage() {
+function EditInvoiceContent() {
   const router = useRouter()
   const params = useParams()
   const dispatch = useAppDispatch()
@@ -98,5 +98,13 @@ export default function EditInvoicePage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function EditInvoicePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditInvoiceContent />
+    </Suspense>
   )
 }
