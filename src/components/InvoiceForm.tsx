@@ -13,7 +13,7 @@ import { defaultTerms } from './Invoices'
 
 interface InvoiceFormProps {
   invoice: Partial<Invoice> | null
-  templateConfig: {
+  templateConfig?: {
     template: Template
     accentColor: AccentColor
     customTemplate?: CustomTemplate
@@ -55,9 +55,9 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
     ],
     terms: invoice?.terms || defaultTerms,
     quotationId: invoice?.quotationId,
-    template: invoice?.template || templateConfig.template,
-    accentColor: invoice?.accentColor || templateConfig.accentColor,
-    customTemplateId: invoice?.customTemplateId || templateConfig.customTemplate?.id,
+    template: invoice?.template || templateConfig?.template,
+    accentColor: invoice?.accentColor || templateConfig?.accentColor,
+    customTemplateId: invoice?.customTemplateId || templateConfig?.customTemplate?.id,
   })
 
   // Calculate derived values using useMemo

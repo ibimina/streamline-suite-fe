@@ -13,7 +13,7 @@ import { defaultTerms } from './Invoices'
 
 interface QuotationFormProps {
   quotation: Quotation | null
-  templateConfig: {
+  templateConfig?: {
     template: Template
     accentColor: AccentColor
     customTemplate?: CustomTemplate
@@ -51,9 +51,9 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
     terms: quotation?.terms || defaultTerms,
     vatRate: quotation?.vatRate || 7.5,
     whtRate: quotation?.whtRate || 5,
-    template: quotation?.template || templateConfig.template,
-    accentColor: quotation?.accentColor || templateConfig.accentColor,
-    customTemplateId: quotation?.customTemplateId || templateConfig.customTemplate?.id,
+    template: quotation?.template || templateConfig?.template,
+    accentColor: quotation?.accentColor || templateConfig?.accentColor,
+    customTemplateId: quotation?.customTemplateId || templateConfig?.customTemplate?.id,
   })
 
   // Calculate derived values using useMemo
@@ -106,7 +106,7 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData)
+    onSave(formData as Quotation)
   }
 
   return (

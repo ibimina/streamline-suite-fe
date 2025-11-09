@@ -186,7 +186,7 @@ const Quotations = () => {
                             </button>
                             {(q.status === 'Draft' || q.status === 'Sent') && (
                               <button
-                                onClick={() => router.push(`/quotations/edit/${q.id}`)}
+                                onClick={() => router.push(`/quotations/${q.id}`)}
                                 className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                               >
                                 <PencilIcon className='w-5 h-5 mr-3' />
