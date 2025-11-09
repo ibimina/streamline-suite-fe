@@ -479,7 +479,7 @@ export const generateCustomTemplate = async (
   doc.setFont('helvetica', 'normal')
   doc.text(document.terms, startX, finalY + 35, { maxWidth: pageWidth - startX - 15 })
 
-  //closing greetings
+  // Closing greetings.
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
   doc.setTextColor(150)
