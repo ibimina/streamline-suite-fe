@@ -352,13 +352,13 @@ export const generateCustomTemplatePDF = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: string,
+  documentType: 'QUOTATION' | 'INVOICE',
   title: string
 ): Promise<void> => {
   const doc = await generateCustomTemplate(template, document, companyDetails, documentType, title)
 
   // Save the PDF
-  const filename = `${documentType === 'Invoice' ? 'Invoice' : 'Quotation'}-${document.id}.pdf`
+  const filename = `${documentType === 'INVOICE' ? 'Invoice' : 'Quotation'}-${document.id}.pdf`
   doc.save(filename)
 }
 // Helper function to generate a custom template PDF
@@ -366,7 +366,7 @@ export const generateCustomTemplate = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: string,
+  documentType: 'QUOTATION' | 'INVOICE',
   title: string
 ) => {
   const doc = new jsPDF()
@@ -431,7 +431,7 @@ export const generateCustomTemplate = async (
   }
   doc.text(title, centerX, detailsY + 28, { align: 'center' })
 
-  if (documentType === 'Quotation') {
+  if (documentType === 'QUOTATION') {
     const tableBody = document.items.map((item, index) => [
       index + 1,
       item.description,
@@ -522,7 +522,7 @@ export const generateCustomTemplatePDFBlob = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: string,
+  documentType: 'QUOTATION' | 'INVOICE',
   title: string
 ): Promise<Blob> => {
   // Return the PDF as blob instead of saving
