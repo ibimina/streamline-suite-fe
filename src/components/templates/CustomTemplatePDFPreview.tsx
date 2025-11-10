@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 const CustomTemplatePDFPreview: React.FC<{
   pdfData: Quotation | Invoice
-  documentType: string
+  documentType: 'QUOTATION' | 'INVOICE'
   title: string
 }> = ({ pdfData, documentType, title }) => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)

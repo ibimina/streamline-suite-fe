@@ -16,7 +16,7 @@ const PdfPreviewModal: React.FC<{
   pdfData: Invoice | Quotation
   onClose: () => void
   documentTitle: string
-  documentType: string
+  documentType: 'INVOICE' | 'QUOTATION'
   title: string
 }> = ({ pdfData, documentTitle, onClose, documentType, title }) => {
   const companyDetails = useAppSelector(state => state.company.details)
@@ -105,9 +105,7 @@ const PdfPreviewModal: React.FC<{
                 </div>
                 <div className='text-right'>
                   <p>
-                    <span className='font-semibold'>
-                      {documentTitle === 'INVOICE' ? 'Invoice' : 'Quotation'} ID:{' '}
-                    </span>
+                    <span className='font-semibold'>{documentType} ID: </span>
                     {pdfData.id}
                   </p>
                   <p>
@@ -151,9 +149,7 @@ const PdfPreviewModal: React.FC<{
                 </div>
                 <div className='text-right'>
                   <p>
-                    <span className='font-semibold'>
-                      {documentTitle === 'INVOICE' ? 'Invoice' : 'Quotation'} ID:{' '}
-                    </span>
+                    <span className='font-semibold'>{documentType} ID: </span>
                     {pdfData.id}
                   </p>
                   <p>
@@ -216,9 +212,7 @@ const PdfPreviewModal: React.FC<{
               </div>
               <div className='text-right'>
                 <p>
-                  <span className='font-semibold'>
-                    {documentTitle === 'INVOICE' ? 'Invoice' : 'Quotation'} ID:{' '}
-                  </span>
+                  <span className='font-semibold'>{documentType} ID: </span>
                   {pdfData.id}
                 </p>
                 <p>

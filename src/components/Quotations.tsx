@@ -217,7 +217,7 @@ const Quotations = () => {
           pdfData={selectedQuotation}
           onClose={() => setViewModalOpen(false)}
           documentTitle={`Quotation ${selectedQuotation.id}`}
-          documentType='Quotation'
+          documentType='QUOTATION'
           title={`REQUEST FOR QUOTATION`}
         />
       )}
