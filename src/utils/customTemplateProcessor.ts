@@ -410,7 +410,7 @@ export const generateCustomTemplate = async (
   doc.text(document.customerAddress, companyX, detailsY + 10)
 
   doc.setFontSize(12)
-  doc.text(`${title} #: ${document.id}`, clientX, detailsY, { align: 'right' })
+  doc.text(`${documentType} #: ${document.id}`, clientX, detailsY, { align: 'right' })
   // doc.text(`Date: ${document.date}`, startX, detailsY + 32)
 
   // Centered document type title
@@ -421,17 +421,17 @@ export const generateCustomTemplate = async (
 
   // Draw an underline for the centered document title
   try {
-    const textWidth = doc.getTextWidth(documentType)
-    const underlineY = detailsY + 37 // a few points below the text baseline
+    const textWidth = doc.getTextWidth(title)
+    const underlineY = detailsY + 30 // a few points below the text baseline
     doc.setLineWidth(0.8)
     doc.setDrawColor('#333333')
     doc.line(centerX - textWidth / 2, underlineY, centerX + textWidth / 2, underlineY)
   } catch (err) {
     console.warn('Could not draw underline for title:', err)
   }
-  doc.text(title, centerX, detailsY + 35, { align: 'center' })
+  doc.text(title, centerX, detailsY + 28, { align: 'center' })
 
-  if (documentType === 'QUOTATION') {
+  if (documentType === 'Quotation') {
     const tableBody = document.items.map((item, index) => [
       index + 1,
       item.description,
@@ -441,7 +441,7 @@ export const generateCustomTemplate = async (
     ])
 
     autoTable(doc, {
-      startY: 90,
+      startY: 110,
       head: [['#', 'Description', 'Quantity', 'Unit Price', 'Total']],
       body: tableBody,
       theme: 'striped',
@@ -470,7 +470,7 @@ export const generateCustomTemplate = async (
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 90,
+      startY: 110,
       theme: document.template === 'minimalist' ? 'grid' : 'striped',
       headStyles: {
         fillColor: '#4a5568',

@@ -106,7 +106,7 @@ const PdfPreviewModal: React.FC<{
                 <div className='text-right'>
                   <p>
                     <span className='font-semibold'>
-                      {documentTitle === 'INVOICE' ? 'Invoice' : 'Quotation'} ID:{' '}
+                      {documentType === 'Invoice' ? 'Invoice' : 'Quotation'} ID:{' '}
                     </span>
                     {pdfData.id}
                   </p>
@@ -152,7 +152,7 @@ const PdfPreviewModal: React.FC<{
                 <div className='text-right'>
                   <p>
                     <span className='font-semibold'>
-                      {documentTitle === 'INVOICE' ? 'Invoice' : 'Quotation'} ID:{' '}
+                      {documentType === 'Invoice' ? 'Invoice' : 'Quotation'} ID:{' '}
                     </span>
                     {pdfData.id}
                   </p>
@@ -217,7 +217,7 @@ const PdfPreviewModal: React.FC<{
               <div className='text-right'>
                 <p>
                   <span className='font-semibold'>
-                    {documentTitle === 'INVOICE' ? 'Invoice' : 'Quotation'} ID:{' '}
+                    {documentType === 'Invoice' ? 'Invoice' : 'Quotation'} ID:{' '}
                   </span>
                   {pdfData.id}
                 </p>
