@@ -25,7 +25,7 @@ jobs:
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: 🔍 Check for updates
@@ -104,7 +104,7 @@ jobs:
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: 📥 Install dependencies
@@ -176,18 +176,3 @@ jobs:
                 labels: ['security', 'vulnerability', 'high-priority']
               });
             }
-
-      - name: 📢 Notify team about vulnerabilities
-        if: steps.audit.outputs.vulnerabilities_found == 'true'
-        uses: 8398a7/action-slack@v3
-        with:
-          status: 'warning'
-          channel: '#security'
-          username: 'Security Bot'
-          icon_emoji: ':warning:'
-          text: |
-            🛡️ Security Alert: ${{ steps.audit.outputs.vulnerability_count }} vulnerabilities detected in Streamline Suite dependencies.
-
-            Please review the security issue created in GitHub and take appropriate action.
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SECURITY_SLACK_WEBHOOK_URL }}

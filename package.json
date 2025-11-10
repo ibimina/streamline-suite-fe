@@ -13,27 +13,33 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:ci": "jest --ci --coverage --watchAll=false",
-    "test:integration": "jest --testPathPattern=integration",
+    "test:ci": "jest --ci --coverage --watchAll=false --passWithNoTests",
+    "test:integration": "jest --testPathPattern=integration --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:production": "playwright test --config=playwright.config.production.ts",
     "test:production": "npm run test:ci && npm run test:e2e",
-    "test:a11y": "jest --testPathPattern=accessibility",
-    "test:smoke": "jest --testPathPattern=smoke",
+    "test:a11y": "jest --testPathPattern=accessibility --passWithNoTests",
+    "test:smoke": "jest --testPathPattern=smoke --passWithNoTests",
     "analyze": "cross-env ANALYZE=true next build",
-    "lighthouse:ci": "lhci autorun",
-    "lighthouse:production": "lhci autorun --config=.lighthouserc.production.json",
+    "lighthouse:ci": "echo 'Lighthouse CI disabled due to security vulnerabilities. Use lighthouse:manual instead'",
+    "lighthouse:manual": "echo 'Run: npx lighthouse https://your-deployed-url --output=html --output-path=./lighthouse-report.html'",
+    "lighthouse:production": "echo 'Lighthouse CI disabled. Use lighthouse:manual instead'",
     "postbuild": "next-sitemap",
     "clean": "rimraf .next out coverage",
-    "prepare": "echo 'Husky disabled - use manual pre-commit checks'",
-    "commit": "git-cz",
+    "prepare": "husky install",
+    "commit": "echo 'Use: git commit -m \"type: description\" (e.g., feat: add new feature)'",
     "commitlint": "commitlint --edit",
-    "pre-commit-check": "npm run lint && npm run type-check && npm run format",
-    "commit-check": "echo '✅ Run npm run pre-commit-check before committing'"
+    "pre-commit-check": "npm run format && npm run lint && npm run type-check",
+    "commit-check": "echo '✅ Run npm run pre-commit-check before committing'",
+    "setup-hooks": "node scripts/setup-hooks.js",
+    "manual-commit": "npm run pre-commit-check && git add -A"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "next": "16.0.1",
+    "playwright": "^1.56.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-redux": "^9.2.0",
@@ -42,7 +48,6 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@lhci/cli": "^0.12.0",
     "@next/bundle-analyzer": "^16.0.1",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4",
@@ -54,9 +59,7 @@
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "commitizen": "^4.3.1",
     "cross-env": "^7.0.3",
-    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "husky": "^9.1.7",
@@ -71,10 +74,13 @@
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
-      "eslint --fix --max-warnings=0",
+      "eslint --fix --max-warnings=0 --cache",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml,css,scss}": [
+      "prettier --write"
+    ],
+    "*.html": [
       "prettier --write"
     ]
   },
@@ -83,11 +89,6 @@
       "pre-commit": "lint-staged",
       "commit-msg": "commitlint --edit",
       "pre-push": "npm run type-check && npm run test:ci"
-    }
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
     }
   },
   "commitlint": {

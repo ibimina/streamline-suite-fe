@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /404
+
+# Host
+Host: https://streamline-suite.vercel.app
+
+# Sitemaps
+Sitemap: https://streamline-suite.vercel.app/sitemap.xml

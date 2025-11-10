@@ -25,7 +25,7 @@ assignees: ''
 - [ ] 🧪 Testing
 - [ ] 🚀 Deployment
 - [ ] 🤝 Contributing Process
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 🔍 Context
 
@@ -43,7 +43,7 @@ assignees: ''
 - [ ] CONTRIBUTING.md
 - [ ] Code comments
 - [ ] GitHub Issues/Discussions
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 💭 Expected Outcome
 

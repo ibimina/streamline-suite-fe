@@ -59,7 +59,7 @@ assignees: ''
 - [ ] Settings
 - [ ] Theme System
 - [ ] Navigation/Sidebar
-- [ ] Other: ****\_\_\_****
+- [ ] Other: \***\*\_\_\_\*\***
 
 ## 📝 Additional Context
 
