@@ -352,13 +352,13 @@ export const generateCustomTemplatePDF = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: 'QUOTATION' | 'INVOICE',
+  documentType: string,
   title: string
 ): Promise<void> => {
   const doc = await generateCustomTemplate(template, document, companyDetails, documentType, title)
 
   // Save the PDF
-  const filename = `${documentType === 'INVOICE' ? 'Invoice' : 'Quotation'}-${document.id}.pdf`
+  const filename = `${documentType === 'Invoice' ? 'Invoice' : 'Quotation'}-${document.id}.pdf`
   doc.save(filename)
 }
 // Helper function to generate a custom template PDF
@@ -366,7 +366,7 @@ export const generateCustomTemplate = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: 'QUOTATION' | 'INVOICE',
+  documentType: string,
   title: string
 ) => {
   const doc = new jsPDF()
@@ -410,7 +410,7 @@ export const generateCustomTemplate = async (
   doc.text(document.customerAddress, companyX, detailsY + 10)
 
   doc.setFontSize(12)
-  doc.text(`${documentType} #: ${document.id}`, clientX, detailsY, { align: 'right' })
+  doc.text(`${title} #: ${document.id}`, clientX, detailsY, { align: 'right' })
   // doc.text(`Date: ${document.date}`, startX, detailsY + 32)
 
   // Centered document type title
@@ -421,15 +421,15 @@ export const generateCustomTemplate = async (
 
   // Draw an underline for the centered document title
   try {
-    const textWidth = doc.getTextWidth(title)
-    const underlineY = detailsY + 30 // a few points below the text baseline
+    const textWidth = doc.getTextWidth(documentType)
+    const underlineY = detailsY + 37 // a few points below the text baseline
     doc.setLineWidth(0.8)
     doc.setDrawColor('#333333')
     doc.line(centerX - textWidth / 2, underlineY, centerX + textWidth / 2, underlineY)
   } catch (err) {
     console.warn('Could not draw underline for title:', err)
   }
-  doc.text(title, centerX, detailsY + 28, { align: 'center' })
+  doc.text(title, centerX, detailsY + 35, { align: 'center' })
 
   if (documentType === 'QUOTATION') {
     const tableBody = document.items.map((item, index) => [
@@ -441,7 +441,7 @@ export const generateCustomTemplate = async (
     ])
 
     autoTable(doc, {
-      startY: 110,
+      startY: 90,
       head: [['#', 'Description', 'Quantity', 'Unit Price', 'Total']],
       body: tableBody,
       theme: 'striped',
@@ -470,7 +470,7 @@ export const generateCustomTemplate = async (
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 110,
+      startY: 90,
       theme: document.template === 'minimalist' ? 'grid' : 'striped',
       headStyles: {
         fillColor: '#4a5568',
@@ -522,7 +522,7 @@ export const generateCustomTemplatePDFBlob = async (
   template: CustomTemplate,
   document: Quotation | Invoice,
   companyDetails: CompanyDetails,
-  documentType: 'QUOTATION' | 'INVOICE',
+  documentType: string,
   title: string
 ): Promise<Blob> => {
   // Return the PDF as blob instead of saving

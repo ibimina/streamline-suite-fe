@@ -16,6 +16,7 @@ const templates: { name: Template; label: string }[] = [
   { name: 'minimalist', label: 'Minimalist' },
   { name: 'corporate', label: 'Corporate' },
   { name: 'creative', label: 'Creative' },
+  { name: 'custom', label: 'Custom' },
 ]
 
 const colors: { name: AccentColor; label: string; class: string }[] = [
