@@ -216,7 +216,7 @@ const Invoices = () => {
           pdfData={selectedInvoice}
           onClose={() => setViewModalOpen(false)}
           documentTitle={`Invoice ${selectedInvoice.id}`}
-          documentType='INVOICE'
+          documentType='Invoice'
           title=''
         />
       )}
