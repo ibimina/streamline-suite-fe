@@ -16,7 +16,7 @@ const PdfPreviewModal: React.FC<{
   pdfData: Invoice | Quotation
   onClose: () => void
   documentTitle: string
-  documentType: string
+  documentType: 'INVOICE' | 'QUOTATION'
   title: string
 }> = ({ pdfData, documentTitle, onClose, documentType, title }) => {
   const companyDetails = useAppSelector(state => state.company.details)
