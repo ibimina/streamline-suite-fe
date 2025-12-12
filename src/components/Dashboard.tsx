@@ -21,7 +21,7 @@ import {
   ExclamationIcon,
   ShoppingCartIcon,
 } from './Icons'
-import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fetchDashboardStatsAction } from '@/store/slices/dashboard/actions'
 
 const StatCard: React.FC<{

@@ -248,10 +248,10 @@ export class CustomTemplateProcessor {
   ): TemplateMapping {
     return {
       documentNumber: document.id,
-      documentDate: document.date,
+      documentDate: document.issueDate,
       documentType,
-      customerName: document.customerName,
-      customerAddress: document.customerAddress,
+      customerName: document.clientName,
+      customerAddress: document.clientAddress,
 
       itemsTable: '', // Handled specially
       subtotal: document.subtotal.toString(),
@@ -405,9 +405,9 @@ export const generateCustomTemplate = async (
   doc.setFont('helvetica', 'bold')
   // doc.text('BILL TO:', clientX, detailsY,)
   doc.setFont('helvetica', 'normal')
-  doc.text(`${document.date}`, companyX, detailsY)
-  doc.text(document.customerName, companyX, detailsY + 5)
-  doc.text(document.customerAddress, companyX, detailsY + 10)
+  doc.text(`${document.issueDate}`, companyX, detailsY)
+  doc.text(document.clientName, companyX, detailsY + 5)
+  doc.text(document.clientAddress, companyX, detailsY + 10)
 
   doc.setFontSize(12)
   doc.text(`${documentType} #: ${document.id}`, clientX, detailsY, { align: 'right' })

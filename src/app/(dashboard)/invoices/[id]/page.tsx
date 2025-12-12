@@ -58,17 +58,17 @@ function EditInvoiceContent() {
   }
 
   // Get template config from the existing invoice
-  const templateConfig = {
-    template: invoice.template,
-    accentColor: invoice.accentColor,
-    customTemplate: invoice.customTemplateId
-      ? details?.customTemplates?.find(t => t.id === invoice.customTemplateId)
-      : undefined,
-  }
+  // const templateConfig = {
+  //   template: invoice.template,
+  //   accentColor: invoice.accentColor,
+  //   customTemplate: invoice.customTemplateId
+  //     ? details?.customTemplates?.find(t => t.id === invoice.customTemplateId)
+  //     : undefined,
+  // }
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      <div className='container mx-auto px-4 py-8'>
+      {/* <div className='container mx-auto px-4 py-8'>
         <div className='mb-6'>
           <button
             onClick={handleCancel}
@@ -96,7 +96,7 @@ function EditInvoiceContent() {
           onSave={handleSaveInvoice}
           onCancel={handleCancel}
         />
-      </div>
+      </div> */}
     </div>
   )
 }

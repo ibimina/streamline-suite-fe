@@ -1,7 +1,7 @@
 'use client'
 import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils'
 
 interface PaginatorProps {
   currentPage: number

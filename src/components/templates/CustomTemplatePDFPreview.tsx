@@ -22,7 +22,7 @@ const CustomTemplatePDFPreview: React.FC<{
 
         // Find the custom template
         const customTemplate = companyDetails?.customTemplates?.find(
-          (t: any) => t.id === pdfData.customTemplateId
+          (t: any) => t.id === pdfData.id
         )
 
         if (!customTemplate) {

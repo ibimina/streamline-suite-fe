@@ -100,8 +100,8 @@ const PdfPreviewModal: React.FC<{
               <div className='flex justify-between mb-8'>
                 <div>
                   <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
-                  <p>{pdfData.customerName}</p>
-                  <p>{pdfData.customerAddress}</p>
+                  <p>{pdfData.clientName}</p>
+                  <p>{pdfData.clientAddress}</p>
                 </div>
                 <div className='text-right'>
                   <p>
@@ -110,7 +110,7 @@ const PdfPreviewModal: React.FC<{
                   </p>
                   <p>
                     <span className='font-semibold'>Date: </span>
-                    {pdfData.date}
+                    {pdfData.issueDate}
                   </p>
                   {/* <p className='font-bold'>
                     <span className='font-semibold'>Due Date: </span>
@@ -144,8 +144,8 @@ const PdfPreviewModal: React.FC<{
               <div className='flex justify-between mb-8'>
                 <div>
                   <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
-                  <p>{pdfData.customerName}</p>
-                  <p>{pdfData.customerAddress}</p>
+                  <p>{pdfData.clientName}</p>
+                  <p>{pdfData.clientAddress}</p>
                 </div>
                 <div className='text-right'>
                   <p>
@@ -154,7 +154,7 @@ const PdfPreviewModal: React.FC<{
                   </p>
                   <p>
                     <span className='font-semibold'>Date: </span>
-                    {pdfData.date}
+                    {pdfData.issueDate}
                   </p>
                   {/* <p className='font-bold'>
                     <span className='font-semibold'>Due Date: </span>
@@ -207,8 +207,8 @@ const PdfPreviewModal: React.FC<{
             <div className='flex justify-between mb-8 relative'>
               <div>
                 <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
-                <p>{pdfData.customerName}</p>
-                <p>{pdfData.customerAddress}</p>
+                <p>{pdfData.clientName}</p>
+                <p>{pdfData.clientAddress}</p>
               </div>
               <div className='text-right'>
                 <p>
@@ -217,7 +217,7 @@ const PdfPreviewModal: React.FC<{
                 </p>
                 <p>
                   <span className='font-semibold'>Date: </span>
-                  {pdfData.date}
+                  {pdfData.issueDate}
                 </p>
                 {/* <p className='font-bold'>
                   <span className='font-semibold'>Due Date: </span>

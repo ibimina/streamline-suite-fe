@@ -9,9 +9,9 @@ export const defaultTerms = `1. All prices are exclusive of applicable taxes.
 export const mockQuotations: Quotation[] = [
   {
     id: 'q-2024-001',
-    customerName: 'Tech Solutions',
-    customerAddress: '123 Tech Avenue, Silicon Valley, CA 94043',
-    date: '2024-07-28',
+    clientName: 'Tech Solutions',
+    clientAddress: '123 Tech Avenue, Silicon Valley, CA 94043',
+    issueDate: '2024-07-28',
     status: 'Accepted',
     items: [
       {
@@ -35,9 +35,9 @@ export const mockQuotations: Quotation[] = [
   },
   {
     id: 'q-2024-002',
-    customerName: 'Global Corp',
-    customerAddress: '456 Business Blvd, New York, NY 10001',
-    date: '2024-07-25',
+    clientName: 'Global Corp',
+    clientAddress: '456 Business Blvd, New York, NY 10001',
+    issueDate: '2024-07-25',
     status: 'Sent',
     items: [
       {
@@ -61,9 +61,9 @@ export const mockQuotations: Quotation[] = [
   },
   {
     id: 'q-2024-003',
-    customerName: 'Innovatech Ltd.',
-    customerAddress: '789 Innovation Drive, Austin, TX 78701',
-    date: '2024-07-20',
+    clientName: 'Innovatech Ltd.',
+    clientAddress: '789 Innovation Drive, Austin, TX 78701',
+    issueDate: '2024-07-20',
     status: 'Accepted',
     items: [
       {
@@ -87,9 +87,9 @@ export const mockQuotations: Quotation[] = [
   },
   {
     id: 'q-2024-004',
-    customerName: 'Enterprise Solutions',
-    customerAddress: '321 Corporate Lane, Chicago, IL 60601',
-    date: '2024-07-18',
+    clientName: 'Enterprise Solutions',
+    clientAddress: '321 Corporate Lane, Chicago, IL 60601',
+    issueDate: '2024-07-18',
     status: 'Rejected',
     items: [
       {
@@ -113,9 +113,9 @@ export const mockQuotations: Quotation[] = [
   },
   {
     id: 'q-2024-005',
-    customerName: 'Creative Minds',
-    customerAddress: '654 Artistry Ave, Los Angeles, CA 90001',
-    date: '2024-07-22',
+    clientName: 'Creative Minds',
+    clientAddress: '654 Artistry Ave, Los Angeles, CA 90001',
+    issueDate: '2024-07-22',
     status: 'Draft',
     items: [
       {
@@ -139,9 +139,9 @@ export const mockQuotations: Quotation[] = [
   },
   {
     id: 'q-2024-006',
-    customerName: 'Professional Services Inc.',
-    customerAddress: '987 Business Park, Seattle, WA 98101',
-    date: '2024-07-23',
+    clientName: 'Professional Services Inc.',
+    clientAddress: '987 Business Park, Seattle, WA 98101',
+    issueDate: '2024-07-23',
     status: 'Sent',
     items: [
       {
