@@ -81,9 +81,9 @@ export default function CreateQuotationPage() {
         {templateConfig && (
           <QuotationForm
             quotation={null}
-            templateConfig={templateConfig}
+            // templateConfig={templateConfig}
             onSave={handleSaveQuotation}
-            onCancel={handleCancel}
+            // onCancel={handleCancel}
           />
         )}
       </div>
