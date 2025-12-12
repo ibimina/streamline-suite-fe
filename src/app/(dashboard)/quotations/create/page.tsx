@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setQuotations } from '@/store/slices/quotationSlice'
-import { QuotationForm } from '@/components/QuotationForm'
+import QuotationForm from '@/components/QuotationFormUpdated'
 import { TemplateSelectionModal } from '@/components/TemplateSelectionModal'
 import { Quotation, Template, AccentColor, CustomTemplate } from '@/types'
 

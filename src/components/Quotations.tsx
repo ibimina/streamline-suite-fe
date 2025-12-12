@@ -41,7 +41,7 @@ const Quotations = () => {
   const filteredQuotations = quotations.filter(
     q =>
       q.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.customerName.toLowerCase().includes(searchTerm.toLowerCase())
+      q.clientName.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   useEffect(() => {
@@ -135,8 +135,8 @@ const Quotations = () => {
                   className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                 >
                   <td className='px-6 py-4 font-medium'>{q.id}</td>
-                  <td className='px-6 py-4'>{q.customerName}</td>
-                  <td className='px-6 py-4 hidden md:table-cell'>{q.date}</td>
+                  <td className='px-6 py-4'>{q.clientName}</td>
+                  <td className='px-6 py-4 hidden md:table-cell'>{q.issueDate}</td>
                   <td className='px-6 py-4 hidden md:table-cell text-right text-sm text-gray-500 dark:text-gray-400'>
                     ${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>

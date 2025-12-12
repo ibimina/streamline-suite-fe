@@ -11,7 +11,7 @@ interface PublicWebsiteProps {
 }
 
 const DashboardLayout: React.FC<PublicWebsiteProps> = ({ children }) => {
-  const { isAuthenticated } = useAppSelector(state => state.auth)
+  const { isAuthenticated } = useAppSelector(state => state.authReducer)
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { isMobileSidebarOpen } = useAppSelector(state => state.ui)

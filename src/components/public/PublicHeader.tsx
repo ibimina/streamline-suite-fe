@@ -123,7 +123,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
               </NavLink>
             ))}
           </div>
-          <div className='hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4'>
+          <div className='hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4 lg:items-center'>
             <Link
               href='/login'
               onClick={() => handlePageChange('login')}

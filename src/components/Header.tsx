@@ -9,13 +9,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ toggleMobileSidebar }) => {
-  const companyDetails = useAppSelector(state => state.company.details)
-
-  // Mock logged-in user details
-  const loggedInUser = {
-    name: 'Christiana Hart',
-    avatarUrl: 'https://i.pravatar.cc/150?u=staff-1', // Using the same avatar as in Staff mock data
-  }
+  const { user } = useAppSelector(state => state.authReducer)
 
   return (
     <header className='bg-white dark:bg-gray-800 shadow-md z-20 shrink-0'>
@@ -34,20 +28,29 @@ const Header: React.FC<HeaderProps> = ({ toggleMobileSidebar }) => {
           <div className='h-8 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block'></div>
 
           <div className='flex items-center space-x-2'>
-            <Image
-              src={loggedInUser.avatarUrl}
-              alt={loggedInUser.name}
-              className='h-8 w-8 rounded-full'
-              width={32}
-              height={32}
-            />
+            {user?.account?.logoUrl ? (
+              <Image
+                src={user?.account?.logoUrl}
+                alt={user.account.name}
+                className='h-8 w-8 rounded-full'
+                width={32}
+                height={32}
+              />
+            ) : (
+              <div className='h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center'>
+                <span className='text-gray-500 dark:text-gray-400 font-semibold'>
+                  {user?.account.name.substring(0, 2).toUpperCase()}
+                </span>
+              </div>
+            )}
+
             <div className='flex flex-col'>
               <span className='hidden sm:inline font-semibold text-gray-900 dark:text-white'>
-                {companyDetails.name}
+                {user?.account.name}
               </span>
 
               <span className='hidden sm:inline font-semibold text-gray-900 dark:text-white'>
-                {loggedInUser.name}
+                {`${user?.firstName || ''} ${user?.lastName || ''}`}
               </span>
             </div>
           </div>

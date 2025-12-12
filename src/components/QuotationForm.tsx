@@ -33,9 +33,9 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
   // Separate base form data from calculated values
   const [baseFormData, setBaseFormData] = useState({
     id: quotation?.id || `q-${now}`,
-    customerName: quotation?.customerName || '',
-    customerAddress: quotation?.customerAddress || '',
-    date: quotation?.date || new Date(now).toISOString().split('T')[0],
+    clientName: quotation?.clientName || '',
+    // customerAddress: quotation?.customerAddress || '',
+    // date: quotation?.date || new Date(now).toISOString().split('T')[0],
     status: quotation?.status || ('Draft' as QuotationStatus),
     items: quotation?.items || [
       {
@@ -106,7 +106,7 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave(formData as Quotation)
+    // onSave(formData as Quotation)
   }
 
   return (
@@ -125,13 +125,13 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
                 </label>
                 <input
                   type='text'
-                  value={baseFormData.customerName}
-                  onChange={e => setBaseFormData({ ...baseFormData, customerName: e.target.value })}
+                  value={baseFormData.clientName}
+                  onChange={e => setBaseFormData({ ...baseFormData, clientName: e.target.value })}
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white'
                   required
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                   Customer Address *
                 </label>
@@ -144,7 +144,7 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white'
                   required
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -164,7 +164,7 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white'
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                   Date
                 </label>
@@ -174,7 +174,7 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
                   onChange={e => setBaseFormData({ ...baseFormData, date: e.target.value })}
                   className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white'
                 />
-              </div>
+              </div> */}
               <div>
                 <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                   Status

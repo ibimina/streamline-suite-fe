@@ -91,9 +91,9 @@ export type QuotationStatus = 'Draft' | 'Sent' | 'Accepted' | 'Rejected'
 
 export interface Quotation {
   id: string
-  customerName: string
-  customerAddress: string
-  date: string
+  clientName: string
+  clientAddress: string
+  issueDate: string
   status: QuotationStatus
   items: LineItem[]
   // Dynamic tax rates
@@ -116,13 +116,14 @@ export interface InvoiceLineItem {
   description: string
   quantity: number
   unitPrice: number
+  amount: number
   sku?: string // Stock Keeping Unit
 }
 export interface Invoice {
   id: string
-  customerName: string
-  customerAddress: string
-  date: string
+  clientName: string
+  clientAddress: string
+  issueDate: string
   dueDate: string
   status: InvoiceStatus
   items: InvoiceLineItem[]
@@ -133,7 +134,7 @@ export interface Invoice {
   quotationId?: string
   template: Template
   accentColor: AccentColor
-  customTemplateId?: string // For custom templates
+  templateId?: string // For custom templates
 }
 
 // --- User & Staff Types ---

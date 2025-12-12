@@ -98,7 +98,13 @@ const Staff: React.FC = () => {
             className='bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col'
           >
             <div className='flex justify-between items-start'>
-              <Image src={member.avatarUrl} alt={member.name} className='w-16 h-16 rounded-full' />
+              <Image
+                src={member.avatarUrl}
+                alt={member.name}
+                width={64}
+                height={64}
+                className='w-16 h-16 rounded-full'
+              />
               <span className='px-2 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200'>
                 {member.role}
               </span>

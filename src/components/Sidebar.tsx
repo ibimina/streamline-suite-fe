@@ -23,7 +23,6 @@ import {
 } from './Icons'
 import Logo from './Logo'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { logout } from '@/store/slices/authSlice'
 import Link from 'next/link'
 import {
   setCurrentPage,
@@ -31,6 +30,8 @@ import {
   setMobileSidebarOpen,
   setTheme,
 } from '@/store/slices/uiSlice'
+import { logOutAction } from '@/store/slices/auth/actions'
+import { useRouter } from 'next/navigation'
 
 export type View =
   | 'Dashboard'
@@ -44,6 +45,9 @@ export type View =
   | 'Taxes'
   | 'Admin'
   | 'Settings'
+  | 'Suppliers'
+  | 'Products'
+  | 'Customers'
 
 interface NavigationSubItem {
   name: string
@@ -77,6 +81,9 @@ const navigationItems: NavigationItem[] = [
     ],
   },
   { name: 'Inventory', icon: CollectionIcon, href: '/inventory' },
+  { name: 'Suppliers', icon: CollectionIcon, href: '/suppliers' },
+  { name: 'Products', icon: CollectionIcon, href: '/products' },
+  { name: 'Customers', icon: CollectionIcon, href: '/customers' },
   { name: 'Expenses', icon: ReceiptRefundIcon, href: '/expenses' },
   { name: 'Analytics', icon: ChartPieIcon, href: '/analytics' },
   { name: 'Staff', icon: BriefcaseIcon, href: '/staff' },
@@ -90,6 +97,7 @@ const secondaryNavigationItems: NavigationItem[] = [
 ]
 
 const Sidebar = () => {
+  const router = useRouter()
   const dispatch = useAppDispatch()
   const { theme, currentPage, isMobileSidebarOpen, isDesktopSidebarCollapsed } = useAppSelector(
     state => state.ui
@@ -101,9 +109,9 @@ const Sidebar = () => {
       prev.includes(itemName) ? prev.filter(name => name !== itemName) : [...prev, itemName]
     )
   }
-  const onLogout = () => {
-    // Dispatch logout action
-    dispatch(logout())
+  const onLogout = async () => {
+    await dispatch(logOutAction())
+    router.push('/')
   }
 
   const NavLink: React.FC<{ item: NavigationItem }> = ({ item }) => {
