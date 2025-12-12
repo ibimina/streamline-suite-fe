@@ -35,9 +35,7 @@ const useGeneratePdf = () => {
     // Header
     switch (data.template) {
       case 'custom':
-        const customTemplate = companyDetails?.customTemplates?.find(
-          t => t.id === data.customTemplateId
-        )
+        const customTemplate = companyDetails?.customTemplates?.find(t => t.id === data.template)
 
         if (customTemplate) {
           try {
@@ -109,12 +107,12 @@ const useGeneratePdf = () => {
     doc.setFont('helvetica', 'bold')
     doc.text('BILL TO:', contentX, 70)
     doc.setFont('helvetica', 'normal')
-    doc.text(data.customerName, contentX, 75)
-    doc.text(data.customerAddress, contentX, 80)
+    doc.text(data.clientName, contentX, 75)
+    doc.text(data.clientAddress, contentX, 80)
 
     doc.setFontSize(12)
     doc.text(`${pdfType} #: ${data.id}`, contentX + contentWidth, 70, { align: 'right' })
-    doc.text(`Date: ${data.date}`, contentX + contentWidth, 75, { align: 'right' })
+    doc.text(`Date: ${data.issueDate}`, contentX + contentWidth, 75, { align: 'right' })
 
     // Table
     if (pdfType === 'QUOTATION') {

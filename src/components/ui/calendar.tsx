@@ -52,14 +52,16 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         day_hidden: 'invisible',
         ...classNames,
       }}
-      components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn('h-4 w-4', className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn('h-4 w-4', className)} {...props} />
-        ),
-      }}
+      components={
+        {
+          IconLeft: ({ className, ...props }: React.ComponentProps<typeof ChevronLeft>) => (
+            <ChevronLeft className={cn('h-4 w-4', className)} {...props} />
+          ),
+          IconRight: ({ className, ...props }: React.ComponentProps<typeof ChevronRight>) => (
+            <ChevronRight className={cn('h-4 w-4', className)} {...props} />
+          ),
+        } as any
+      }
       {...props}
     />
   )

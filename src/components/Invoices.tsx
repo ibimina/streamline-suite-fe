@@ -50,7 +50,7 @@ const Invoices = () => {
   const filteredInvoices = invoices.filter(
     i =>
       i?.id?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-      i?.customerName?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+      i?.clientName?.toLowerCase()?.includes(searchTerm?.toLowerCase())
   )
 
   useEffect(() => {
@@ -137,7 +137,7 @@ const Invoices = () => {
                     <span className='block text-xs text-gray-500'>From {i?.quotationId}</span>
                   )}
                 </td>
-                <td className='px-6 py-4'>{i?.customerName}</td>
+                <td className='px-6 py-4'>{i?.clientName}</td>
                 <td className='px-6 py-4 hidden md:table-cell'>{i?.dueDate}</td>
                 <td className='px-6 py-4 font-semibold'>
                   ${i?.total?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
