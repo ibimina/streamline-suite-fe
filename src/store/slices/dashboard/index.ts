@@ -1,11 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { fetchDashboardStatsAction } from './actions'
 import { DashboardPayload, DashboardState } from './type'
+import { dashboardApi } from '@/store/api'
 
 // Initialize state from localStorage if available
 const getInitialState = (): DashboardState => {
-  // Check localStorage for existing session
-
   return {
     isLoading: false,
     error: null,
@@ -23,23 +21,23 @@ const dashboardSlice = createSlice({
     },
   },
   extraReducers: builder => {
-    // Additional async actions can be handled here
-
-    builder.addCase(fetchDashboardStatsAction.pending, state => {
+    // RTK Query matchers - sync local state with API responses
+    builder.addMatcher(dashboardApi.endpoints.getDashboardStats.matchPending, state => {
       state.isLoading = true
       state.error = null
     })
-    builder.addCase(
-      fetchDashboardStatsAction.fulfilled,
+    builder.addMatcher(
+      dashboardApi.endpoints.getDashboardStats.matchFulfilled,
       (state, action: PayloadAction<{ payload: DashboardPayload }>) => {
         state.isLoading = false
         state.error = null
         state.stats = action.payload.payload
       }
     )
-    builder.addCase(fetchDashboardStatsAction.rejected, (state, action: any) => {
+    builder.addMatcher(dashboardApi.endpoints.getDashboardStats.matchRejected, (state, action) => {
       state.isLoading = false
-      state.error = (action.payload as string) ?? action.error?.message ?? 'An error occurred'
+      state.error =
+        (action.payload as any)?.data?.message ?? action.error?.message ?? 'An error occurred'
     })
   },
 })

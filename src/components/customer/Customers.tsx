@@ -1,190 +1,45 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { PlusIcon, TrashIcon, PencilIcon, SearchIcon, FilterIcon } from '../Icons'
 import CustomerForm from './CustomerForm'
 import Link from 'next/link'
-
-export interface Customer {
-  id?: string
-  fullName: string
-  companyName?: string
-  email?: string
-  phone?: string
-  address?: string
-  billingAddress?: {
-    street?: string
-    city?: string
-    state?: string
-    postalCode?: string
-    country?: string
-  }
-  shippingAddress?: {
-    street?: string
-    city?: string
-    state?: string
-    postalCode?: string
-    country?: string
-  }
-  contacts?: {
-    name: string
-    email?: string
-    phone?: string
-    role?: string
-    primary?: boolean
-  }[]
-  tags?: string[]
-  customFields?: Record<string, any>
-  currency?: string
-  language?: string
-  status?: 'active' | 'inactive' | 'suspended'
-  notes?: string
-  accountId?: string
-  createdBy?: string
-  createdAt?: string
-  updatedAt?: string
-  taxId?: string
-  creditLimit?: number
-  isActive?: boolean
-}
+import { useDeleteCustomerMutation, useGetCustomersQuery } from '@/store/api'
+import { Customer } from '@/interface/customer.interface'
+import LoadingSpinner from '../shared/LoadingSpinner'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 
 const Customers = () => {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
+  const { data, isLoading: loading } = useGetCustomersQuery()
+
+  const [deleteCustomer] = useDeleteCustomerMutation()
+
+  const customers = data?.payload?.customers ?? []
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'suspended'>(
     'all'
   )
   const [showForm, setShowForm] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
-  const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  // Sample data - replace with API calls
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const sampleCustomers: Customer[] = [
-        {
-          id: 'cust_001',
-          fullName: 'John Doe',
-          companyName: 'Doe Enterprises',
-          email: 'john.doe@doeenterprises.com',
-          phone: '+15551234567',
-          currency: 'USD',
-          status: 'active',
-          address: '123 Main St, San Francisco, CA 94105',
-          billingAddress: {
-            street: '123 Billing St',
-            city: 'San Francisco',
-            state: 'CA',
-            postalCode: '94105',
-            country: 'USA',
-          },
-          shippingAddress: {
-            street: '456 Shipping Ave',
-            city: 'San Francisco',
-            state: 'CA',
-            postalCode: '94107',
-            country: 'USA',
-          },
-          contacts: [
-            {
-              name: 'Jane Smith',
-              email: 'jane.smith@doeenterprises.com',
-              phone: '+15559876543',
-              role: 'Account Manager',
-              primary: true,
-            },
-          ],
-          tags: ['VIP', 'Newsletter Subscriber'],
-          notes: 'This is a valued customer who prefers email communication.',
-          createdAt: '2023-01-15T10:00:00Z',
-          updatedAt: '2023-06-20T15:30:00Z',
-          taxId: 'TAX123456',
-          creditLimit: 5000,
-          language: 'English',
-        },
-        {
-          id: '2',
-          companyName: 'Global Corp',
-          email: 'admin@globalcorp.com',
-          fullName: 'Jane Smith',
-          phone: '+15559876543',
-          address: '456 Corporate Ave, Business City, BC 67890',
-          taxId: 'TAX789012',
-          creditLimit: 75000,
-          tags: ['Wholesale', 'Regular'],
-          isActive: true,
-          createdAt: '2023-02-20',
-        },
-      ]
-      setCustomers(sampleCustomers)
-      setFilteredCustomers(sampleCustomers)
-      setLoading(false)
-    }, 1000)
-  }, [])
-
-  // Filter customers based on search and status
-  useEffect(() => {
-    const filtered = customers.filter(customer => {
-      const matchesSearch =
-        customer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.phone?.includes(searchTerm) ||
-        false
-
-      const matchesStatus = statusFilter === 'all' || customer.status === statusFilter
-
-      return matchesSearch && matchesStatus
-    })
-
-    // setFilteredCustomers(filtered)
-  }, [searchTerm, statusFilter, customers])
-
-  const handleSaveCustomer = (customerData: Customer) => {
-    if (customerData.id) {
-      // Update existing customer
-      setCustomers(prev =>
-        prev.map(customer =>
-          customer.id === customerData.id
-            ? { ...customerData, updatedAt: new Date().toISOString() }
-            : customer
-        )
-      )
-    } else {
-      // Add new customer
-      const newCustomer: Customer = {
-        ...customerData,
-        id: `customer-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      }
-      setCustomers(prev => [...prev, newCustomer])
-    }
-
-    setShowForm(false)
-    setEditingCustomer(null)
-  }
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null)
   const handleEditCustomer = (customer: Customer) => {
     setEditingCustomer(customer)
     setShowForm(true)
   }
 
-  const handleViewCustomer = (customer: Customer) => {
-    setViewingCustomer(customer)
-  }
+  const confirmDeleteCustomer = async () => {
+    try {
+      if (!deletingCustomerId) return
 
-  const handleEditFromDetails = (customer: Customer) => {
-    setViewingCustomer(null)
-    setEditingCustomer(customer)
-    setShowForm(true)
+      await deleteCustomer(deletingCustomerId).unwrap()
+    } catch (error: any) {
+      alert(error?.data?.message || 'Failed to delete customer')
+    }
   }
 
   const handleDeleteCustomer = (customerId: string) => {
-    if (confirm('Are you sure you want to delete this customer?')) {
-      setCustomers(prev => prev.filter(customer => customer.id !== customerId))
-    }
+    setDeletingCustomerId(customerId)
+    setShowDeleteModal(true)
   }
 
   return (
@@ -238,10 +93,7 @@ const Customers = () => {
       {/* Customers Table */}
       <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden'>
         {loading ? (
-          <div className='p-8 text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto'></div>
-            <p className='mt-2 text-gray-500 dark:text-gray-400'>Loading customers...</p>
-          </div>
+          <LoadingSpinner />
         ) : (
           <div className='overflow-x-auto'>
             <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
@@ -265,8 +117,8 @@ const Customers = () => {
                 </tr>
               </thead>
               <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
-                {filteredCustomers.map(customer => (
-                  <tr key={customer.id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
+                {customers.map(customer => (
+                  <tr key={customer._id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div>
                         <div className='text-sm font-medium text-gray-900 dark:text-white'>
@@ -321,7 +173,7 @@ const Customers = () => {
                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                       <div className='flex space-x-2'>
                         <Link
-                          href={`/customers/${customer.id}`}
+                          href={`/customers/${customer._id}`}
                           className='text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300'
                           title='View Details'
                         >
@@ -354,7 +206,7 @@ const Customers = () => {
                           <PencilIcon className='w-4 h-4' />
                         </button>
                         <button
-                          onClick={() => handleDeleteCustomer(customer.id!)}
+                          onClick={() => handleDeleteCustomer(customer._id!)}
                           className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
                           title='Delete Customer'
                         >
@@ -367,7 +219,7 @@ const Customers = () => {
               </tbody>
             </table>
 
-            {filteredCustomers.length === 0 && (
+            {customers.length === 0 && (
               <div className='text-center py-8'>
                 <p className='text-gray-500 dark:text-gray-400'>No customers found</p>
               </div>
@@ -380,12 +232,17 @@ const Customers = () => {
       {showForm && (
         <CustomerForm
           customer={editingCustomer}
-          onSave={handleSaveCustomer}
           onCancel={() => {
             setShowForm(false)
             setEditingCustomer(null)
           }}
           open={showForm}
+        />
+      )}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteCustomer}
         />
       )}
     </div>

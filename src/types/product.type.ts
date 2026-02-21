@@ -1,5 +1,5 @@
 export interface Product {
-  id?: string
+  _id?: string
   sku?: string
   barcode?: string
   name: string
@@ -18,10 +18,8 @@ export interface Product {
   lowStockAlert?: number
   category?: string
   brand?: string
-  supplierId?: string
-  supplierName?: string
-  alternativeSupplierIds?: string[]
-  alternativeSuppliers?: { id: string; name: string }[]
+  supplier?: string
+  alternativeSuppliers?: string[]
   images?: string[]
   salesTaxRate?: number
   purchaseTaxRate?: number

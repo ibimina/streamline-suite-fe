@@ -1,13 +1,12 @@
 import React from 'react'
 import { FormProvider } from 'react-hook-form'
-import { useAppDispatch } from '@/store/hooks'
 import { useMultistepSignup } from '@/hooks/useMultistepSignup'
 import StepProgress from './StepProgress'
 import CompanyInfoStep from './CompanyInfoStep'
 import AdminAccountStep from './AdminAccountStep'
 import SecurityStep from './SecurityStep'
 import { SignupFormData } from '@/types/signup.types'
-import { createNewAccountAction } from '@/store/slices/auth/actions'
+import { useCreateAccountMutation } from '@/store/api'
 import { toast } from 'react-toastify'
 
 interface MultistepSignupFormProps {
@@ -15,7 +14,7 @@ interface MultistepSignupFormProps {
 }
 
 const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) => {
-  const dispatch = useAppDispatch()
+  const [createAccount] = useCreateAccountMutation()
 
   const handleSubmit = async (data: SignupFormData): Promise<void> => {
     try {
@@ -32,25 +31,23 @@ const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) 
         companySize,
         country,
       } = data
-      await dispatch(
-        createNewAccountAction({
-          password,
-          firstName,
-          lastName,
-          email,
-          name,
-          phoneNumber,
-          address,
-          industry,
-          companySize,
-          country,
-        })
-      )
+      await createAccount({
+        password,
+        firstName,
+        lastName,
+        email,
+        name,
+        phoneNumber,
+        address,
+        industry,
+        companySize,
+        country,
+      }).unwrap()
       onSuccess?.()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup failed:', error)
-      toast.error('Signup failed. Please try again.')
-      // throw new Error('Failed to create account. Please try again.')
+      const message = error?.data?.message ?? 'Signup failed. Please try again.'
+      toast.error(message)
     }
   }
 

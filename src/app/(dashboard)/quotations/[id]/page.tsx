@@ -1,112 +1,40 @@
 'use client'
-import React, { Suspense, useMemo } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { setQuotations } from '@/store/slices/quotationSlice'
-import { QuotationForm } from '@/components/QuotationForm'
-import { Quotation } from '@/types'
+import { useParams } from 'next/navigation'
+import { useGetQuotationByIdQuery } from '@/store/api'
+import QuotationView from '@/components/quotation/QuotationView'
 
-function EditQuotationContent() {
-  const router = useRouter()
+export default function QuotationViewPage() {
   const params = useParams()
-  const dispatch = useAppDispatch()
-  const { quotations } = useAppSelector(state => state.quotation)
-  const { details } = useAppSelector(state => state.company)
+  const id = params.id as string
 
-  const quotation = useMemo(() => {
-    const id = params.id as string
-    if (!id) return null
-    return quotations.find(q => q.id === id) || null
-  }, [params.id, quotations])
+  const { data, isLoading, error } = useGetQuotationByIdQuery(id, {
+    skip: !id,
+  })
 
-  React.useEffect(() => {
-    if (params.id && !quotation) {
-      // Quotation not found, redirect back
-      router.push('/quotations')
-    }
-  }, [params.id, quotation, router])
+  const quotation = data?.payload
 
-  const handleSaveQuotation = (updatedQuotation: Quotation) => {
-    const updatedQuotations = quotations.map(q =>
-      q.id === updatedQuotation.id ? updatedQuotation : q
-    )
-    dispatch(setQuotations(updatedQuotations))
-    router.push('/quotations')
-  }
-
-  const handleCancel = () => {
-    router.push('/quotations')
-  }
-
-  if (!quotation) {
+  if (isLoading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
-        <div className='text-center'>
-          <h1 className='text-2xl font-bold text-gray-900 dark:text-white mb-4'>
+      <div className='flex items-center justify-center min-h-[400px]'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
+      </div>
+    )
+  }
+
+  if (error || !quotation) {
+    return (
+      <div className='max-w-2xl mx-auto mt-10'>
+        <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center'>
+          <h2 className='text-lg font-semibold text-red-700 dark:text-red-400'>
             Quotation Not Found
-          </h1>
-          <p className='text-gray-600 dark:text-gray-400 mb-6'>
-            The quotation you&apos;re looking for doesn&apos;t exist.
+          </h2>
+          <p className='text-sm text-red-600 dark:text-red-400 mt-2'>
+            The quotation you are looking for does not exist or has been deleted.
           </p>
-          <button
-            onClick={handleCancel}
-            className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700'
-          >
-            Back to Quotations
-          </button>
         </div>
       </div>
     )
   }
 
-  // Get template config from the existing quotation
-  const templateConfig = {
-    template: quotation.template,
-    accentColor: quotation.accentColor,
-    customTemplate: quotation.customTemplateId
-      ? details?.customTemplates?.find(t => t.id === quotation.customTemplateId)
-      : undefined,
-  }
-
-  return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      {/* <div className='container mx-auto px-4 py-8'>
-        <div className='mb-6'>
-          <button
-            onClick={handleCancel}
-            className='text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2 mb-4'
-          >
-            ← Back to Quotations
-          </button>
-          <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
-            Edit Quotation #{quotation.id}
-          </h1>
-          <p className='text-gray-600 dark:text-gray-400 mt-2'>
-            Template:{' '}
-            <span className='font-medium'>
-              {quotation.template === 'custom' && templateConfig.customTemplate
-                ? templateConfig.customTemplate.name
-                : quotation.template}
-            </span>{' '}
-            • Customer: <span className='font-medium'>{quotation.customerName}</span>
-          </p>
-        </div>
-
-        <QuotationForm
-          quotation={quotation}
-          templateConfig={templateConfig}
-          onSave={handleSaveQuotation}
-          onCancel={handleCancel}
-        />
-      </div> */}
-    </div>
-  )
-}
-
-export default function EditQuotationPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EditQuotationContent />
-    </Suspense>
-  )
+  return <QuotationView quotation={quotation} />
 }

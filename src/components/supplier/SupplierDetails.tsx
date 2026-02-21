@@ -2,52 +2,76 @@
 import React from 'react'
 import { useState } from 'react'
 import SupplierForm from './SupplierForm'
-
-const supplier = {
-  id: 'supp_001',
-  name: 'Tech Solutions Ltd',
-  contact: 'John Manager',
-  email: 'contact@techsolutions.com',
-  phone: '+1 (555) 234-5678',
-  address: '456 Business Ave, Tech City, TC 12345',
-  paymentTerms: 'Net 30',
-  taxId: 'SUPP789012',
-  isActive: true,
-  contacts: [
-    {
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@techsolutions.com',
-      phone: '+1 (555) 876-5432',
-      role: 'Purchasing Manager',
-      primary: true,
-    },
-    {
-      name: 'Mike Chen',
-      email: 'mike.chen@techsolutions.com',
-      phone: '+1 (555) 654-3210',
-      role: 'Account Executive',
-      primary: false,
-    },
-  ],
-  createdAt: '2023-02-10T09:00:00Z',
-  updatedAt: '2023-07-15T14:20:00Z',
-}
+import LoadingSpinner from '../shared/LoadingSpinner'
+import { useParams, useRouter } from 'next/navigation'
+import { useDeleteSupplierMutation, useGetSupplierByIdQuery } from '@/store/api/supplierApi'
+import Link from 'next/link'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 
 const SupplierDetails = () => {
   const [showForm, setShowForm] = useState(false)
+  const router = useRouter()
+  const params = useParams()
+  const id = params?.id as string
+  const { data, isLoading: loading } = useGetSupplierByIdQuery(id)
+  const [deleteSupplier] = useDeleteSupplierMutation()
+  const supplier = data?.payload ?? null
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this supplier?')) {
-      // Handle deletion logic here
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteSupplier = async () => {
+    if (id) {
+      try {
+        await deleteSupplier(id).unwrap()
+        router.push('/suppliers')
+      } catch (error: any) {
+        alert(error?.data?.message || 'Failed to delete supplier')
+      }
     }
+  }
+
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (!supplier) {
+    return (
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        {/* Header */}
+        <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+          <Link
+            href={'/suppliers'}
+            className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+          >
+            <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M15 19l-7-7 7-7'
+              />
+            </svg>
+            Back to Suppliers
+          </Link>
+        </div>
+        <div className='p-6'>Supplier not found.</div>
+      </div>
+    )
   }
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}
       <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
-        <button
-          // onClick={onBack}
+        <Link
+          href={'/suppliers'}
           className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
         >
           <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -59,14 +83,14 @@ const SupplierDetails = () => {
             />
           </svg>
           Back to Suppliers
-        </button>
+        </Link>
         <div className='flex items-center justify-between max-w-7xl mx-auto'>
           <div className='flex items-center space-x-4'>
             <div>
-              <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>{supplier.name}</h1>
-              {supplier.contact && (
+              <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>{supplier?.name}</h1>
+              {supplier?.contact && (
                 <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
-                  Primary Contact: {supplier.contact}
+                  Primary Contact: {supplier?.contact}
                 </p>
               )}
             </div>
@@ -320,13 +344,16 @@ const SupplierDetails = () => {
       {showForm && (
         <SupplierForm
           supplier={supplier as any}
-          onSave={() => {
-            setShowForm(false)
-          }}
           onCancel={() => {
             setShowForm(false)
           }}
           open={showForm}
+        />
+      )}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteSupplier}
         />
       )}
     </div>

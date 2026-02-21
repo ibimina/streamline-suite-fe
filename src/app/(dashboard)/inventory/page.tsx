@@ -1,8 +1,6 @@
-import Inventory from '@/components/Inventory'
-import InventoryTransactions from '@/components/InventoryTransactions'
+import Inventory from '@/components/inventory/Inventory'
 import React from 'react'
 
 export default function InventoryPage() {
-  // return <Inventory />
-  return <InventoryTransactions />
+  return <Inventory />
 }

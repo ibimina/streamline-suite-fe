@@ -1,135 +1,57 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
+import { toast } from 'react-toastify'
 import { PlusIcon, TrashIcon, PencilIcon, SearchIcon, FilterIcon } from '../Icons'
 import SupplierForm from './SupplierForm'
 import Link from 'next/dist/client/link'
-
-export interface Supplier {
-  id?: string
-  name: string
-  contact?: string
-  email?: string
-  phone?: string
-  address?: string
-  paymentTerms?: string
-  taxId?: string
-  isActive?: boolean
-  companyId?: string
-  createdBy?: string
-  createdAt?: string
-  updatedAt?: string
-}
+import { useGetSuppliersQuery, useDeleteSupplierMutation, Supplier } from '@/store/api/supplierApi'
+import LoadingSpinner from '../shared/LoadingSpinner'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 
 const Suppliers = () => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([])
-  const [filteredSuppliers, setFilteredSuppliers] = useState<Supplier[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [showForm, setShowForm] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
-  const [loading, setLoading] = useState(true)
 
-  // Sample data - replace with API calls
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const sampleSuppliers: Supplier[] = [
-        {
-          id: '1',
-          name: 'Office Supplies Co.',
-          contact: 'John Manager',
-          email: 'orders@officesupplies.com',
-          phone: '+1 (555) 111-2222',
-          address: '789 Supply St, Commerce City, CC 11111',
-          paymentTerms: 'Net 30',
-          taxId: 'SUPP123456',
-          isActive: true,
-          createdAt: '2023-01-10',
-        },
-        {
-          id: '2',
-          name: 'Tech Equipment Ltd.',
-          contact: 'Sarah Sales',
-          email: 'sales@techequipment.com',
-          phone: '+1 (555) 333-4444',
-          address: '321 Hardware Ave, Tech City, TC 22222',
-          paymentTerms: 'Net 15',
-          taxId: 'SUPP789012',
-          isActive: true,
-          createdAt: '2023-02-15',
-        },
-        {
-          id: '3',
-          name: 'Raw Materials Inc.',
-          contact: 'Mike Procurement',
-          email: 'mike@rawmaterials.com',
-          phone: '+1 (555) 555-6666',
-          address: '456 Industrial Blvd, Production City, PC 33333',
-          paymentTerms: 'Net 60',
-          taxId: 'SUPP345678',
-          isActive: false,
-          createdAt: '2023-03-20',
-        },
-      ]
-      setSuppliers(sampleSuppliers)
-      setFilteredSuppliers(sampleSuppliers)
-      setLoading(false)
-    }, 1000)
-  }, [])
+  // RTK Query hooks
+  const { data, isLoading, isFetching } = useGetSuppliersQuery()
+  const [deleteSupplier] = useDeleteSupplierMutation()
+  const suppliers = data?.payload?.suppliers || []
 
-  // Filter suppliers based on search and status
-  useEffect(() => {
-    const filtered = suppliers.filter(supplier => {
-      const matchesSearch =
-        supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (supplier.contact?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-        (supplier.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-
-      const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'active' && supplier.isActive) ||
-        (statusFilter === 'inactive' && !supplier.isActive)
-
-      return matchesSearch && matchesStatus
-    })
-
-    // setFilteredSuppliers(filtered)
-  }, [searchTerm, statusFilter, suppliers])
-
-  const handleSaveSupplier = (supplierData: Supplier) => {
-    if (supplierData.id) {
-      // Update existing supplier
-      setSuppliers(prev =>
-        prev.map(supplier =>
-          supplier.id === supplierData.id
-            ? { ...supplierData, updatedAt: new Date().toISOString() }
-            : supplier
-        )
-      )
-    } else {
-      // Add new supplier
-      const newSupplier: Supplier = {
-        ...supplierData,
-        id: `supplier-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      }
-      setSuppliers(prev => [...prev, newSupplier])
-    }
-
-    setShowForm(false)
-    setEditingSupplier(null)
-  }
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [supplierId, setSupplierId] = useState<string | null>(null)
 
   const handleEditSupplier = (supplier: Supplier) => {
     setEditingSupplier(supplier)
     setShowForm(true)
   }
 
-  const handleDeleteSupplier = (supplierId: string) => {
-    if (confirm('Are you sure you want to delete this supplier?')) {
-      setSuppliers(prev => prev.filter(supplier => supplier.id !== supplierId))
+  const handleDeleteSupplier = async (supplierId: string) => {
+    setShowDeleteModal(true)
+    setSupplierId(supplierId)
+  }
+
+  const confirmDeleteSupplier = async () => {
+    if (!supplierId) return
+
+    try {
+      await deleteSupplier(supplierId).unwrap()
+      toast.success('Supplier deleted successfully')
+    } catch (error) {
+      toast.error('Failed to delete supplier')
+    } finally {
+      setShowDeleteModal(false)
+      setSupplierId(null)
     }
   }
+
+  const handleFormClose = () => {
+    setShowForm(false)
+    setEditingSupplier(null)
+  }
+
+  const loading = isLoading || isFetching
 
   return (
     <div className='space-y-6'>
@@ -179,10 +101,7 @@ const Suppliers = () => {
       {/* Suppliers Table */}
       <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden'>
         {loading ? (
-          <div className='p-8 text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto'></div>
-            <p className='mt-2 text-gray-500 dark:text-gray-400'>Loading suppliers...</p>
-          </div>
+          <LoadingSpinner />
         ) : (
           <div className='overflow-x-auto'>
             <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
@@ -206,7 +125,7 @@ const Suppliers = () => {
                 </tr>
               </thead>
               <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
-                {filteredSuppliers.map(supplier => (
+                {suppliers.map(supplier => (
                   <tr key={supplier.id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div>
@@ -251,7 +170,7 @@ const Suppliers = () => {
                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                       <div className='flex space-x-2'>
                         <Link
-                          href={`/suppliers/${supplier.id}`}
+                          href={`/suppliers/${supplier._id}`}
                           className='text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300'
                           title='View Details'
                         >
@@ -294,7 +213,7 @@ const Suppliers = () => {
               </tbody>
             </table>
 
-            {filteredSuppliers.length === 0 && (
+            {suppliers.length === 0 && (
               <div className='text-center py-8'>
                 <p className='text-gray-500 dark:text-gray-400'>No suppliers found</p>
               </div>
@@ -305,14 +224,13 @@ const Suppliers = () => {
 
       {/* Supplier Form Modal */}
       {showForm && (
-        <SupplierForm
-          supplier={editingSupplier}
-          onSave={handleSaveSupplier}
-          onCancel={() => {
-            setShowForm(false)
-            setEditingSupplier(null)
-          }}
-          open={showForm}
+        <SupplierForm supplier={editingSupplier} onCancel={handleFormClose} open={showForm} />
+      )}
+
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteSupplier}
         />
       )}
     </div>

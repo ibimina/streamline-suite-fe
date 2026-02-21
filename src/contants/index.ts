@@ -7,4 +7,11 @@ const ACCENT_COLORS: Record<AccentColor, string> = {
   slate: '#64748B',
 }
 
-export { ACCENT_COLORS }
+enum CUSTOMER_STATUS {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+}
+
+const PORTAL_BASE_PATH = '/customer-portal'
+export { ACCENT_COLORS, CUSTOMER_STATUS, PORTAL_BASE_PATH }

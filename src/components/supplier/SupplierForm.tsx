@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetHeader } from '../ui/sheet'
@@ -7,15 +8,18 @@ import { Select, SelectContent, SelectValue, SelectTrigger, SelectItem } from '.
 import { supplierSchema } from '@/schemas/supplier.schema'
 import { Supplier, SupplierFormData } from '@/types/supplier.type'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
+import { useCreateSupplierMutation, useUpdateSupplierMutation } from '@/store/api/supplierApi'
 
 interface SupplierFormProps {
   supplier: Supplier | null
-  onSave: (supplier: Supplier) => void
   onCancel: () => void
   open: boolean
 }
 
-const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onSave, onCancel, open }) => {
+const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open }) => {
+  const [createSupplier] = useCreateSupplierMutation()
+  const [updateSupplier] = useUpdateSupplierMutation()
+
   const {
     register,
     handleSubmit,
@@ -82,12 +86,20 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onSave, onCancel,
     'Due on Receipt',
   ]
 
-  const onSubmit = (data: SupplierFormData) => {
+  const onSubmit = async (data: SupplierFormData) => {
     try {
-      onSave({ ...data, id: supplier?.id })
+      if (supplier?.id) {
+        await updateSupplier({ supplierId: supplier.id, data }).unwrap()
+        toast.success('Supplier updated successfully')
+      } else {
+        await createSupplier(data).unwrap()
+        toast.success('Supplier created successfully')
+      }
       reset()
-    } catch (error) {
+      onCancel()
+    } catch (error: any) {
       console.error('Error saving supplier:', error)
+      toast.error(error?.data?.message || 'Failed to save supplier')
     }
   }
 

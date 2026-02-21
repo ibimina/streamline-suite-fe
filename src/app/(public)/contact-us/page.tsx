@@ -7,7 +7,6 @@ const ContactPage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     alert("Thank you for your message! We'll get back to you shortly.")
-    // Here you would typically handle form submission, e.g., send data to an API
     ;(e.target as HTMLFormElement).reset()
   }
 

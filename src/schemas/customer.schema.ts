@@ -8,15 +8,17 @@ export const customerSchema = z.object({
     .trim(),
   companyName: z
     .string()
-    .min(2, 'Company name must be at least 2 characters')
     .max(100, 'Company name must be less than 100 characters')
-    .trim(),
-  currency: z.string().min(1, 'Please select a currency'),
-  email: z.string().email('Please enter a valid email address').trim(),
-  language: z.string().min(1, 'Please select a language').optional(),
+    .trim()
+    .optional()
+    .or(z.literal('')),
+  currency: z.string().optional().or(z.literal('')),
+  email: z.email('Please enter a valid email address').trim().optional().or(z.literal('')),
+  language: z.string().optional().or(z.literal('')),
   phone: z
     .string()
     .optional()
+    .or(z.literal(''))
     .refine(
       val => {
         if (!val) return true // Optional field
@@ -27,21 +29,25 @@ export const customerSchema = z.object({
         message: 'Please enter a valid phone number with country code',
       }
     ),
-  address: z.string().min(5, 'Please enter a valid address'),
-  billingAddress: z.object({
-    street: z.string().min(1, 'Street is required'),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    postalCode: z.string().min(1, 'Zip Code is required'),
-    country: z.string().min(1, 'Country is required'),
-  }),
-  shippingAddress: z.object({
-    street: z.string().min(1, 'Street is required'),
-    city: z.string().min(1, 'City is required'),
-    state: z.string().min(1, 'State is required'),
-    postalCode: z.string().min(1, 'Zip Code is required'),
-    country: z.string().min(1, 'Country is required'),
-  }),
+  address: z.string().optional().or(z.literal('')),
+  billingAddress: z
+    .object({
+      street: z.string().optional().or(z.literal('')),
+      city: z.string().optional().or(z.literal('')),
+      state: z.string().optional().or(z.literal('')),
+      postalCode: z.string().optional().or(z.literal('')),
+      country: z.string().optional().or(z.literal('')),
+    })
+    .optional(),
+  shippingAddress: z
+    .object({
+      street: z.string().optional().or(z.literal('')),
+      city: z.string().optional().or(z.literal('')),
+      state: z.string().optional().or(z.literal('')),
+      postalCode: z.string().optional().or(z.literal('')),
+      country: z.string().optional().or(z.literal('')),
+    })
+    .optional(),
   contacts: z
     .array(
       z.object({
@@ -50,17 +56,24 @@ export const customerSchema = z.object({
           .min(2, 'Contact name must be at least 2 characters')
           .max(100, 'Contact name must be less than 100 characters')
           .trim(),
-        email: z.email('Please enter a valid email address').trim(),
-        phone: z.string().optional(),
-        role: z.string().optional(),
+        email: z
+          .string()
+          .email('Please enter a valid email address')
+          .trim()
+          .optional()
+          .or(z.literal('')),
+        phone: z.string().optional().or(z.literal('')),
+        role: z.string().optional().or(z.literal('')),
         primary: z.boolean().optional(),
       })
     )
     .optional(),
 
-  taxId: z.string().optional(),
+  taxId: z.string().optional().or(z.literal('')),
   creditLimit: z.number().min(0, 'Credit limit cannot be negative').optional(),
   tags: z.array(z.string()).optional(),
-  status: z.boolean().optional(),
-  notes: z.string().optional(),
+  status: z.enum(['active', 'inactive', 'suspended']).optional(),
+  notes: z.string().optional().or(z.literal('')),
 })
+
+export type CustomerFormData = z.infer<typeof customerSchema>

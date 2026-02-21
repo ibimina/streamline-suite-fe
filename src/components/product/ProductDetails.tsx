@@ -1,59 +1,49 @@
 'use client'
-import React from 'react'
 import { useState } from 'react'
 import ProductForm from './ProductForm'
-
-const product = {
-  id: 'prod_001',
-  sku: 'SKU001',
-  barcode: '123456789012',
-  name: 'MacBook Pro 16"',
-  description:
-    'High-performance laptop for professionals with M2 Pro chip, 16GB RAM, and 512GB SSD',
-  type: 'product' as const,
-  trackInventory: true,
-  trackSerialNumber: true,
-  trackExpiryDate: false,
-  expiryDate: '2025-12-31',
-  costPrice: 2000,
-  sellingPrice: 2499,
-  wholesalePrice: 2200,
-  unit: 'pcs',
-  currentStock: 25,
-  minStock: 5,
-  lowStockAlert: 10,
-  category: 'Electronics',
-  brand: 'Apple',
-  supplierId: 'supp_001',
-  supplierName: 'Tech Solutions Ltd',
-  alternativeSupplierIds: ['supp_003', 'supp_002'],
-  alternativeSuppliers: [
-    { id: 'supp_003', name: 'Electronics Plus' },
-    { id: 'supp_002', name: 'Office Supplies Co.' },
-  ],
-  images: ['https://example.com/macbook-1.jpg', 'https://example.com/macbook-2.jpg'],
-  salesTaxRate: 8.5,
-  purchaseTaxRate: 5,
-  isActive: true,
-  createdAt: '2023-01-15T10:00:00Z',
-  updatedAt: '2023-06-20T15:30:00Z',
-}
+import { useParams } from 'next/navigation'
+import { useDeleteProductMutation, useGetProductByIdQuery } from '@/store/api/productApi'
+import LoadingSpinner from '../shared/LoadingSpinner'
+import Link from 'next/link'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { useRouter } from 'next/navigation'
 
 const ProductDetails = () => {
   const [showForm, setShowForm] = useState(false)
+  const router = useRouter()
+
+  const params = useParams()
+  const id = params?.id as string
+  const { data, isLoading: loading } = useGetProductByIdQuery(id, {
+    skip: !id,
+  })
+  const [deleteProduct] = useDeleteProductMutation()
+
+  const product = data?.payload ?? null
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      // Handle deletion logic here
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteProduct = async () => {
+    if (!id) return
+
+    try {
+      await deleteProduct(id).unwrap()
+      // Redirect to products list after deletion
+      router.push('/products')
+    } catch (error: any) {
+      alert(error?.data?.message || 'Failed to delete product')
     }
   }
 
   const getStockStatus = () => {
-    if (!product.trackInventory) return null
+    if (!product?.trackInventory) return null
 
-    const currentStock = product.currentStock || 0
-    const lowStockAlert = product.lowStockAlert || 0
-    const minStock = product.minStock || 0
+    const currentStock = product?.currentStock || 0
+    const lowStockAlert = product?.lowStockAlert || 0
+    const minStock = product?.minStock || 0
 
     if (currentStock === 0) return 'out-of-stock'
     if (currentStock <= minStock) return 'critical'
@@ -93,12 +83,43 @@ const ProductDetails = () => {
 
   const stockStatus = getStockStatus()
 
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+          <Link
+            href={'/products'}
+            className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+          >
+            <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M15 19l-7-7 7-7'
+              />
+            </svg>
+            Back to Products
+          </Link>
+        </div>
+        <div className='p-6'>Product not found.</div>
+      </div>
+    )
+  }
+
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      {/* Header */}
       <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
-        <button
-          // onClick={onBack}
+        <Link
+          href={'/products'}
           className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
         >
           <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -110,7 +131,8 @@ const ProductDetails = () => {
             />
           </svg>
           Back to Products
-        </button>
+        </Link>
+
         <div className='flex items-center justify-between max-w-7xl mx-auto'>
           <div className='flex items-center space-x-4'>
             <div className='flex-shrink-0 h-16 w-16'>
@@ -160,7 +182,6 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Content */}
       <div className='max-w-7xl mx-auto px-6 py-8'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {/* Basic Information */}
@@ -342,13 +363,13 @@ const ProductDetails = () => {
           </div>
 
           {/* Supplier Information */}
-          {(product.supplierName || product.alternativeSuppliers?.length) && (
+          {(product.supplier._id || product.alternativeSuppliers?.length) && (
             <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
               <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
                 Supplier Information
               </h3>
               <div className='space-y-4'>
-                {product.supplierName && (
+                {product.supplier.name && (
                   <div>
                     <label className='block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2'>
                       Primary Supplier
@@ -356,7 +377,7 @@ const ProductDetails = () => {
                     <div className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-teal-500'>
                       <div className='flex-1'>
                         <p className='font-medium text-gray-900 dark:text-white'>
-                          {product.supplierName}
+                          {product.supplier.name}
                         </p>
                         <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
                           Primary
@@ -374,7 +395,7 @@ const ProductDetails = () => {
                     <div className='space-y-2'>
                       {product.alternativeSuppliers.map((supplier, index) => (
                         <div
-                          key={supplier.id}
+                          key={supplier._id}
                           className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-gray-300'
                         >
                           <div className='flex-1'>
@@ -507,7 +528,6 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* Action Footer */}
       <div className='mt-8 flex items-center justify-between p-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-lg'>
         <button
           onClick={handleDelete}
@@ -525,13 +545,17 @@ const ProductDetails = () => {
       {showForm && (
         <ProductForm
           product={product as any}
-          onSave={() => {
-            setShowForm(false)
-          }}
           onCancel={() => {
             setShowForm(false)
           }}
           open={showForm}
+        />
+      )}
+
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteProduct}
         />
       )}
     </div>

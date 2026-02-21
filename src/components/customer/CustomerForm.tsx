@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
 import { Sheet, SheetContent, SheetHeader } from '../ui/sheet'
 import { Select, SelectContent, SelectValue, SelectTrigger, SelectItem } from '../ui/select'
 import { customerSchema } from '@/schemas/customer.schema'
@@ -7,74 +8,34 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CustomerFormData } from '@/types/customer.type'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
-
-export interface Customer {
-  id?: string
-  fullName: string
-  companyName?: string
-  email?: string
-  phone?: string
-  address?: string
-  billingAddress?: {
-    street?: string
-    city?: string
-    state?: string
-    postalCode?: string
-    country?: string
-  }
-  shippingAddress?: {
-    street?: string
-    city?: string
-    state?: string
-    postalCode?: string
-    country?: string
-  }
-  contacts?: {
-    name: string
-    email?: string
-    phone?: string
-    role?: string
-    primary?: boolean
-  }[]
-  branches?: {
-    name: string
-    code?: string
-    address?: {
-      street?: string
-      city?: string
-      state?: string
-      postalCode?: string
-      country?: string
-    }
-    contactPerson?: string
-    contactEmail?: string
-    contactPhone?: string
-    notes?: string
-    isActive?: boolean
-  }[]
-  tags?: string[]
-  customFields?: Record<string, any>
-  currency?: string
-  language?: string
-  status?: 'active' | 'inactive' | 'suspended'
-  notes?: string
-  accountId?: string
-  createdBy?: string
-  createdAt?: string
-  updatedAt?: string
-  taxId?: string
-  creditLimit?: number
-  isActive?: boolean
-}
+import { Customer } from '@/interface/customer.interface'
+import { CUSTOMER_STATUS } from '@/contants'
+import { useCreateCustomerMutation, useUpdateCustomerMutation } from '@/store/api/customerApi'
 
 interface CustomerFormProps {
   customer: Customer | null
-  onSave: (customer: Customer) => void
   onCancel: () => void
   open: boolean
 }
 
-const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel, open }) => {
+// Default values for a new customer
+const defaultCustomerValues: CustomerFormData = {
+  fullName: '',
+  companyName: '',
+  currency: 'USD',
+  email: '',
+  language: '',
+  phone: '',
+  address: '',
+  billingAddress: {},
+  shippingAddress: {},
+  contacts: [],
+  tags: [],
+  status: CUSTOMER_STATUS.ACTIVE,
+  notes: '',
+}
+
+const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open }) => {
   const [newTag, setNewTag] = useState('')
   const [newContact, setNewContact] = useState({
     name: '',
@@ -88,12 +49,31 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue,
-    watch,
     control,
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema) as any,
-    defaultValues: { ...customerSchema.parse(customer || {}) },
+    defaultValues: customer
+      ? {
+          fullName: customer.fullName ?? '',
+          companyName: customer.companyName ?? '',
+          currency: customer.currency ?? 'USD',
+          email: customer.email ?? '',
+          language: customer.language ?? '',
+          phone: customer.phone ?? '',
+          address: customer.address ?? '',
+          billingAddress: customer.billingAddress ?? defaultCustomerValues.billingAddress,
+          shippingAddress: customer.shippingAddress ?? defaultCustomerValues.shippingAddress,
+          contacts: customer.contacts ?? [],
+          taxId: customer.taxId ?? '',
+          creditLimit: customer.creditLimit ?? 0,
+          tags: customer.tags ?? [],
+          status: customer.status ?? 'active',
+          notes: customer.notes ?? '',
+        }
+      : defaultCustomerValues,
   })
+  const [createCustomer] = useCreateCustomerMutation()
+  const [updateCustomer] = useUpdateCustomerMutation()
 
   const { fields, remove, append } = useFieldArray({
     name: 'contacts',
@@ -102,12 +82,24 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
 
   const tags = useWatch({ control, name: 'tags' }) || []
 
-  const onSubmit = (data: CustomerFormData) => {
+  const onSubmit = async (data: CustomerFormData) => {
     try {
-      // onSave({ ...data, id: customer?.id })
-    } catch (error) {
+      if (customer?.id) {
+        await updateCustomer({ data, customerId: customer.id }).unwrap()
+        toast.success('Customer updated successfully')
+      } else {
+        await createCustomer(data).unwrap()
+        toast.success('Customer created successfully')
+      }
+      onCancel() // Close the form on success
+    } catch (error: any) {
       console.error('Error saving customer:', error)
+      toast.error(error?.data?.message || error?.message || 'Failed to save customer')
     }
+  }
+
+  const onInvalid = (errors: any) => {
+    console.warn('Validation errors:', errors)
   }
 
   return (
@@ -123,7 +115,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
             {customer?.id ? 'Edit Customer' : 'Add New Customer'}
           </h2>
         </SheetHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Full Name */}
             <div>
@@ -141,10 +133,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
 
             {/* Company Name */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label
+                htmlFor='companyName'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              >
                 Company Name <span className='text-xs text-gray-400'>(optional)</span>
               </label>
               <input
+                id='companyName'
                 type='text'
                 {...register('companyName')}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -153,10 +149,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
             </div>
             {/* Email */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label
+                htmlFor='email'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              >
                 Email <span className='text-xs text-gray-400'>(optional)</span>
               </label>
               <input
+                id='email'
                 type='email'
                 {...register('email')}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -167,10 +167,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
 
             {/* Phone */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label
+                htmlFor='phone'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              >
                 Phone <span className='text-xs text-gray-400'>(optional)</span>
               </label>
               <input
+                id='phone'
                 type='tel'
                 {...register('phone')}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -180,10 +184,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
 
             {/* Address */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label
+                htmlFor='address'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              >
                 Address <span className='text-xs text-gray-400'>(optional)</span>
               </label>
               <input
+                id='address'
                 type='text'
                 {...register('address')}
                 className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -193,10 +201,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
 
             {/* Currency */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label
+                htmlFor='currency'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              >
                 Currency <span className='text-xs text-gray-400'>(optional)</span>
               </label>
               <input
+                id='currency'
                 type='text'
                 maxLength={3}
                 {...register('currency')}
@@ -214,21 +226,29 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
             </h3>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='billingAddress.street'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Street
                 </label>
                 <input
                   type='text'
+                  id='billingAddress.street'
                   {...register('billingAddress.street')}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                   placeholder='123 Main St'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='billingAddress.city'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   City
                 </label>
                 <input
+                  id='billingAddress.city'
                   type='text'
                   {...register('billingAddress.city')}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -236,10 +256,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='billingAddress.state'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   State
                 </label>
                 <input
+                  id='billingAddress.state'
                   type='text'
                   {...register('billingAddress.state')}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -247,10 +271,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='billingAddress.postalCode'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Postal Code
                 </label>
                 <input
+                  id='billingAddress.postalCode'
                   type='text'
                   {...register('billingAddress.postalCode')}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -258,10 +286,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='billingAddress.country'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Country
                 </label>
                 <input
+                  id='billingAddress.country'
                   type='text'
                   {...register('billingAddress.country')}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
@@ -320,7 +352,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
             {/* Add New Contact */}
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='contact.name'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Name <span className='text-red-500 text-sm'>*</span>
                 </label>
                 <input
@@ -332,7 +367,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='contact.email'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Email <span className='text-xs text-gray-400'>(optional)</span>
                 </label>
                 <input
@@ -344,11 +382,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='contact.phone'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Phone <span className='text-xs text-gray-400'>(optional)</span>
                 </label>
                 <input
                   type='tel'
+                  id='contact.phone'
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
                   placeholder='+1 (555) 123-4567'
                   value={newContact.phone}
@@ -356,7 +398,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label
+                  htmlFor='contact.role'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                >
                   Role <span className='text-xs text-gray-400'>(optional)</span>
                 </label>
                 <input
@@ -398,202 +443,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
               </div>
             </div>
           </div>
-
-          {/* Branches Section */}
-          {/* <div className="mt-6"> */}
-          {/* <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                            Branches/Locations <span className="text-sm text-gray-400">(optional)</span>
-                        </h3> */}
-
-          {/* Existing Branches */}
-          {/* {formData.branches && formData.branches.length > 0 && (
-                            <div className="mb-4 space-y-2">
-                                {formData.branches.map((branch, index) => (
-                                    <div key={index} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-medium text-gray-900 dark:text-white">{branch.name}</span>
-                                                {branch.code && (
-                                                    <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200 rounded">
-                                                        {branch.code}
-                                                    </span>
-                                                )}
-                                                <span className={`px-2 py-1 text-xs rounded-full ${branch.isActive ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
-                                                    {branch.isActive ? 'Active' : 'Inactive'}
-                                                </span>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => removeBranch(index)}
-                                                className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                                            >
-                                                ×
-                                            </button>
-                                        </div>
-                                        {branch.address && (
-                                            <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                                                {branch.address.street}, {branch.address.city}, {branch.address.state} {branch.address.postalCode}, {branch.address.country})
-                                            </div>
-                                        )}
-                                        {(branch.contactPerson || branch.contactEmail || branch.contactPhone) && (
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                {branch.contactPerson && <span>{branch.contactPerson}</span>}
-                                                {branch.contactPerson && (branch.contactEmail || branch.contactPhone) && <span> • </span>}
-                                                {branch.contactEmail && <span>{branch.contactEmail}</span>}
-                                                {(branch.contactEmail && branch.contactPhone) && <span> • </span>}
-                                                {branch.contactPhone && <span>{branch.contactPhone}</span>}
-                                            </div>
-                                        )}
-
-                                        <div className="flex items-end">
-                                            <button
-                                                type="button"
-                                                onClick={addBranch}
-                                                className="w-full px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                            >
-                                                Add Branch
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                        )} */}
-          {/* add new branch */}
-          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md mt-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Branch Name <span className="text-red-500 text-sm">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={newBranch.name}
-                                    onChange={(e) => setNewBranch(prev => ({ ...prev, name: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    placeholder="Branch name"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code <span className="text-xs text-gray-400">(optional)</span></label>
-                                <input
-                                    type="text"
-                                    value={newBranch.code}
-                                    onChange={(e) => setNewBranch(prev => ({ ...prev, code: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    placeholder="BR-001"
-                                />
-                            </div>
-
-                            <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address <span className="text-xs text-gray-400">(optional)</span></h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <input
-                                        type="text"
-                                        value={newBranch.address.street}
-                                        onChange={(e) => setNewBranch(prev => ({ ...prev, address: { ...prev.address, street: e.target.value } }))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        placeholder="Street"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={newBranch.address.city}
-                                        onChange={(e) => setNewBranch(prev => ({ ...prev, address: { ...prev.address, city: e.target.value } }))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        placeholder="City"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={newBranch.address.state}
-                                        onChange={(e) => setNewBranch(prev => ({ ...prev, address: { ...prev.address, state: e.target.value } }))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        placeholder="State"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={newBranch.address.postalCode}
-                                        onChange={(e) => setNewBranch(prev => ({ ...prev, address: { ...prev.address, postalCode: e.target.value } }))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        placeholder="Postal Code"
-                                    />
-                                    <input
-                                        type="text"
-                                        value={newBranch.address.country}
-                                        onChange={(e) => setNewBranch(prev => ({ ...prev, address: { ...prev.address, country: e.target.value } }))}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                        placeholder="Country"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Person <span className="text-xs text-gray-400">(optional)</span></label>
-                                <input
-                                    type="text"
-                                    value={newBranch.contactPerson}
-                                    onChange={(e) => setNewBranch(prev => ({ ...prev, contactPerson: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    placeholder="Contact name"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Email <span className="text-xs text-gray-400">(optional)</span></label>
-                                <input
-                                    type="email"
-                                    value={newBranch.contactEmail}
-                                    onChange={(e) => setNewBranch(prev => ({ ...prev, contactEmail: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    placeholder="contact@branch.com"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contact Phone <span className="text-xs text-gray-400">(optional)</span></label>
-                                <input
-                                    type="tel"
-                                    value={newBranch.contactPhone}
-                                    onChange={(e) => setNewBranch(prev => ({ ...prev, contactPhone: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    placeholder="+1 (555) 123-4567"
-                                />
-                            </div>
-
-                            <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes <span className="text-xs text-gray-400">(optional)</span></label>
-                                <textarea
-                                    value={newBranch.notes}
-                                    onChange={(e) => setNewBranch(prev => ({ ...prev, notes: e.target.value }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                    placeholder="Additional details about the branch"
-                                    rows={2}
-                                />
-                            </div>
-
-                            <div className="flex items-center gap-4 col-span-1 md:col-span-2 lg:col-span-1">
-                                <label className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={newBranch.isActive}
-                                        onChange={(e) => setNewBranch(prev => ({ ...prev, isActive: e.target.checked }))}
-                                        className="mr-2 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active</span>
-                                </label>
-                            </div>
-
-                            <div className="flex items-end">
-                                <button
-                                    type="button"
-                                    onClick={addBranch}
-                                    className="w-full px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                >
-                                    Add Branch
-                                </button>
-                            </div>
-                        </div> */}
-
-          {/* </div> */}
           {/* Status and Language Section */}
           <div className='mt-6 grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
@@ -700,9 +549,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel,
             </button>
             <button
               type='submit'
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+              disabled={isSubmitting}
+              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              {customer?.id ? 'Update Customer' : 'Create Customer'}
+              {isSubmitting ? 'Saving...' : customer?.id ? 'Update Customer' : 'Create Customer'}
             </button>
           </div>
         </form>

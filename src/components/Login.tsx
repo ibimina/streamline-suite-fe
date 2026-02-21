@@ -4,24 +4,20 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginFormData } from '@/types/login.types'
 import { loginSchema } from '@/schemas/login.schema'
-import { useAppDispatch } from '@/store/hooks'
-import { loginAction } from '@/store/slices/auth/actions'
+import { useLoginMutation } from '@/store/api'
 import { useRouter } from 'next/navigation'
 import InputErrorWrapper from './shared/InputErrorWrapper'
+import Link from 'next/link'
 
-interface LoginProps {
-  onNavigateToSignUp: () => void
-}
-
-const Login: React.FC<LoginProps> = ({ onNavigateToSignUp }) => {
+const Login: React.FC<LoginProps> = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [error, setError] = useState('')
-  const dispatch = useAppDispatch()
+  const [login, { isLoading }] = useLoginMutation()
   const router = useRouter()
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -30,17 +26,14 @@ const Login: React.FC<LoginProps> = ({ onNavigateToSignUp }) => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setError('')
-      // Simulate API call
-
-      // Simulate successful login after a short delay
-      // await new Promise(resolve => setTimeout(resolve, 1000))
-      await dispatch(loginAction(data))
-      // Reset form and call success callback
+      await login(data).unwrap()
       reset()
       router.push('/dashboard')
-      // onLoginSuccess()
-    } catch (err) {
-      setError('Login failed. Please check your credentials.')
+    } catch (err: any) {
+      console.error('Login error:', err)
+      const message =
+        err?.data?.message ?? err?.message ?? 'Login failed. Please check your credentials.'
+      setError(message)
     }
   }
 
@@ -53,9 +46,6 @@ const Login: React.FC<LoginProps> = ({ onNavigateToSignUp }) => {
       <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white'>
         Sign in to your account
       </h2>
-      <p className='mt-2 text-center text-sm text-gray-600 dark:text-gray-400'>
-        to continue to Streamline Suite
-      </p>
 
       <div className='mt-8'>
         <div className='bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-lg sm:px-10'>
@@ -115,10 +105,10 @@ const Login: React.FC<LoginProps> = ({ onNavigateToSignUp }) => {
             <div>
               <button
                 type='submit'
-                disabled={isSubmitting}
+                disabled={isLoading}
                 className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed'
               >
-                {isSubmitting ? 'Signing in...' : 'Sign in'}
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>
@@ -134,12 +124,12 @@ const Login: React.FC<LoginProps> = ({ onNavigateToSignUp }) => {
               </div>
             </div>
             <div className='mt-6'>
-              <button
-                onClick={onNavigateToSignUp}
+              <Link
+                href={'/signup'}
                 className='w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
               >
                 Create an account
-              </button>
+              </Link>
             </div>
           </div>
         </div>

@@ -2,61 +2,82 @@
 import React from 'react'
 import { useState } from 'react'
 import CustomerForm from './CustomerForm'
-
-const customer = {
-  id: 'cust_001',
-  fullName: 'John Doe',
-  companyName: 'Doe Enterprises',
-  email: 'john.doe@doeenterprises.com',
-  phone: '+1 (555) 123-4567',
-  currency: 'USD',
-  status: 'active',
-  address: '123 Main St, San Francisco, CA 94105',
-  billingAddress: {
-    street: '123 Billing St',
-    city: 'San Francisco',
-    state: 'CA',
-    postalCode: '94105',
-    country: 'USA',
-  },
-  shippingAddress: {
-    street: '456 Shipping Ave',
-    city: 'San Francisco',
-    state: 'CA',
-    postalCode: '94107',
-    country: 'USA',
-  },
-  contacts: [
-    {
-      name: 'Jane Smith',
-      email: 'jane.smith@doeenterprises.com',
-      phone: '+1 (555) 987-6543',
-      role: 'Account Manager',
-      primary: true,
-    },
-  ],
-  tags: ['VIP', 'Newsletter Subscriber'],
-  notes: 'This is a valued customer who prefers email communication.',
-  createdAt: '2023-01-15T10:00:00Z',
-  updatedAt: '2023-06-20T15:30:00Z',
-  taxId: 'TAX123456',
-  creditLimit: 5000,
-  language: 'English',
-}
+import { useDeleteCustomerMutation, useGetCustomerByIdQuery } from '@/store/api/customerApi'
+import { useParams } from 'next/navigation'
+import LoadingSpinner from '../shared/LoadingSpinner'
+import Link from 'next/link'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { useRouter } from 'next/navigation'
 
 const CustomerDetails = () => {
+  const params = useParams()
+  const router = useRouter()
+
+  const id = params?.id as string
+  const { data, isLoading: loading } = useGetCustomerByIdQuery(id, {
+    skip: !id,
+  })
+  const [deleteCustomer] = useDeleteCustomerMutation()
+  const customer = data?.payload ?? null
+
   const [showForm, setShowForm] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this customer?')) {
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteCustomer = async () => {
+    if (id) {
+      try {
+        await deleteCustomer(id).unwrap()
+        // Optionally, redirect to customers list after deletion
+        router.push('/customers')
+      } catch (error: any) {
+        alert(error?.data?.message || 'Failed to delete customer')
+      }
     }
+  }
+
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (!customer) {
+    return (
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+        {/* Header */}
+        <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+          <Link
+            href={'/customers'}
+            className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+          >
+            <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M15 19l-7-7 7-7'
+              />
+            </svg>
+            Back to Customers
+          </Link>
+        </div>
+        <div className='p-6'>Customer not found.</div>
+      </div>
+    )
   }
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}
       <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
-        <button
-          // onClick={onBack}
+        <Link
+          href={'/customers'}
           className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
         >
           <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -68,7 +89,7 @@ const CustomerDetails = () => {
             />
           </svg>
           Back to Customers
-        </button>
+        </Link>
         <div className='flex items-center justify-between max-w-7xl mx-auto'>
           <div className='flex items-center space-x-4'>
             <div>
@@ -85,17 +106,19 @@ const CustomerDetails = () => {
           <div className='flex items-center gap-3'>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${
-                customer.status === 'active'
+                customer?.status === 'active'
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                   : customer.status === 'inactive'
                     ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                     : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
               }`}
             >
-              {customer.status?.charAt(0).toUpperCase() + customer.status?.slice(1)}
+              {customer?.status
+                ? customer.status.charAt(0).toUpperCase() + customer.status.slice(1)
+                : 'Unknown'}
             </span>
             <button
-              // onClick={() => onEdit(customer)}
+              onClick={() => setShowForm(true)}
               className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
             >
               Edit Customer
@@ -169,7 +192,7 @@ const CustomerDetails = () => {
                   <p className='text-gray-900 dark:text-white'>{customer.language}</p>
                 </div>
               )}
-              {customer.taxId && (
+              {customer?.taxId && (
                 <div>
                   <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Tax ID
@@ -177,7 +200,7 @@ const CustomerDetails = () => {
                   <p className='text-gray-900 dark:text-white'>{customer.taxId}</p>
                 </div>
               )}
-              {customer.creditLimit && (
+              {customer?.creditLimit && (
                 <div>
                   <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Credit Limit
@@ -186,7 +209,7 @@ const CustomerDetails = () => {
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: customer.currency || 'USD',
-                    }).format(customer.creditLimit)}
+                    }).format(customer?.creditLimit)}
                   </p>
                 </div>
               )}
@@ -351,12 +374,12 @@ const CustomerDetails = () => {
                   </p>
                 </div>
               )}
-              {customer.id && (
+              {customer._id && (
                 <div>
                   <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Customer ID
                   </label>
-                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{customer.id}</p>
+                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{customer._id}</p>
                 </div>
               )}
             </div>
@@ -380,14 +403,17 @@ const CustomerDetails = () => {
       {/* Customer Form Modal */}
       {showForm && (
         <CustomerForm
-          customer={customer as any}
-          onSave={() => {
-            setShowForm(false)
-          }}
+          customer={customer}
           onCancel={() => {
             setShowForm(false)
           }}
           open={showForm}
+        />
+      )}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteCustomer}
         />
       )}
     </div>

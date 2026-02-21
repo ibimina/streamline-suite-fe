@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import Logo from '../Logo'
+import Logo from '../shared/Logo'
 import { MenuIcon, XIcon } from '../Icons'
 import Link from 'next/link'
 

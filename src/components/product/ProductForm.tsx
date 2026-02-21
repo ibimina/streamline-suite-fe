@@ -8,15 +8,17 @@ import { MultiSelect, MultiSelectOption } from '../ui/multi-select'
 import { productSchema, ProductFormData } from '@/schemas/product.schema'
 import { Product } from '@/types/product.type'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
+import { useCreateProductMutation, useUpdateProductMutation } from '@/store/api/productApi'
+import { toast } from 'react-toastify'
+import { useGetSuppliersQuery } from '@/store/api/supplierApi'
 
 interface ProductFormProps {
   product: Partial<Product> | null
-  onSave: (product: Product) => void
   onCancel: () => void
   open: boolean
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, open }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) => {
   const {
     register,
     handleSubmit,
@@ -41,24 +43,35 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
       wholesalePrice: product?.wholesalePrice || 0,
       unit: product?.unit || '',
       lowStockAlert: product?.lowStockAlert || 0,
+      currentStock: product?.currentStock || 0,
       category: product?.category || '',
       brand: product?.brand || '',
-      supplierId: product?.supplierId || '',
-      alternativeSupplierIds: product?.alternativeSupplierIds || [],
+      supplier: product?.supplier?._id || '',
+      alternativeSuppliers: product?.alternativeSuppliers?.map(supplier => supplier._id) || [],
       images: product?.images || [],
       salesTaxRate: product?.salesTaxRate || 0,
       purchaseTaxRate: product?.purchaseTaxRate || 0,
       isActive: product?.isActive !== undefined ? product.isActive : true,
     },
   })
-  const alternativeSupplierIds = useWatch({ control, name: 'alternativeSupplierIds' }) || []
-
+  const alternativeSuppliers = useWatch({ control, name: 'alternativeSuppliers' }) || []
+  const [createProduct] = useCreateProductMutation()
+  const [updateProduct] = useUpdateProductMutation()
+  const { data } = useGetSuppliersQuery()
+  const suppliers = data?.payload?.suppliers || []
   const onSubmit = async (data: ProductFormData) => {
     try {
-      onSave({ ...data, id: product?.id } as Product)
+      if (product?._id) {
+        await updateProduct({ productId: product._id, data }).unwrap()
+        toast.success('Product updated successfully')
+      } else {
+        await createProduct(data).unwrap()
+        toast.success('Product created successfully')
+      }
       reset()
     } catch (error) {
       console.error('Error saving product:', error)
+      toast.error('Failed to save product')
     }
   }
 
@@ -72,7 +85,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
       <SheetContent className='w-full sm:max-w-2xl bg-white overflow-y-auto'>
         <SheetHeader className='pb-6'>
           <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>
-            {product?.id ? 'Edit Product' : 'Add New Product'}
+            {product?._id ? 'Edit Product' : 'Add New Product'}
           </h2>
         </SheetHeader>
 
@@ -248,7 +261,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
               )}
             </div>
 
-            <div>
+            <div className='w-full'>
               <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                 Purchase Tax Rate (%) <span className='text-xs text-gray-400'>(optional)</span>
               </label>
@@ -263,6 +276,36 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
               />
               {errors.purchaseTaxRate && (
                 <InputErrorWrapper message={errors.purchaseTaxRate.message || ''} />
+              )}
+            </div>
+            <div className='w-full'>
+              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                Low Stock Alert Level <span className='text-xs text-gray-400'>(optional)</span>
+              </label>
+              <input
+                type='number'
+                min='0'
+                {...register('lowStockAlert', { valueAsNumber: true })}
+                className='w-full  px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                placeholder='0'
+              />
+              {errors.lowStockAlert && (
+                <InputErrorWrapper message={errors.lowStockAlert.message || ''} />
+              )}
+            </div>
+            <div className='w-full'>
+              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                Current Stock <span className='text-xs text-gray-400'>(optional)</span>
+              </label>
+              <input
+                type='number'
+                min='0'
+                {...register('currentStock', { valueAsNumber: true })}
+                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                placeholder='0'
+              />
+              {errors.currentStock && (
+                <InputErrorWrapper message={errors.currentStock.message || ''} />
               )}
             </div>
           </div>
@@ -280,22 +323,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
                 </label>
                 <Select
                   // value={watch('supplierId') || undefined}
-                  onValueChange={value => setValue('supplierId', value === 'none' ? '' : value)}
+                  onValueChange={value => setValue('supplier', value === 'none' ? '' : value)}
                 >
                   <SelectTrigger className='w-full'>
                     <SelectValue placeholder='Select primary supplier' />
                   </SelectTrigger>
                   <SelectContent className='max-h-60 overflow-y-auto bg-white'>
-                    <SelectItem value='none'>No Primary Supplier</SelectItem>
-                    <SelectItem value='supp_001'>Tech Solutions Ltd</SelectItem>
-                    <SelectItem value='supp_002'>Office Supplies Co.</SelectItem>
-                    <SelectItem value='supp_003'>Electronics Plus</SelectItem>
-                    <SelectItem value='supp_004'>Digital Services Inc</SelectItem>
+                    {suppliers.map(supplier => (
+                      <SelectItem key={supplier._id} value={supplier._id}>
+                        {supplier.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                {errors.supplierId && (
-                  <InputErrorWrapper message={errors.supplierId.message || ''} />
-                )}
+                {errors.supplier && <InputErrorWrapper message={errors.supplier.message || ''} />}
               </div>
 
               <div>
@@ -304,15 +345,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
                 </label>
 
                 <MultiSelect
-                  options={[
-                    { value: 'supp_001', label: 'Tech Solutions Ltd' },
-                    { value: 'supp_002', label: 'Office Supplies Co.' },
-                    { value: 'supp_003', label: 'Electronics Plus' },
-                    { value: 'supp_004', label: 'Digital Services Inc' },
-                  ]}
-                  value={alternativeSupplierIds}
+                  options={
+                    suppliers?.map(supplier => ({
+                      value: supplier._id,
+                      label: supplier.name,
+                    })) || []
+                  }
+                  value={alternativeSuppliers}
                   // value={watch('alternativeSupplierIds') || []}
-                  onValueChange={value => setValue('alternativeSupplierIds', value)}
+                  onValueChange={value => setValue('alternativeSuppliers', value)}
                   placeholder='Select alternative suppliers'
                   maxCount={3}
                   className='w-full bg-white'
@@ -332,55 +373,40 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
             <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
               Inventory Settings <span className='text-xs text-gray-400'>(optional)</span>
             </h3>
-
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-              <div className='flex items-center'>
-                <input
-                  type='checkbox'
-                  {...register('trackInventory')}
-                  className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
-                />
-                <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-                  Track Inventory
-                </label>
-              </div>
-
-              <div className='flex items-center'>
-                <input
-                  type='checkbox'
-                  {...register('trackSerialNumber')}
-                  className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
-                />
-                <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-                  Track Serial Numbers
-                </label>
-              </div>
-
-              <div className='flex items-center'>
-                <input
-                  type='checkbox'
-                  {...register('trackExpiryDate')}
-                  className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
-                />
-                <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-                  Track Expiry Dates
-                </label>
-              </div>
+          </div>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div className='flex items-center'>
+              <input
+                type='checkbox'
+                {...register('trackInventory')}
+                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+              />
+              <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
+                Track Inventory
+              </label>
             </div>
 
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Low Stock Alert Level <span className='text-xs text-gray-400'>(optional)</span>
-            </label>
-            <input
-              type='number'
-              min='0'
-              {...register('lowStockAlert', { valueAsNumber: true })}
-              className='w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
-              placeholder='0'
-            />
-            {errors.lowStockAlert && (
-              <InputErrorWrapper message={errors.lowStockAlert.message || ''} />
-            )}
+            <div className='flex items-center'>
+              <input
+                type='checkbox'
+                {...register('trackSerialNumber')}
+                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+              />
+              <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
+                Track Serial Numbers
+              </label>
+            </div>
+
+            <div className='flex items-center'>
+              <input
+                type='checkbox'
+                {...register('trackExpiryDate')}
+                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+              />
+              <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
+                Track Expiry Dates
+              </label>
+            </div>
 
             {/* Conditional Expiry Date Input */}
             {/* {watch('trackExpiryDate') && (
@@ -424,7 +450,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, op
               disabled={isSubmitting}
               className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50'
             >
-              {isSubmitting ? 'Saving...' : product?.id ? 'Update Product' : 'Create Product'}
+              {isSubmitting ? 'Saving...' : product?._id ? 'Update Product' : 'Create Product'}
             </button>
           </div>
         </form>

@@ -8,7 +8,6 @@ const SignUpPage: React.FC = () => {
   const router = useRouter()
 
   const handleSuccess = () => {
-    // Redirect to dashboard after successful signup
     router.push('/dashboard')
   }
 

@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { LocalStorageManager } from '@/utils/localStorage'
-import { createNewAccountAction, loginAction, logOutAction, refreshTokenAction } from './actions'
 import { AuthState, LoginPayload, User } from './type'
 import { isTokenExpired } from '@/utils/jwt'
+import { authApi } from '@/store/api'
 
 // Initialize state from localStorage if available
 const getInitialState = (): AuthState => {
@@ -79,9 +79,6 @@ const authSlice = createSlice({
     getTokenInfo: state => {
       if (state.token) {
         const isExpired = isTokenExpired(state.token)
-        const expiration = LocalStorageManager.getItem<number>('streamline_token_expiration')
-          ? new Date(LocalStorageManager.getItem<number>('streamline_token_expiration')! * 1000)
-          : null
 
         // If token is expired, trigger session expiry
         if (isExpired) {
@@ -94,16 +91,28 @@ const authSlice = createSlice({
         }
       }
     },
+
+    // Reset auth state (for logout)
+    resetAuth: state => {
+      state.user = null
+      state.isAuthenticated = false
+      state.token = null
+      state.refreshToken = null
+      state.expiresIn = null
+      state.error = null
+      state.isLoading = false
+    },
   },
   extraReducers: builder => {
-    // Additional async actions can be handled here
+    // RTK Query matchers - sync local state with API responses
 
-    builder.addCase(createNewAccountAction.pending, state => {
+    // Login
+    builder.addMatcher(authApi.endpoints.login.matchPending, state => {
       state.isLoading = true
       state.error = null
     })
-    builder.addCase(
-      createNewAccountAction.fulfilled,
+    builder.addMatcher(
+      authApi.endpoints.login.matchFulfilled,
       (state, action: PayloadAction<{ payload: LoginPayload }>) => {
         state.isLoading = false
         state.isAuthenticated = true
@@ -112,87 +121,87 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.payload.refreshToken
         state.expiresIn = action.payload.payload.expiresIn
         state.error = null
-        LocalStorageManager.setAuthToken(action.payload.payload.accessToken)
-        LocalStorageManager.setRefreshToken(action.payload.payload.refreshToken)
-        // LocalStorageManager.setItem('streamline_user_session', action.payload.payload.user)
-        LocalStorageManager.setExpiresIn(action.payload.payload.expiresIn)
       }
     )
-    builder.addCase(createNewAccountAction.rejected, (state, action: any) => {
+    builder.addMatcher(authApi.endpoints.login.matchRejected, (state, action) => {
       state.isLoading = false
-      state.error = (action.payload as string) ?? action.error?.message ?? 'An error occurred'
+      state.error =
+        (action.payload as any)?.data?.message ?? action.error?.message ?? 'Login failed'
     })
-    //login
-    builder.addCase(loginAction.pending, state => {
+
+    // Create Account
+    builder.addMatcher(authApi.endpoints.createAccount.matchPending, state => {
       state.isLoading = true
       state.error = null
     })
-    builder.addCase(
-      loginAction.fulfilled,
+    builder.addMatcher(
+      authApi.endpoints.createAccount.matchFulfilled,
       (state, action: PayloadAction<{ payload: LoginPayload }>) => {
         state.isLoading = false
         state.isAuthenticated = true
         state.user = action.payload.payload.user
         state.token = action.payload.payload.accessToken
         state.refreshToken = action.payload.payload.refreshToken
+        state.expiresIn = action.payload.payload.expiresIn
         state.error = null
-        LocalStorageManager.setAuthToken(action.payload.payload.accessToken)
-        LocalStorageManager.setRefreshToken(action.payload.payload.refreshToken)
-        LocalStorageManager.setUserSession(action.payload.payload.user)
-        LocalStorageManager.setExpiresIn(action.payload.payload.expiresIn)
       }
     )
-    builder.addCase(loginAction.rejected, (state, action: any) => {
+    builder.addMatcher(authApi.endpoints.createAccount.matchRejected, (state, action) => {
       state.isLoading = false
-      state.error = (action.payload as string) ?? action.error?.message ?? 'An error occurred'
+      state.error =
+        (action.payload as any)?.data?.message ?? action.error?.message ?? 'Account creation failed'
     })
-    builder.addCase(logOutAction.pending, state => {
+
+    // Logout
+    builder.addMatcher(authApi.endpoints.logout.matchPending, state => {
       state.isLoading = true
       state.error = null
       state.isAuthenticated = false
       state.user = null
       state.token = null
       state.refreshToken = null
-      // state.refreshToken = null
     })
-    builder.addCase(logOutAction.fulfilled, state => {
+    builder.addMatcher(authApi.endpoints.logout.matchFulfilled, state => {
       state.isLoading = false
-      LocalStorageManager.clearAuthTokens()
+    })
+    builder.addMatcher(authApi.endpoints.logout.matchRejected, (state, action) => {
+      state.isLoading = false
+      state.error =
+        (action.payload as any)?.data?.message ?? action.error?.message ?? 'Logout failed'
+    })
 
-      // Clear localStorage
-    })
-    builder.addCase(logOutAction.rejected, (state, action: any) => {
-      state.isLoading = false
-      // If rejectWithValue was used, payload may be present; otherwise fall back to action.error.message
-      state.error = (action.payload as string) ?? action.error?.message ?? 'An error occurred'
-    })
-    builder.addCase(refreshTokenAction.pending, state => {
+    // Refresh Token
+    builder.addMatcher(authApi.endpoints.refreshToken.matchPending, state => {
       state.isLoading = true
       state.error = null
     })
-    builder.addCase(
-      refreshTokenAction.fulfilled,
+    builder.addMatcher(
+      authApi.endpoints.refreshToken.matchFulfilled,
       (state, action: PayloadAction<{ payload: LoginPayload }>) => {
         state.isLoading = false
         state.isAuthenticated = true
         state.user = action.payload.payload.user
         state.token = action.payload.payload.accessToken
         state.refreshToken = action.payload.payload.refreshToken
+        state.expiresIn = action.payload.payload.expiresIn
         state.error = null
-        LocalStorageManager.setAuthToken(action.payload.payload.accessToken)
-        LocalStorageManager.setRefreshToken(action.payload.payload.refreshToken)
-
-        LocalStorageManager.setUserSession(action.payload.payload.user)
-        LocalStorageManager.setExpiresIn(action.payload.payload.expiresIn)
       }
     )
-    builder.addCase(refreshTokenAction.rejected, (state, action: any) => {
+    builder.addMatcher(authApi.endpoints.refreshToken.matchRejected, (state, action) => {
       state.isLoading = false
-      state.error = (action.payload as string) ?? action.error?.message ?? 'An error occurred'
+      state.error =
+        (action.payload as any)?.data?.message ?? action.error?.message ?? 'Token refresh failed'
     })
   },
 })
 
-export const { clearError, restoreSession, sessionExpired, getTokenInfo } = authSlice.actions
+export const {
+  clearError,
+  restoreSession,
+  sessionExpired,
+  getTokenInfo,
+  resetAuth,
+  refreshTokenSuccess,
+} = authSlice.actions
 
 export default authSlice.reducer

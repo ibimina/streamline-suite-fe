@@ -1,6 +1,6 @@
 'use client'
-import Header from '@/components/Header'
-import Sidebar from '@/components/Sidebar'
+import Header from '@/components/shared/Header'
+import Sidebar from '@/components/shared/Sidebar'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'

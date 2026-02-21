@@ -18,10 +18,11 @@ export const productSchema = z.object({
   wholesalePrice: z.number().min(0, 'Wholesale price must be 0 or greater').optional(),
   unit: z.string().optional(),
   lowStockAlert: z.number().min(0, 'Low stock alert must be 0 or greater').optional(),
+  currentStock: z.number().min(0, 'Current stock must be 0 or greater').optional(),
   category: z.string().optional(),
   brand: z.string().optional(),
-  supplierId: z.string().optional(),
-  alternativeSupplierIds: z.array(z.string()).default([]),
+  supplier: z.string().optional(),
+  alternativeSuppliers: z.array(z.string()).default([]),
   images: z.array(z.string()).default([]),
   salesTaxRate: z
     .number()
