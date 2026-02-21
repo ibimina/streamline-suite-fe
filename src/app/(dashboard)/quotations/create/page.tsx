@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import QuotationForm from '@/components/quotation/QuotationForm'
 import { TemplateSelectionModal } from '@/components/TemplateSelectionModal'
@@ -7,7 +7,7 @@ import { Template, AccentColor, CustomTemplate } from '@/types'
 import { useGetQuotationByIdQuery } from '@/store/api'
 import { Quotation } from '@/types/quotation.type'
 
-export default function CreateQuotationPage() {
+function CreateQuotationContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get('duplicate')
@@ -152,5 +152,22 @@ export default function CreateQuotationPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function CreateQuotationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
+            <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <CreateQuotationContent />
+    </Suspense>
   )
 }

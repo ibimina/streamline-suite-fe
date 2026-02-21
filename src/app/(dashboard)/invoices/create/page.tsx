@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import InvoiceForm from '@/components/invoice/InvoiceForm'
 import { TemplateSelectionModal } from '@/components/TemplateSelectionModal'
@@ -7,7 +7,7 @@ import { Template, AccentColor, CustomTemplate } from '@/types'
 import { useGetInvoiceByIdQuery } from '@/store/api'
 import { Invoice } from '@/types/invoice.type'
 
-export default function CreateInvoicePage() {
+function CreateInvoiceContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get('duplicate')
@@ -129,5 +129,22 @@ export default function CreateInvoicePage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function CreateInvoicePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+          <div className='text-center'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
+            <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <CreateInvoiceContent />
+    </Suspense>
   )
 }

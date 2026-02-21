@@ -87,6 +87,7 @@ const InternationalPhoneInput: React.FC<InternationalPhoneInputProps> = ({
         />
       </div>
 
+      {/* @ts-ignore - styled-jsx */}
       <style jsx>{`
         .phone-input-wrapper :global(.react-phone-number-input) {
           display: flex;
