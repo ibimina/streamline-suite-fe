@@ -32,9 +32,8 @@ const CustomTemplatePDFPreview: React.FC<{
         }
 
         // Import the custom template processor
-        const { generateCustomTemplatePDFBlob } = await import(
-          '../../utils/customTemplateProcessor'
-        )
+        const { generateCustomTemplatePDFBlob } =
+          await import('../../utils/customTemplateProcessor')
 
         // Generate PDF as blob instead of downloading
         const pdfBlob = await generateCustomTemplatePDFBlob(
