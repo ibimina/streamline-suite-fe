@@ -2,12 +2,8 @@
 import React from 'react'
 import Login from '@/components/Login'
 
-interface LoginProps {
-  onNavigateToSignUp: () => void
-}
-
-const LoginPage: React.FC<LoginProps> = ({ onNavigateToSignUp }) => {
-  return <Login onNavigateToSignUp={onNavigateToSignUp} />
+const LoginPage: React.FC = () => {
+  return <Login />
 }
 
 export default LoginPage

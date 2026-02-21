@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { PlusIcon, TrashIcon } from '../Icons'
 import CustomerForm from '../customer/CustomerForm'
 import ProductForm from '../product/ProductForm'
-import { Customer } from '@/interface/customer.interface'
+import { Customer } from '@/store/slices/customer/type'
 import {
   useCreateInvoiceMutation,
   useUpdateInvoiceMutation,
@@ -186,7 +186,7 @@ export default function InvoiceForm({
 
   const [customerSearch, setCustomerSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    invoice?.customer ?? null
+    invoice?.customer ? (invoice.customer as unknown as Customer) : null
   )
   const [showForm, setShowForm] = useState(false)
   const [showProductForm, setShowProductForm] = useState(false)
@@ -211,7 +211,7 @@ export default function InvoiceForm({
     reset,
     formState: { errors },
   } = useForm<InvoiceFormData, unknown, InvoiceFormData>({
-    resolver: zodResolver(invoiceSchema),
+    resolver: zodResolver(invoiceSchema) as any,
     defaultValues: {
       customer: '',
       items: [defaultItem],
@@ -357,7 +357,7 @@ export default function InvoiceForm({
 
     // Populate form items from quotation
     const quotationItems = quotation.items?.map(item => ({
-      product: item.product?._id || item.product || '',
+      product: typeof item.product === 'object' ? item.product._id : item.product || '',
       description: item.description || '',
       quantity: item.quantity || 1,
       unitPrice: item.unitPrice || 0,
@@ -398,7 +398,7 @@ export default function InvoiceForm({
   }
 
   const onSubmit = async (data: InvoiceFormData) => {
-    const invoiceData = {
+    const invoiceData: any = {
       customer: data.customer,
       quotationId: selectedQuotation?._id || undefined,
       items: data.items.map(item => ({
@@ -411,7 +411,7 @@ export default function InvoiceForm({
         unitCost: item.unitCost || 0,
       })),
       status: data.status, // Convert to lowercase for backend enum
-      dueDate: data.dueDate,
+      dueDate: data.dueDate || defaultDates.dueDate,
       poNumber: data.poNumber || undefined,
       notes: data.notes || undefined,
       terms: data.terms || undefined,

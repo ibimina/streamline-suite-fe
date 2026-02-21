@@ -1,9 +1,11 @@
 // Quotation types for RTK Query API
 
 export interface QuotationLineItem {
+  _id?: string
   id?: string
   product?: {
     _id: string
+    name?: string
   } // Product ID reference
   description: string
   quantity: number

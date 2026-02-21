@@ -105,8 +105,8 @@ const Invoices = () => {
   const handleMarkAsPaid = async (invoice: Invoice) => {
     try {
       await updateInvoiceStatus({
-        invoiceId: invoice._id,
-        status: 'paid',
+        id: invoice._id,
+        status: 'Paid',
       }).unwrap()
       setActiveDropdown(null)
     } catch (error) {
@@ -124,9 +124,12 @@ const Invoices = () => {
     // Transform to legacy format for PDF generation
     const legacyInvoice = {
       id: invoice._id,
-      clientName: typeof invoice.customer === 'object' ? invoice.customer.name : '',
-      clientAddress: typeof invoice.customer === 'object' ? invoice.customer.address || '' : '',
-      issueDate: invoice.issueDate,
+      clientName: typeof invoice.customer === 'object' ? invoice.customer.companyName : '',
+      clientAddress:
+        typeof invoice.customer === 'object' && invoice.customer.billingAddress
+          ? `${invoice.customer.billingAddress.street}, ${invoice.customer.billingAddress.city}`
+          : '',
+      issueDate: invoice.issuedDate,
       dueDate: invoice.dueDate,
       status: invoice.status as InvoiceStatus,
       items: invoice.items.map(item => ({
@@ -134,24 +137,24 @@ const Invoices = () => {
         description: item.description,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        amount: item.amount,
+        amount: item.quantity * item.unitPrice,
         sku: item.sku || '',
       })),
       subtotal: invoice.subtotal,
-      vat: invoice.taxAmount || 0,
+      vat: invoice.totalVat || 0,
       total: invoice.grandTotal,
       terms: invoice.terms || defaultTerms,
-      quotationId: invoice.quotationId,
+      quotationId: invoice.quotation,
       template: invoice.template || 'classic',
       accentColor: invoice.accentColor || 'teal',
     }
-    await generatePdf(legacyInvoice, `REQUEST FOR INVOICE`, 'INVOICE')
+    await generatePdf(legacyInvoice as any, `REQUEST FOR INVOICE`, 'INVOICE')
     setActiveDropdown(null)
   }
 
   const getCustomerName = (invoice: Invoice) => {
     if (typeof invoice.customer === 'object' && invoice.customer) {
-      return invoice.customer.name
+      return invoice.customer.companyName
     }
     return 'Unknown Customer'
   }
@@ -229,8 +232,8 @@ const Invoices = () => {
                   className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                 >
                   <td className='px-6 py-4 font-medium'>
-                    {invoice.invoiceNumber}
-                    {invoice.quotationId && (
+                    {invoice.uniqueId || invoice._id}
+                    {invoice.quotation && (
                       <span className='block text-xs text-gray-500'>From Quote</span>
                     )}
                   </td>
@@ -267,7 +270,7 @@ const Invoices = () => {
                               <EyeIcon className='w-5 h-5 mr-3' />
                               View
                             </button>
-                            {invoice.status === 'draft' && (
+                            {invoice.status === 'Draft' && (
                               <button
                                 onClick={() => route.push(`/invoices/${invoice._id}`)}
                                 className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -276,7 +279,7 @@ const Invoices = () => {
                                 Edit
                               </button>
                             )}
-                            {(invoice.status === 'sent' || invoice.status === 'overdue') && (
+                            {(invoice.status === 'Sent' || invoice.status === 'Overdue') && (
                               <button
                                 onClick={() => handleMarkAsPaid(invoice)}
                                 disabled={isUpdatingStatus}
@@ -341,41 +344,44 @@ const Invoices = () => {
 
       {isViewModalOpen && selectedInvoice && (
         <PdfPreviewModal
-          pdfData={{
-            id: selectedInvoice._id,
-            clientName: getCustomerName(selectedInvoice),
-            clientAddress:
-              typeof selectedInvoice.customer === 'object'
-                ? selectedInvoice.customer.address || ''
-                : '',
-            issueDate: selectedInvoice.issueDate,
-            dueDate: selectedInvoice.dueDate,
-            status: selectedInvoice.status as InvoiceStatus,
-            items: selectedInvoice.items.map(item => ({
-              id: item.id || '',
-              description: item.description,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              amount: item.amount,
-              sku: item.sku || '',
-            })),
-            subtotal: selectedInvoice.subtotal,
-            vat: selectedInvoice.taxAmount || 0,
-            total: selectedInvoice.grandTotal,
-            terms: selectedInvoice.terms || defaultTerms,
-            template:
-              (selectedInvoice.template as
-                | 'classic'
-                | 'modern'
-                | 'minimalist'
-                | 'corporate'
-                | 'creative'
-                | 'custom') || 'classic',
-            accentColor:
-              (selectedInvoice.accentColor as 'teal' | 'blue' | 'crimson' | 'slate') || 'teal',
-          }}
+          pdfData={
+            {
+              id: selectedInvoice._id,
+              clientName: getCustomerName(selectedInvoice),
+              clientAddress:
+                typeof selectedInvoice.customer === 'object' &&
+                selectedInvoice.customer.billingAddress
+                  ? `${selectedInvoice.customer.billingAddress.street}, ${selectedInvoice.customer.billingAddress.city}`
+                  : '',
+              issueDate: selectedInvoice.issuedDate,
+              dueDate: selectedInvoice.dueDate,
+              status: selectedInvoice.status as InvoiceStatus,
+              items: selectedInvoice.items.map(item => ({
+                id: item.id || '',
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                amount: item.quantity * item.unitPrice,
+                sku: item.sku || '',
+              })),
+              subtotal: selectedInvoice.subtotal,
+              vat: selectedInvoice.totalVat || 0,
+              total: selectedInvoice.grandTotal,
+              terms: selectedInvoice.terms || defaultTerms,
+              template:
+                (selectedInvoice.template as
+                  | 'classic'
+                  | 'modern'
+                  | 'minimalist'
+                  | 'corporate'
+                  | 'creative'
+                  | 'custom') || 'classic',
+              accentColor:
+                (selectedInvoice.accentColor as 'teal' | 'blue' | 'crimson' | 'slate') || 'teal',
+            } as any
+          }
           onClose={() => setViewModalOpen(false)}
-          documentTitle={`Invoice ${selectedInvoice.invoiceNumber}`}
+          documentTitle={`Invoice ${selectedInvoice.uniqueId || selectedInvoice._id}`}
           documentType='INVOICE'
           title=''
         />

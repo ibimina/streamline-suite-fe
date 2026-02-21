@@ -1,3 +1,8 @@
+export interface ProductSupplier {
+  _id: string
+  name: string
+}
+
 export interface Product {
   _id?: string
   sku?: string
@@ -18,8 +23,8 @@ export interface Product {
   lowStockAlert?: number
   category?: string
   brand?: string
-  supplier?: string
-  alternativeSuppliers?: string[]
+  supplier?: string | ProductSupplier
+  alternativeSuppliers?: (string | ProductSupplier)[]
   images?: string[]
   salesTaxRate?: number
   purchaseTaxRate?: number

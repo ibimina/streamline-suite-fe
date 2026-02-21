@@ -76,9 +76,9 @@ const Payroll: React.FC = () => {
     }
   }
 
-  const handleDownloadPayslip = async (payrollId: string) => {
+  const handleDownloadPayslip = async (payrollId: string, staffId: string) => {
     try {
-      await generatePayslip(payrollId)
+      await generatePayslip({ payrollId, staffId })
     } catch (error) {
       console.error('Failed to generate payslip:', error)
     }
@@ -152,7 +152,7 @@ const Payroll: React.FC = () => {
                   </td>
                   <td className='px-6 py-4'>{run.items?.length || 0} employees</td>
                   <td className='px-6 py-4 font-semibold'>
-                    ${run.totalAmount?.toLocaleString() || 0}
+                    ${run.totalNetPay?.toLocaleString() || 0}
                   </td>
                   <td className='px-6 py-4'>
                     <StatusBadge status={run.status} />
@@ -176,9 +176,16 @@ const Payroll: React.FC = () => {
                         Process
                       </button>
                     )}
-                    {run.status === 'processed' && (
+                    {run.status === 'paid' && run.items?.[0] && (
                       <button
-                        onClick={() => handleDownloadPayslip(run._id)}
+                        onClick={() =>
+                          handleDownloadPayslip(
+                            run._id,
+                            typeof run.items[0].staff === 'object'
+                              ? run.items[0].staff._id
+                              : run.items[0].staff
+                          )
+                        }
                         className='text-teal-600 dark:text-teal-400 hover:underline'
                         title='Download Report'
                       >
@@ -252,7 +259,7 @@ const PayrollModal: React.FC<{
   })
 
   const onSubmit = (data: PayrollSchemaFormData) => {
-    onSave(data as PayrollFormData)
+    onSave(data as unknown as PayrollFormData)
   }
 
   return (

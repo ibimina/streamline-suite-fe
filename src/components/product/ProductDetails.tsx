@@ -19,7 +19,7 @@ const ProductDetails = () => {
   })
   const [deleteProduct] = useDeleteProductMutation()
 
-  const product = data?.payload ?? null
+  const product = data?.payload?.product ?? null
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDelete = () => {
@@ -363,29 +363,31 @@ const ProductDetails = () => {
           </div>
 
           {/* Supplier Information */}
-          {(product.supplier._id || product.alternativeSuppliers?.length) && (
+          {(product.supplier || product.alternativeSuppliers?.length) && (
             <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
               <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
                 Supplier Information
               </h3>
               <div className='space-y-4'>
-                {product.supplier.name && (
-                  <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2'>
-                      Primary Supplier
-                    </label>
-                    <div className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-teal-500'>
-                      <div className='flex-1'>
-                        <p className='font-medium text-gray-900 dark:text-white'>
-                          {product.supplier.name}
-                        </p>
-                        <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
-                          Primary
-                        </span>
+                {product.supplier &&
+                  typeof product.supplier === 'object' &&
+                  product.supplier.name && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2'>
+                        Primary Supplier
+                      </label>
+                      <div className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-teal-500'>
+                        <div className='flex-1'>
+                          <p className='font-medium text-gray-900 dark:text-white'>
+                            {product.supplier.name}
+                          </p>
+                          <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
+                            Primary
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {product.alternativeSuppliers && product.alternativeSuppliers.length > 0 && (
                   <div>
@@ -393,21 +395,25 @@ const ProductDetails = () => {
                       Alternative Suppliers
                     </label>
                     <div className='space-y-2'>
-                      {product.alternativeSuppliers.map((supplier, index) => (
-                        <div
-                          key={supplier._id}
-                          className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-gray-300'
-                        >
-                          <div className='flex-1'>
-                            <p className='font-medium text-gray-900 dark:text-white'>
-                              {supplier.name}
-                            </p>
-                            <span className='px-2 py-1 text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 rounded-full'>
-                              Alternative
-                            </span>
+                      {product.alternativeSuppliers.map((supplier, index) => {
+                        const supplierId = typeof supplier === 'object' ? supplier._id : supplier
+                        const supplierName = typeof supplier === 'object' ? supplier.name : supplier
+                        return (
+                          <div
+                            key={supplierId || index}
+                            className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-gray-300'
+                          >
+                            <div className='flex-1'>
+                              <p className='font-medium text-gray-900 dark:text-white'>
+                                {supplierName}
+                              </p>
+                              <span className='px-2 py-1 text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 rounded-full'>
+                                Alternative
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 )}
@@ -515,12 +521,12 @@ const ProductDetails = () => {
                   </p>
                 </div>
               )}
-              {product.id && (
+              {product._id && (
                 <div>
                   <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Product ID
                   </label>
-                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{product.id}</p>
+                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{product._id}</p>
                 </div>
               )}
             </div>

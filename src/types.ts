@@ -171,3 +171,7 @@ export interface InventoryLog {
   purpose: string
   date: string
 }
+
+// Re-export types from type files
+export type { Quotation } from './types/quotation.type'
+export type { Invoice } from './types/invoice.type'

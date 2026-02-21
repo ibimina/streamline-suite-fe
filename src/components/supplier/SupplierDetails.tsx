@@ -15,7 +15,7 @@ const SupplierDetails = () => {
   const id = params?.id as string
   const { data, isLoading: loading } = useGetSupplierByIdQuery(id)
   const [deleteSupplier] = useDeleteSupplierMutation()
-  const supplier = data?.payload ?? null
+  const supplier = data?.payload?.supplier ?? null
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDelete = () => {
@@ -313,12 +313,12 @@ const SupplierDetails = () => {
                   </p>
                 </div>
               )}
-              {supplier.id && (
+              {supplier._id && (
                 <div>
                   <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
                     Supplier ID
                   </label>
-                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{supplier.id}</p>
+                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{supplier._id}</p>
                 </div>
               )}
             </div>

@@ -11,7 +11,7 @@ export interface SupplierResponse {
 }
 
 export interface Supplier {
-  id?: string
+  _id?: string
   name: string
   contact?: string
   contacts?: {

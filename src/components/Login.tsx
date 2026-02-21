@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import InputErrorWrapper from './shared/InputErrorWrapper'
 import Link from 'next/link'
 
-const Login: React.FC<LoginProps> = () => {
+const Login: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [error, setError] = useState('')
   const [login, { isLoading }] = useLoginMutation()

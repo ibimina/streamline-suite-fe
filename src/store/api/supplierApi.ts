@@ -3,9 +3,16 @@ import { baseApi } from './baseApi'
 
 // Supplier interface
 export interface Supplier {
-  id?: string
+  _id?: string
   name: string
   contact?: string
+  contacts?: {
+    name: string
+    email?: string
+    phone?: string
+    role?: string
+    primary?: boolean
+  }[]
   email?: string
   phone?: string
   address?: string
@@ -84,9 +91,9 @@ export const supplierApi = baseApi.injectEndpoints({
       providesTags: result =>
         result
           ? [
-              ...result.payload.suppliers.map(({ id }) => ({
+              ...result.payload.suppliers.map(({ _id }) => ({
                 type: 'Supplier' as const,
-                id,
+                id: _id,
               })),
               { type: 'Supplier', id: 'LIST' },
             ]

@@ -33,3 +33,5 @@ export function InvoiceViewPage() {
 
   return <InvoiceView invoice={invoice} />
 }
+
+export default InvoiceViewPage

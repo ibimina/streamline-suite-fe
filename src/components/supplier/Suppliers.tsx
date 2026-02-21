@@ -126,7 +126,7 @@ const Suppliers = () => {
               </thead>
               <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
                 {suppliers.map(supplier => (
-                  <tr key={supplier.id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
+                  <tr key={supplier._id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div>
                         <div className='text-sm font-medium text-gray-900 dark:text-white'>
@@ -201,7 +201,7 @@ const Suppliers = () => {
                           <PencilIcon className='w-4 h-4' />
                         </button>
                         <button
-                          onClick={() => handleDeleteSupplier(supplier.id!)}
+                          onClick={() => handleDeleteSupplier(supplier._id!)}
                           className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
                         >
                           <TrashIcon className='w-4 h-4' />

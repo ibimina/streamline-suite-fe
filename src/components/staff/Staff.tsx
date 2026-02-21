@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ROLES } from '../../types'
+import { STAFF_ROLES } from '@/types/staff.type'
 import { PencilIcon, TrashIcon, XIcon, MailIcon, PhoneIcon, CurrencyDollarIcon } from '../Icons'
 import Image from 'next/image'
 import {
@@ -127,7 +127,7 @@ const Staff: React.FC = () => {
             >
               <div className='flex justify-between items-start'>
                 <Image
-                  src={member.avatar || `https://i.pravatar.cc/150?u=${member._id}`}
+                  src={member.avatarUrl || `https://i.pravatar.cc/150?u=${member._id}`}
                   alt={`${member.firstName} ${member.lastName}`}
                   width={64}
                   height={64}
@@ -250,14 +250,14 @@ const StaffModal: React.FC<{
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateStaffFormData | UpdateStaffFormData>({
-    resolver: zodResolver(isEditing ? updateStaffSchema : createStaffSchema),
+  } = useForm<CreateStaffFormData>({
+    resolver: zodResolver(isEditing ? updateStaffSchema : createStaffSchema) as any,
     defaultValues: {
       firstName: staffMember?.firstName || '',
       lastName: staffMember?.lastName || '',
       email: staffMember?.email || '',
       phone: staffMember?.phone || '',
-      role: staffMember?.role || 'Staff',
+      role: (staffMember?.role as CreateStaffFormData['role']) || 'Staff',
       position: staffMember?.position || '',
       department: staffMember?.department || '',
       salary: staffMember?.salary || 50000,
@@ -270,7 +270,7 @@ const StaffModal: React.FC<{
     },
   })
 
-  const onSubmit = (data: CreateStaffFormData | UpdateStaffFormData) => {
+  const onSubmit = (data: CreateStaffFormData) => {
     onSave(data as StaffFormData)
   }
 
@@ -327,7 +327,7 @@ const StaffModal: React.FC<{
                 {...register('role')}
                 className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
               >
-                {ROLES.map(role => (
+                {STAFF_ROLES.map(role => (
                   <option key={role} value={role}>
                     {role}
                   </option>

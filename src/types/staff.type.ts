@@ -1,12 +1,13 @@
 // Staff types for RTK Query API
 
 export const STAFF_ROLES = [
-  'admin',
-  'manager',
-  'accountant',
-  'sales_rep',
-  'technician',
-  'staff',
+  'Admin',
+  'Sale',
+  'Procurement',
+  'Accountant',
+  'BusinessOwner',
+  'Staff',
+  'Warehouse',
 ] as const
 export type StaffRole = (typeof STAFF_ROLES)[number]
 
@@ -92,13 +93,14 @@ export interface StaffFormData {
   employmentType: EmploymentType
   hireDate: string
   salary: number
-  salaryType: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual'
+  salaryType?: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual'
   currency?: string
   bankDetails?: BankDetails
   emergencyContact?: EmergencyContact
   taxId?: string
   notes?: string
   canAccessPortal?: boolean
+  password?: string
 }
 
 // Query params for staff list

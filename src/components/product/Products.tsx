@@ -250,7 +250,9 @@ const Products = () => {
                           )}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
-                          {product.supplier.name ? (
+                          {product.supplier &&
+                          typeof product.supplier === 'object' &&
+                          product.supplier.name ? (
                             <div>
                               <div className='text-sm text-gray-900 dark:text-white font-medium'>
                                 {product.supplier.name}
@@ -293,7 +295,7 @@ const Products = () => {
                               <PencilIcon className='w-4 h-4' />
                             </button>
                             <button
-                              onClick={() => handleDeleteProduct(product?._id)}
+                              onClick={() => product._id && handleDeleteProduct(product._id)}
                               className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
                               title='Delete'
                             >

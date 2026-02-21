@@ -88,8 +88,8 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
 
   const onSubmit = async (data: SupplierFormData) => {
     try {
-      if (supplier?.id) {
-        await updateSupplier({ supplierId: supplier.id, data }).unwrap()
+      if (supplier?._id) {
+        await updateSupplier({ supplierId: supplier._id, data }).unwrap()
         toast.success('Supplier updated successfully')
       } else {
         await createSupplier(data).unwrap()
@@ -116,7 +116,7 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
       <SheetContent className='bg-white overflow-y-auto w-full lg:max-w-2xl dark:bg-gray-800'>
         <SheetHeader className='flex justify-end'>
           <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
-            {supplier?.id ? 'Edit Supplier' : 'Add New Supplier'}
+            {supplier?._id ? 'Edit Supplier' : 'Add New Supplier'}
           </h2>
           <p className='text-sm text-gray-600 dark:text-gray-400 mb-6'>
             Fields marked with <span className='text-red-500'>*</span> are required. Fields marked
@@ -365,7 +365,7 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
               disabled={isSubmitting}
               className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              {isSubmitting ? 'Saving...' : supplier?.id ? 'Update Supplier' : 'Create Supplier'}
+              {isSubmitting ? 'Saving...' : supplier?._id ? 'Update Supplier' : 'Create Supplier'}
             </button>
           </div>
         </form>

@@ -228,7 +228,7 @@ const GenerateReportModal: React.FC<{
     handleSubmit,
     formState: { errors },
   } = useForm<TaxReportFormData>({
-    resolver: zodResolver(taxReportSchema),
+    resolver: zodResolver(taxReportSchema) as any,
     defaultValues: {
       period: '',
       type: 'sales_tax',

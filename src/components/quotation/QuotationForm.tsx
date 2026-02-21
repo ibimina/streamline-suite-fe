@@ -190,7 +190,7 @@ export default function QuotationForm({
 
   const [customerSearch, setCustomerSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    quotation?.customer ?? null
+    quotation?.customer ? (quotation.customer as unknown as Customer) : null
   )
   const [showForm, setShowForm] = useState(false)
   const [showProductForm, setShowProductForm] = useState(false)
@@ -204,7 +204,7 @@ export default function QuotationForm({
     reset,
     formState: { errors },
   } = useForm<QuotationFormData, unknown, QuotationFormData>({
-    resolver: zodResolver(quotationSchema),
+    resolver: zodResolver(quotationSchema) as any,
     defaultValues: {
       customer: '',
       items: [defaultItem],

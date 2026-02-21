@@ -46,8 +46,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
       currentStock: product?.currentStock || 0,
       category: product?.category || '',
       brand: product?.brand || '',
-      supplier: product?.supplier?._id || '',
-      alternativeSuppliers: product?.alternativeSuppliers?.map(supplier => supplier._id) || [],
+      supplier:
+        typeof product?.supplier === 'object' ? product.supplier._id : product?.supplier || '',
+      alternativeSuppliers:
+        product?.alternativeSuppliers?.map(supplier =>
+          typeof supplier === 'object' ? supplier._id : supplier
+        ) || [],
       images: product?.images || [],
       salesTaxRate: product?.salesTaxRate || 0,
       purchaseTaxRate: product?.purchaseTaxRate || 0,
@@ -330,7 +334,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                   </SelectTrigger>
                   <SelectContent className='max-h-60 overflow-y-auto bg-white'>
                     {suppliers.map(supplier => (
-                      <SelectItem key={supplier._id} value={supplier._id}>
+                      <SelectItem key={supplier._id!} value={supplier._id!}>
                         {supplier.name}
                       </SelectItem>
                     ))}
@@ -347,7 +351,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                 <MultiSelect
                   options={
                     suppliers?.map(supplier => ({
-                      value: supplier._id,
+                      value: supplier._id!,
                       label: supplier.name,
                     })) || []
                   }
@@ -361,8 +365,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                 <p className='text-sm text-gray-500 dark:text-gray-400 mb-2'>
                   Backup suppliers for this product
                 </p>
-                {errors.alternativeSupplierIds && (
-                  <InputErrorWrapper message={errors.alternativeSupplierIds.message || ''} />
+                {errors.alternativeSuppliers && (
+                  <InputErrorWrapper message={errors.alternativeSuppliers.message || ''} />
                 )}
               </div>
             </div>

@@ -422,13 +422,16 @@ export default function QuotationView({
                   </tr>
                 </thead>
                 <tbody className='divide-y divide-gray-100 dark:divide-gray-700'>
-                  {quotation.items?.map((item, index) => {
+                  {quotation.items?.map(item => {
                     const lineSubtotal = (item.quantity || 0) * (item.unitPrice || 0)
                     const discountAmount = lineSubtotal * ((item.discountPercent || 0) / 100)
                     const lineTotal = lineSubtotal - discountAmount
                     return (
                       <tr
-                        key={item._id || `item-${item.product?._id || item.description}-${index}`}
+                        key={
+                          item._id ||
+                          `item-${item.product?._id}-${item.description}-${item.quantity}`
+                        }
                         className='hover:bg-gray-50 dark:hover:bg-gray-750'
                       >
                         <td className='px-4 py-4'>

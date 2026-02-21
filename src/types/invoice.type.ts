@@ -1,6 +1,7 @@
 // Invoice types for RTK Query API
 
 export interface InvoiceLineItem {
+  _id?: string
   id?: string
   product?: {
     _id: string
@@ -45,6 +46,7 @@ export interface Invoice {
   amountPaid?: number
   balanceDue?: number
   uniqueId?: string // For display on PDF (can be invoiceNumber or custom ID)
+  invoiceNumber?: string // Alias for uniqueId
   // Status and dates
   status: InvoiceStatus
   issuedDate: string

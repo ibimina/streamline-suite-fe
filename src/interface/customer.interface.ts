@@ -1,6 +1,8 @@
 export interface Customer {
+  _id?: string
   id?: string
-  fullName: string
+  uniqueId?: string
+  fullName?: string
   companyName?: string
   email?: string
   phone?: string
@@ -10,6 +12,7 @@ export interface Customer {
     city?: string
     state?: string
     postalCode?: string
+    zipCode?: string
     country?: string
   }
   shippingAddress?: {
@@ -50,8 +53,8 @@ export interface Customer {
   notes?: string
   accountId?: string
   createdBy?: string
-  createdAt?: string
-  updatedAt?: string
+  createdAt: string
+  updatedAt: string
   taxId?: string
   creditLimit?: number
   isActive?: boolean
