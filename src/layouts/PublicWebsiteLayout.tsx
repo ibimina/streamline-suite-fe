@@ -30,7 +30,7 @@ const PublicWebsiteLayout: React.FC<PublicWebsiteProps> = ({ children }) => {
     <div className='flex flex-col min-h-screen bg-muted text-foreground'>
       <PublicHeader activePage={currentPage} handlePageChange={handlePageChange} />
       <main className='grow'>{children}</main>
-      <PublicFooter handlePageChange={handlePageChange} />
+      <PublicFooter />
     </div>
   )
 }
