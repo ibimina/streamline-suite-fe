@@ -27,7 +27,7 @@ const DashboardLayout: React.FC<PublicWebsiteProps> = ({ children }) => {
   // }
 
   return (
-    <div className='flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white'>
+    <div className='flex h-screen bg-muted dark:bg-background text-foreground'>
       <Sidebar />
       <div className='flex flex-col flex-1 min-w-0 overflow-hidden'>
         <Header toggleMobileSidebar={() => dispatch(setMobileSidebarOpen(!isMobileSidebarOpen))} />

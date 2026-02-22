@@ -111,8 +111,8 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
-        <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-6'>
+      <div className='bg-card rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <h2 className='text-2xl font-bold text-foreground mb-6'>
           {transaction?._id ? 'Edit Transaction' : 'Add New Transaction'}
         </h2>
 
@@ -122,14 +122,14 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             <div>
               <label
                 htmlFor='product'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Product *
               </label>
               <select
                 id='product'
                 {...register('product')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 disabled={isLoadingProducts}
               >
                 <option value=''>
@@ -150,14 +150,14 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             <div>
               <label
                 htmlFor='transactionType'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Transaction Type *
               </label>
               <select
                 id='transactionType'
                 {...register('transactionType')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               >
                 {transactionTypes.map(type => (
                   <option key={type.value} value={type.value}>
@@ -174,7 +174,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             <div>
               <label
                 htmlFor='quantity'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Quantity *
               </label>
@@ -183,7 +183,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
                 type='number'
                 min='1'
                 {...register('quantity', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='1'
               />
               {errors.quantity && (
@@ -195,7 +195,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             <div>
               <label
                 htmlFor='unitCost'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Unit Cost
               </label>
@@ -205,7 +205,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
                 min='0'
                 step='0.01'
                 {...register('unitCost', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0.00'
               />
               {errors.unitCost && (
@@ -217,7 +217,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             <div>
               <label
                 htmlFor='reference'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Reference *
               </label>
@@ -225,7 +225,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
                 id='reference'
                 type='text'
                 {...register('reference')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='e.g., PO-001, INV-005, ADJ-001'
               />
               {errors.reference && (
@@ -237,7 +237,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             <div>
               <label
                 htmlFor='expiryDate'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Expiry Date
               </label>
@@ -245,7 +245,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
                 id='expiryDate'
                 type='date'
                 {...register('expiryDate')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               />
               {errors.expiryDate && (
                 <p className='text-red-500 text-sm mt-1'>{errors.expiryDate.message}</p>
@@ -257,7 +257,7 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
           <div>
             <label
               htmlFor='serialNumberInput'
-              className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              className='block text-sm font-medium text-secondary-foreground mb-1'
             >
               Serial Numbers
             </label>
@@ -273,13 +273,13 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
                     addSerialNumber()
                   }
                 }}
-                className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Enter serial number'
               />
               <button
                 type='button'
                 onClick={addSerialNumber}
-                className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+                className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
               >
                 Add
               </button>
@@ -288,13 +288,13 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
               {serialNumbers.map(serial => (
                 <span
                   key={serial}
-                  className='inline-flex items-center px-3 py-1 rounded-full text-sm bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200'
+                  className='inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-light text-primary dark:bg-primary/20 dark:text-primary-foreground'
                 >
                   {serial}
                   <button
                     type='button'
                     onClick={() => removeSerialNumber(serial)}
-                    className='ml-2 hover:text-teal-600'
+                    className='ml-2 hover:text-primary'
                   >
                     <TrashIcon className='w-3 h-3' />
                   </button>
@@ -307,14 +307,14 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
           <div>
             <label
               htmlFor='notes'
-              className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+              className='block text-sm font-medium text-secondary-foreground mb-1'
             >
               Notes
             </label>
             <textarea
               id='notes'
               {...register('notes')}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               rows={3}
               placeholder='Additional notes about this transaction'
             />
@@ -323,10 +323,10 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
 
           {/* Total Value Display */}
           {unitCost > 0 && quantity > 0 && (
-            <div className='bg-gray-50 dark:bg-gray-700 p-4 rounded-md'>
-              <div className='text-sm text-gray-600 dark:text-gray-300'>
+            <div className='bg-muted p-4 rounded-md'>
+              <div className='text-sm text-muted-foreground'>
                 Total Value:{' '}
-                <span className='font-semibold text-gray-900 dark:text-white'>
+                <span className='font-semibold text-foreground'>
                   ${(unitCost * quantity).toFixed(2)}
                 </span>
               </div>
@@ -334,18 +334,18 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
           )}
 
           {/* Form Actions */}
-          <div className='flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-600'>
+          <div className='flex justify-end space-x-4 pt-6 border-t border-border'>
             <button
               type='button'
               onClick={onCancel}
-              className='px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
+              className='px-4 py-2 text-secondary-foreground bg-muted rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary   hover:bg-accent'
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50'
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50'
               disabled={isLoading}
             >
               {getSubmitButtonText()}

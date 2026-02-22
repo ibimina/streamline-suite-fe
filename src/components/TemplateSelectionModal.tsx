@@ -19,7 +19,7 @@ const templates: { name: Template; label: string }[] = [
 ]
 
 const colors: { name: AccentColor; label: string; class: string }[] = [
-  { name: 'teal', label: 'Teal', class: 'bg-teal-500' },
+  { name: 'teal', label: 'Teal', class: 'bg-primary' },
   { name: 'blue', label: 'Blue', class: 'bg-blue-500' },
   { name: 'crimson', label: 'Crimson', class: 'bg-red-600' },
   { name: 'slate', label: 'Slate', class: 'bg-slate-600' },
@@ -37,7 +37,7 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
   const { details } = useAppSelector(state => state.company)
   const customTemplates = details?.customTemplates || []
 
-  const accentColorClass = colors.find(c => c.name === selectedColor)?.class || 'bg-teal-500'
+  const accentColorClass = colors.find(c => c.name === selectedColor)?.class || 'bg-primary'
 
   const handleCustomTemplateUploaded = (template: CustomTemplate) => {
     // Template is already saved to Redux store by TemplateUpload component
@@ -55,18 +55,18 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
     <div
       key={template.name}
       onClick={() => setSelectedTemplate(template.name)}
-      className={`cursor-pointer border-2 rounded-lg p-3 transition-all ${selectedTemplate === template.name ? 'border-teal-500 shadow-lg' : 'border-gray-300 dark:border-gray-600'}`}
+      className={`cursor-pointer border-2 rounded-lg p-3 transition-all ${selectedTemplate === template.name ? 'border-primary shadow-lg' : 'border-border'}`}
     >
       <h3 className='font-semibold text-md mb-2 text-center'>{template.label}</h3>
-      <div className='h-40 bg-gray-50 dark:bg-gray-700 rounded-md p-2 flex overflow-hidden text-[4px] leading-tight'>
+      <div className='h-40 bg-muted rounded-md p-2 flex overflow-hidden text-[4px] leading-tight'>
         {template.name === 'classic' && (
           <div className='w-full flex flex-col'>
             <div className='flex justify-between items-start'>
-              <div className='w-1/3 h-4 bg-gray-300 dark:bg-gray-500'></div>
+              <div className='w-1/3 h-4 bg-muted dark:bg-muted'></div>
               <div className={`h-4 w-1/3 ${accentColorClass}`}></div>
             </div>
-            <div className='h-2 w-1/4 mt-4 bg-gray-200 dark:bg-gray-600'></div>
-            <div className='h-1 w-1/2 mt-1 bg-gray-200 dark:bg-gray-600'></div>
+            <div className='h-2 w-1/4 mt-4 bg-muted'></div>
+            <div className='h-1 w-1/2 mt-1 bg-muted'></div>
             <div className={`h-2.5 w-full mt-auto ${accentColorClass}`}></div>
           </div>
         )}
@@ -78,43 +78,43 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
               <div className='w-1/4 h-2 bg-white/50'></div>
               <div className='w-1/4 h-2 bg-white/50'></div>
             </div>
-            <div className='h-2 w-1/4 mt-4 bg-gray-200 dark:bg-gray-600'></div>
-            <div className='h-1 w-1/2 mt-1 bg-gray-200 dark:bg-gray-600'></div>
-            <div className={`h-2.5 w-full mt-auto bg-gray-300 dark:bg-gray-500`}></div>
+            <div className='h-2 w-1/4 mt-4 bg-muted'></div>
+            <div className='h-1 w-1/2 mt-1 bg-muted'></div>
+            <div className={`h-2.5 w-full mt-auto bg-muted dark:bg-muted`}></div>
           </div>
         )}
         {template.name === 'minimalist' && (
           <div className='w-full flex flex-col p-1'>
             <div className='flex justify-between items-start'>
-              <div className='w-1/3 h-2 bg-gray-300 dark:bg-gray-500'></div>
+              <div className='w-1/3 h-2 bg-muted dark:bg-muted'></div>
               <div className={`h-2 w-1/3`} style={{ backgroundColor: accentColorClass }}></div>
             </div>
-            <div className='w-full h-px my-3 bg-gray-200 dark:bg-gray-600'></div>
-            <div className='h-1 w-1/4 bg-gray-200 dark:bg-gray-600'></div>
-            <div className='h-1 w-1/2 mt-1 bg-gray-200 dark:bg-gray-600'></div>
-            <div className='w-full h-px mt-auto mb-1 bg-gray-200 dark:bg-gray-600'></div>
+            <div className='w-full h-px my-3 bg-muted'></div>
+            <div className='h-1 w-1/4 bg-muted'></div>
+            <div className='h-1 w-1/2 mt-1 bg-muted'></div>
+            <div className='w-full h-px mt-auto mb-1 bg-muted'></div>
           </div>
         )}
         {template.name === 'corporate' && (
           <div className='w-full flex'>
             <div className={`w-1/3 h-full ${accentColorClass}`}></div>
             <div className='w-2/3 flex flex-col pl-2'>
-              <div className='h-3 w-full bg-gray-300 dark:bg-gray-500'></div>
-              <div className='h-2 w-1/4 mt-4 bg-gray-200 dark:bg-gray-600'></div>
-              <div className='h-1 w-1/2 mt-1 bg-gray-200 dark:bg-gray-600'></div>
-              <div className={`h-2.5 w-full mt-auto bg-gray-300 dark:bg-gray-500`}></div>
+              <div className='h-3 w-full bg-muted dark:bg-muted'></div>
+              <div className='h-2 w-1/4 mt-4 bg-muted'></div>
+              <div className='h-1 w-1/2 mt-1 bg-muted'></div>
+              <div className={`h-2.5 w-full mt-auto bg-muted dark:bg-muted`}></div>
             </div>
           </div>
         )}
         {template.name === 'creative' && (
           <div className='w-full flex flex-col relative'>
-            <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-4 bg-gray-200 dark:bg-gray-600 opacity-50 transform -rotate-45'></div>
+            <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2/3 h-4 bg-muted opacity-50 transform -rotate-45'></div>
             <div className='flex justify-between items-start'>
-              <div className='w-1/3 h-4 bg-gray-300 dark:bg-gray-500'></div>
+              <div className='w-1/3 h-4 bg-muted dark:bg-muted'></div>
               <div className={`h-4 w-1/3 ${accentColorClass}`}></div>
             </div>
-            <div className='h-2 w-1/4 mt-4 bg-gray-200 dark:bg-gray-600'></div>
-            <div className='h-1 w-1/2 mt-1 bg-gray-200 dark:bg-gray-600'></div>
+            <div className='h-2 w-1/4 mt-4 bg-muted'></div>
+            <div className='h-1 w-1/2 mt-1 bg-muted'></div>
             <div className={`h-2.5 w-full mt-auto ${accentColorClass}`}></div>
           </div>
         )}
@@ -124,7 +124,7 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
 
   return (
     <div className='flex justify-center items-center z-50 p-4'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-4xl'>
+      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-4xl'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-2xl font-bold'>Choose a Template</h2>
           <button onClick={onClose}>
@@ -161,25 +161,25 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
                   }}
                   className={`cursor-pointer border-2 rounded-lg p-3 transition-all ${
                     selectedTemplate === 'custom' && selectedCustomTemplate?.id === template.id
-                      ? 'border-teal-500 shadow-lg'
-                      : 'border-gray-300 dark:border-gray-600'
+                      ? 'border-primary shadow-lg'
+                      : 'border-border'
                   }`}
                 >
                   <h4 className='font-semibold text-sm mb-2 text-center'>{template.name}</h4>
-                  <div className='h-32 bg-gray-50 dark:bg-gray-700 rounded-md p-2 flex items-center justify-center'>
+                  <div className='h-32 bg-muted rounded-md p-2 flex items-center justify-center'>
                     {template.thumbnailUrl ? (
-                      <div className='w-full h-full bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500'>
+                      <div className='w-full h-full bg-muted rounded flex items-center justify-center text-xs text-muted-foreground'>
                         Preview Available
                       </div>
                     ) : (
-                      <div className='text-gray-400 text-xs text-center'>
-                        <div className='w-8 h-8 mx-auto mb-1 bg-gray-300 rounded'></div>
+                      <div className='text-muted-foreground text-xs text-center'>
+                        <div className='w-8 h-8 mx-auto mb-1 bg-muted rounded'></div>
                         Custom Template
                       </div>
                     )}
                   </div>
                   {template.description && (
-                    <p className='text-xs text-gray-600 dark:text-gray-400 mt-2 text-center'>
+                    <p className='text-xs text-muted-foreground mt-2 text-center'>
                       {template.description}
                     </p>
                   )}
@@ -187,8 +187,8 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
               ))}
             </div>
           ) : (
-            <div className='border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center'>
-              <div className='text-gray-400 mb-2'>
+            <div className='border-2 border-dashed border-border rounded-lg p-6 text-center'>
+              <div className='text-muted-foreground mb-2'>
                 <svg
                   className='w-12 h-12 mx-auto mb-2'
                   fill='none'
@@ -203,7 +203,7 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
                   />
                 </svg>
               </div>
-              <p className='text-gray-600 dark:text-gray-400 text-sm'>
+              <p className='text-muted-foreground text-sm'>
                 No custom templates yet. Upload your own design to get started.
               </p>
             </div>
@@ -217,7 +217,7 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
               <button
                 key={color.name}
                 onClick={() => setSelectedColor(color.name)}
-                className={`w-8 h-8 rounded-full ${color.class} transition-transform transform hover:scale-110 ${selectedColor === color.name ? 'ring-2 ring-offset-2 ring-teal-500 dark:ring-offset-gray-800' : ''}`}
+                className={`w-8 h-8 rounded-full ${color.class} transition-transform transform hover:scale-110 ${selectedColor === color.name ? 'ring-2 ring-offset-2 ring-primary dark:ring-offset-background' : ''}`}
               >
                 <span className='sr-only'>{color.label}</span>
               </button>
@@ -226,12 +226,12 @@ export const TemplateSelectionModal: React.FC<TemplateSelectionModalProps> = ({
         </div>
 
         <div className='flex justify-end mt-8'>
-          <button onClick={onClose} className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'>
+          <button onClick={onClose} className='mr-2 px-4 py-2 rounded bg-muted'>
             Cancel
           </button>
           <button
             onClick={() => onContinue(selectedTemplate, selectedColor, selectedCustomTemplate)}
-            className='px-6 py-2 rounded bg-teal-500 text-white font-semibold hover:bg-teal-600'
+            className='px-6 py-2 rounded bg-primary text-white font-semibold hover:bg-primary'
           >
             Continue with{' '}
             {selectedTemplate === 'custom' && selectedCustomTemplate

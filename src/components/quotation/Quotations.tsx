@@ -114,7 +114,7 @@ const StatusDropdown: React.FC<{
         onClick={() => setIsOpen(!isOpen)}
       />
       {isOpen && (
-        <div className='absolute z-30 mt-1 left-0 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 py-1'>
+        <div className='absolute z-30 mt-1 left-0 w-40 bg-card rounded-lg shadow-lg border border-border py-1'>
           {statuses.map(({ value, label, icon }) => (
             <button
               key={value}
@@ -125,17 +125,15 @@ const StatusDropdown: React.FC<{
                 setIsOpen(false)
               }}
               disabled={isUpdating}
-              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors ${
-                value === currentStatus.toLowerCase()
-                  ? 'bg-gray-50 dark:bg-gray-700 font-medium'
-                  : ''
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-muted  flex items-center gap-2 transition-colors ${
+                value === currentStatus.toLowerCase() ? 'bg-muted font-medium' : ''
               } ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span>{icon}</span>
               <span>{label}</span>
               {value === currentStatus.toLowerCase() && (
                 <svg
-                  className='w-4 h-4 ml-auto text-teal-500'
+                  className='w-4 h-4 ml-auto text-primary'
                   fill='currentColor'
                   viewBox='0 0 20 20'
                 >
@@ -163,19 +161,19 @@ const StatsCard: React.FC<{
   color: 'teal' | 'blue' | 'amber' | 'emerald'
 }> = ({ title, value, subtitle, icon, color }) => {
   const colorClasses = {
-    teal: 'bg-teal-50 text-teal-600 dark:bg-teal-500/10 dark:text-teal-400',
+    teal: 'bg-primary-light text-primary dark:bg-primary/10 dark:text-primary',
     blue: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
     amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
     emerald: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
   }
 
   return (
-    <div className='bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow'>
+    <div className='bg-card rounded-xl p-5 border border-border hover:shadow-md transition-shadow'>
       <div className='flex items-start justify-between'>
         <div className='space-y-2'>
-          <p className='text-sm font-medium text-gray-500 dark:text-gray-400'>{title}</p>
-          <p className='text-2xl font-bold text-gray-900 dark:text-white'>{value}</p>
-          {subtitle && <p className='text-xs text-gray-400 dark:text-gray-500'>{subtitle}</p>}
+          <p className='text-sm font-medium text-muted-foreground'>{title}</p>
+          <p className='text-2xl font-bold text-foreground'>{value}</p>
+          {subtitle && <p className='text-xs text-muted-foreground'>{subtitle}</p>}
         </div>
         <div className={`p-3 rounded-xl ${colorClasses[color]}`}>{icon}</div>
       </div>
@@ -186,13 +184,8 @@ const StatsCard: React.FC<{
 // Empty State Component
 const EmptyState: React.FC<{ onCreateNew: () => void }> = ({ onCreateNew }) => (
   <div className='flex flex-col items-center justify-center py-16 px-4'>
-    <div className='w-20 h-20 bg-teal-50 dark:bg-teal-500/10 rounded-full flex items-center justify-center mb-6'>
-      <svg
-        className='w-10 h-10 text-teal-500'
-        fill='none'
-        stroke='currentColor'
-        viewBox='0 0 24 24'
-      >
+    <div className='w-20 h-20 bg-primary-light dark:bg-primary/10 rounded-full flex items-center justify-center mb-6'>
+      <svg className='w-10 h-10 text-primary' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
         <path
           strokeLinecap='round'
           strokeLinejoin='round'
@@ -201,13 +194,13 @@ const EmptyState: React.FC<{ onCreateNew: () => void }> = ({ onCreateNew }) => (
         />
       </svg>
     </div>
-    <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>No quotations yet</h3>
-    <p className='text-gray-500 dark:text-gray-400 text-center mb-6 max-w-sm'>
+    <h3 className='text-lg font-semibold text-foreground mb-2'>No quotations yet</h3>
+    <p className='text-muted-foreground text-center mb-6 max-w-sm'>
       Get started by creating your first quotation. It only takes a few minutes.
     </p>
     <button
       onClick={onCreateNew}
-      className='inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors'
+      className='inline-flex items-center gap-2 bg-primary hover:bg-primary text-white font-medium px-5 py-2.5 rounded-lg transition-colors'
     >
       <PlusIcon className='w-5 h-5' />
       Create Quotation
@@ -393,15 +386,11 @@ const Quotations = () => {
             />
           </svg>
         </div>
-        <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>
-          Failed to load quotations
-        </h3>
-        <p className='text-gray-500 dark:text-gray-400 mb-4'>
-          Something went wrong. Please try again.
-        </p>
+        <h3 className='text-lg font-semibold text-foreground mb-2'>Failed to load quotations</h3>
+        <p className='text-muted-foreground mb-4'>Something went wrong. Please try again.</p>
         <button
           onClick={() => refetch()}
-          className='inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors'
+          className='inline-flex items-center gap-2 bg-primary hover:bg-primary text-white font-medium px-5 py-2.5 rounded-lg transition-colors'
         >
           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path
@@ -422,14 +411,12 @@ const Quotations = () => {
       {/* Header */}
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>Quotations</h1>
-          <p className='text-gray-500 dark:text-gray-400 mt-1'>
-            Create, manage, and track your quotations
-          </p>
+          <h1 className='text-2xl font-bold text-foreground'>Quotations</h1>
+          <p className='text-muted-foreground mt-1'>Create, manage, and track your quotations</p>
         </div>
         <button
           onClick={() => router.push('/quotations/create')}
-          className='inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-5 py-2.5 rounded-lg transition-all hover:shadow-lg hover:shadow-teal-500/25'
+          className='inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary text-white font-medium px-5 py-2.5 rounded-lg transition-all hover:shadow-lg hover:shadow-primary/25'
         >
           <PlusIcon className='w-5 h-5' />
           <span>New Quotation</span>
@@ -505,16 +492,16 @@ const Quotations = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className='bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700'>
-        <div className='p-4 border-b border-gray-100 dark:border-gray-700'>
+      <div className='bg-card rounded-xl border border-border'>
+        <div className='p-4 border-b border-border'>
           <div className='relative max-w-md'>
-            <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400' />
+            <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Search quotations...'
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all'
+              className='w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all'
             />
           </div>
         </div>
@@ -527,34 +514,34 @@ const Quotations = () => {
             <div className='overflow-x-auto'>
               <table className='w-full'>
                 <thead>
-                  <tr className='border-b border-gray-100 dark:border-gray-700'>
-                    <th className='text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4'>
+                  <tr className='border-b border-border'>
+                    <th className='text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4'>
                       Quote
                     </th>
-                    <th className='text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4'>
+                    <th className='text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4'>
                       Customer
                     </th>
-                    <th className='text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4 hidden md:table-cell'>
+                    <th className='text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4 hidden md:table-cell'>
                       Date
                     </th>
-                    <th className='text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4 hidden lg:table-cell'>
+                    <th className='text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4 hidden lg:table-cell'>
                       Cost
                     </th>
-                    <th className='text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4 hidden lg:table-cell'>
+                    <th className='text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4 hidden lg:table-cell'>
                       Profit
                     </th>
-                    <th className='text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4'>
+                    <th className='text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4'>
                       Total
                     </th>
-                    <th className='text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4'>
+                    <th className='text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4'>
                       Status
                     </th>
-                    <th className='text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-6 py-4'>
+                    <th className='text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-4'>
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className='divide-y divide-gray-100 dark:divide-gray-700'>
+                <tbody className='divide-y divide-border'>
                   {quotations.map(q => {
                     const totalCost = q.totalCost || 0
                     const totalProfit = q.expectedProfit || 0
@@ -563,31 +550,29 @@ const Quotations = () => {
                     return (
                       <tr
                         key={q._id}
-                        className='group hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer'
+                        className='group hover:bg-muted /50 transition-colors cursor-pointer'
                         onClick={() => openModal(setViewModalOpen, q)}
                       >
                         <td className='px-6 py-4'>
-                          <span className='font-semibold text-gray-900 dark:text-white'>
-                            {q.uniqueId}
-                          </span>
+                          <span className='font-semibold text-foreground'>{q.uniqueId}</span>
                         </td>
                         <td className='px-6 py-4'>
                           <div className='flex items-center gap-3'>
-                            <div className='w-8 h-8 rounded-full bg-linear-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-xs font-medium'>
+                            <div className='w-8 h-8 rounded-full bg-linear-to-br from-primary to-primary-hover flex items-center justify-center text-white text-xs font-medium'>
                               {getCustomerName(q).charAt(0).toUpperCase()}
                             </div>
-                            <span className='text-gray-700 dark:text-gray-300 font-medium'>
+                            <span className='text-secondary-foreground font-medium'>
                               {getCustomerName(q)}
                             </span>
                           </div>
                         </td>
                         <td className='px-6 py-4 hidden md:table-cell'>
-                          <span className='text-gray-500 dark:text-gray-400 text-sm'>
+                          <span className='text-muted-foreground text-sm'>
                             {formatDate(q.issuedDate)}
                           </span>
                         </td>
                         <td className='px-6 py-4 hidden lg:table-cell text-right'>
-                          <span className='text-gray-500 dark:text-gray-400 text-sm'>
+                          <span className='text-muted-foreground text-sm'>
                             {formatCurrency(totalCost)}
                           </span>
                         </td>
@@ -600,7 +585,7 @@ const Quotations = () => {
                           </span>
                         </td>
                         <td className='px-6 py-4 text-right'>
-                          <span className='font-semibold text-gray-900 dark:text-white'>
+                          <span className='font-semibold text-foreground'>
                             {formatCurrency(q.grandTotal || 0)}
                           </span>
                         </td>
@@ -621,26 +606,26 @@ const Quotations = () => {
                               onClick={() =>
                                 setActiveDropdown(activeDropdown === q._id ? null : q._id)
                               }
-                              className='p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors'
+                              className='p-2 rounded-lg hover:bg-muted  transition-colors'
                             >
-                              <DotsVerticalIcon className='w-5 h-5 text-gray-500' />
+                              <DotsVerticalIcon className='w-5 h-5 text-muted-foreground' />
                             </button>
                             {activeDropdown === q._id && (
-                              <div className='absolute right-0 top-full mt-1 w-52 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 py-1 z-20'>
+                              <div className='absolute right-0 top-full mt-1 w-52 bg-card rounded-lg shadow-lg border border-border py-1 z-20'>
                                 {/* View Section */}
-                                <div className='px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase'>
+                                <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
                                   View
                                 </div>
                                 <button
                                   onClick={() => openModal(setViewModalOpen, q)}
-                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
                                 >
                                   <EyeIcon className='w-4 h-4' />
                                   Preview PDF
                                 </button>
                                 <button
                                   onClick={() => downloadPdf(q)}
-                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
                                 >
                                   <DownloadIcon className='w-4 h-4' />
                                   Download PDF
@@ -651,7 +636,7 @@ const Quotations = () => {
                                       router.push(`/quotations/${q._id}`)
                                       setActiveDropdown(null)
                                     }}
-                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
                                   >
                                     <PencilIcon className='w-4 h-4' />
                                     View Quotation
@@ -662,16 +647,16 @@ const Quotations = () => {
                                     router.push(`/quotations/${q._id}`)
                                     setActiveDropdown(null)
                                   }}
-                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
                                 >
                                   <PencilIcon className='w-4 h-4' />
                                   View Quotation
                                 </button>
 
-                                <hr className='my-1 border-gray-100 dark:border-gray-700' />
+                                <hr className='my-1 border-border' />
 
                                 {/* Edit Section */}
-                                <div className='px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase'>
+                                <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
                                   Edit
                                 </div>
                                 {canEdit(q.status) && (
@@ -680,7 +665,7 @@ const Quotations = () => {
                                       router.push(`/quotations/edit/${q._id}`)
                                       setActiveDropdown(null)
                                     }}
-                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
                                   >
                                     <PencilIcon className='w-4 h-4' />
                                     Edit Quotation
@@ -688,7 +673,7 @@ const Quotations = () => {
                                 )}
                                 <button
                                   onClick={() => handleDuplicate(q)}
-                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
                                 >
                                   <svg
                                     className='w-4 h-4'
@@ -706,17 +691,17 @@ const Quotations = () => {
                                   Duplicate
                                 </button>
 
-                                <hr className='my-1 border-gray-100 dark:border-gray-700' />
+                                <hr className='my-1 border-border' />
 
                                 {/* Actions Section */}
-                                <div className='px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase'>
+                                <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
                                   Actions
                                 </div>
                                 {q.status.toLowerCase() === 'draft' && (
                                   <button
                                     onClick={() => handleSendQuotation(q._id)}
                                     disabled={isUpdatingStatus}
-                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-accent dark:hover:bg-accent0/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                                   >
                                     <svg
                                       className='w-4 h-4'
@@ -759,7 +744,7 @@ const Quotations = () => {
                                     </button>
                                   )}
 
-                                <hr className='my-1 border-gray-100 dark:border-gray-700' />
+                                <hr className='my-1 border-border' />
 
                                 {/* Danger Zone */}
                                 <button
@@ -782,27 +767,25 @@ const Quotations = () => {
 
             {/* Pagination */}
             {totalQuotations > limit && (
-              <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 dark:border-gray-700'>
-                <p className='text-sm text-gray-500 dark:text-gray-400'>
+              <div className='flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-border'>
+                <p className='text-sm text-muted-foreground'>
                   Showing{' '}
-                  <span className='font-medium text-gray-700 dark:text-gray-300'>
+                  <span className='font-medium text-secondary-foreground'>
                     {(page - 1) * limit + 1}
                   </span>{' '}
                   to{' '}
-                  <span className='font-medium text-gray-700 dark:text-gray-300'>
+                  <span className='font-medium text-secondary-foreground'>
                     {Math.min(page * limit, totalQuotations)}
                   </span>{' '}
                   of{' '}
-                  <span className='font-medium text-gray-700 dark:text-gray-300'>
-                    {totalQuotations}
-                  </span>{' '}
+                  <span className='font-medium text-secondary-foreground'>{totalQuotations}</span>{' '}
                   quotations
                 </p>
                 <div className='flex items-center gap-2'>
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className='inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                    className='inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-secondary-foreground bg-card border border-border rounded-lg hover:bg-muted  disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
                   >
                     <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path
@@ -826,8 +809,8 @@ const Quotations = () => {
                           onClick={() => setPage(p)}
                           className={`w-10 h-10 text-sm font-medium rounded-lg transition-colors ${
                             p === page
-                              ? 'bg-teal-500 text-white'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              ? 'bg-primary text-white'
+                              : 'text-secondary-foreground hover:bg-muted '
                           }`}
                         >
                           {p}
@@ -837,7 +820,7 @@ const Quotations = () => {
                   <button
                     onClick={() => setPage(p => p + 1)}
                     disabled={page * limit >= totalQuotations}
-                    className='inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                    className='inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-secondary-foreground bg-card border border-border rounded-lg hover:bg-muted  disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
                   >
                     Next
                     <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

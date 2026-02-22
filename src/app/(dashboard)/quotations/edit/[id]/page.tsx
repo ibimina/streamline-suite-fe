@@ -44,7 +44,7 @@ function EditQuotationContent() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-muted  flex items-center justify-center'>
         <LoadingSpinner />
       </div>
     )
@@ -52,12 +52,10 @@ function EditQuotationContent() {
 
   if (error || !quotation) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-muted  flex items-center justify-center'>
         <div className='text-center'>
-          <h1 className='text-2xl font-bold text-gray-900 dark:text-white mb-4'>
-            Quotation Not Found
-          </h1>
-          <p className='text-gray-600 dark:text-gray-400 mb-6'>
+          <h1 className='text-2xl font-bold text-foreground mb-4'>Quotation Not Found</h1>
+          <p className='text-muted-foreground mb-6'>
             The quotation you&apos;re looking for doesn&apos;t exist.
           </p>
           <button
@@ -78,12 +76,12 @@ function EditQuotationContent() {
   // Show template modal if user requested it
   if (showTemplateModal) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <div className='min-h-screen bg-muted '>
         <div className='container mx-auto px-4 py-8'>
           <div className='mb-6'>
             <button
               onClick={() => setShowTemplateModal(false)}
-              className='text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2'
+              className='text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground flex items-center gap-2'
             >
               ← Back to Edit Form
             </button>
@@ -99,22 +97,22 @@ function EditQuotationContent() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+    <div className='min-h-screen bg-muted '>
       <div className='container mx-auto px-4 py-8'>
         <div className='mb-6'>
           <button
             onClick={handleCancel}
-            className='text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2 mb-4'
+            className='text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground flex items-center gap-2 mb-4'
           >
             ← Back to Quotations
           </button>
 
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
             <div>
-              <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
+              <h1 className='text-3xl font-bold text-foreground'>
                 Edit Quotation #{quotation.uniqueId}
               </h1>
-              <p className='text-gray-600 dark:text-gray-400 mt-1'>
+              <p className='text-muted-foreground mt-1'>
                 Template: <span className='font-medium capitalize'>{currentTemplate}</span>
                 {' • '}
                 Color: <span className='font-medium capitalize'>{currentAccentColor}</span>
@@ -123,7 +121,7 @@ function EditQuotationContent() {
 
             <button
               onClick={() => setShowTemplateModal(true)}
-              className='inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-500/20 transition-colors'
+              className='inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-primary dark:text-primary bg-primary-light dark:bg-primary/10 border border-primary/30 dark:border-primary/30 rounded-lg hover:bg-primary-light dark:hover:bg-primary/20 transition-colors'
             >
               <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path

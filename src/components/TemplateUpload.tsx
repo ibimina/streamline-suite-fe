@@ -228,7 +228,10 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
       <div className='bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
         <div className='flex justify-between items-center mb-6'>
           <h2 className='text-2xl font-bold'>Upload Custom Template</h2>
-          <button onClick={onClose} className='text-gray-500 hover:text-gray-700 text-2xl'>
+          <button
+            onClick={onClose}
+            className='text-muted-foreground hover:text-secondary-foreground text-2xl'
+          >
             ×
           </button>
         </div>
@@ -236,43 +239,43 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
         {/* Progress Steps */}
         <div className='flex items-center mb-6'>
           <div
-            className={`flex items-center ${currentStep === 'upload' ? 'text-blue-600' : 'text-gray-400'}`}
+            className={`flex items-center ${currentStep === 'upload' ? 'text-blue-600' : 'text-muted-foreground'}`}
           >
             <div
               className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
                 currentStep === 'upload'
                   ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-gray-300'
+                  : 'border-border'
               }`}
             >
               1
             </div>
             <span className='ml-2 font-medium'>Upload</span>
           </div>
-          <div className='flex-1 h-0.5 bg-gray-300 mx-4'></div>
+          <div className='flex-1 h-0.5 bg-muted mx-4'></div>
           <div
-            className={`flex items-center ${currentStep === 'placeholders' ? 'text-blue-600' : 'text-gray-400'}`}
+            className={`flex items-center ${currentStep === 'placeholders' ? 'text-blue-600' : 'text-muted-foreground'}`}
           >
             <div
               className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
                 currentStep === 'placeholders'
                   ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-gray-300'
+                  : 'border-border'
               }`}
             >
               2
             </div>
             <span className='ml-2 font-medium'>Configure</span>
           </div>
-          <div className='flex-1 h-0.5 bg-gray-300 mx-4'></div>
+          <div className='flex-1 h-0.5 bg-muted mx-4'></div>
           <div
-            className={`flex items-center ${currentStep === 'preview' ? 'text-blue-600' : 'text-gray-400'}`}
+            className={`flex items-center ${currentStep === 'preview' ? 'text-blue-600' : 'text-muted-foreground'}`}
           >
             <div
               className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
                 currentStep === 'preview'
                   ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-gray-300'
+                  : 'border-border'
               }`}
             >
               3
@@ -312,17 +315,17 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
               </label>
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className='border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400'
+                className='border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-blue-400'
               >
                 {selectedFile ? (
                   <div>
                     <p className='text-green-600 font-medium'>{selectedFile.name}</p>
-                    <p className='text-sm text-gray-500'>Click to change file</p>
+                    <p className='text-sm text-muted-foreground'>Click to change file</p>
                   </div>
                 ) : (
                   <div>
-                    <p className='text-gray-600'>Click to upload image template</p>
-                    <p className='text-sm text-gray-400'>image files only</p>
+                    <p className='text-muted-foreground'>Click to upload image template</p>
+                    <p className='text-sm text-muted-foreground'>image files only</p>
                   </div>
                 )}
               </div>
@@ -338,7 +341,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
             {isProcessing && (
               <div className='text-center py-4'>
                 <div className='inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
-                <p className='mt-2 text-gray-600'>Processing template...</p>
+                <p className='mt-2 text-muted-foreground'>Processing template...</p>
               </div>
             )}
 
@@ -346,7 +349,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
               <button
                 onClick={() => setCurrentStep('placeholders')}
                 disabled={!selectedFile || !templateName.trim()}
-                className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed'
+                className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed'
               >
                 Next: Configure Placeholders
               </button>
@@ -372,7 +375,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
                 <h4 className='font-medium'>Placeholders</h4>
                 <div className='max-h-96 overflow-y-auto space-y-3'>
                   {placeholders.map(placeholder => (
-                    <div key={placeholder.id} className='border rounded-lg p-4 bg-gray-50'>
+                    <div key={placeholder.id} className='border rounded-lg p-4 bg-muted'>
                       <div className='flex justify-between items-start mb-3'>
                         <span className='font-medium text-sm'>{placeholder.id}</span>
                         <button
@@ -446,7 +449,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
 
               <div className='space-y-3'>
                 <h4 className='font-medium'>Template Preview</h4>
-                <div className='border rounded-lg p-4 bg-gray-100 min-h-96'>
+                <div className='border rounded-lg p-4 bg-muted min-h-96'>
                   {previewUrl ? (
                     <iframe
                       src={previewUrl}
@@ -454,7 +457,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
                       title='Template Preview'
                     />
                   ) : (
-                    <div className='h-96 flex items-center justify-center text-gray-500'>
+                    <div className='h-96 flex items-center justify-center text-muted-foreground'>
                       PDF preview will appear here
                     </div>
                   )}
@@ -465,7 +468,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
             <div className='flex justify-between'>
               <button
                 onClick={() => setCurrentStep('upload')}
-                className='border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50'
+                className='border border-border text-secondary-foreground px-6 py-2 rounded-lg hover:bg-muted'
               >
                 Back
               </button>
@@ -484,7 +487,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
           <div className='space-y-4'>
             <h3 className='text-lg font-medium'>Review Template</h3>
 
-            <div className='bg-gray-50 rounded-lg p-4'>
+            <div className='bg-muted rounded-lg p-4'>
               <h4 className='font-medium mb-2'>Template Details</h4>
               <div className='grid grid-cols-2 gap-4 text-sm'>
                 <div>
@@ -516,7 +519,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
             <div className='flex justify-between'>
               <button
                 onClick={() => setCurrentStep('placeholders')}
-                className='border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50'
+                className='border border-border text-secondary-foreground px-6 py-2 rounded-lg hover:bg-muted'
               >
                 Back
               </button>

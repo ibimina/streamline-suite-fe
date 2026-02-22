@@ -71,7 +71,7 @@ const Products = () => {
       case 'in-stock':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+        return 'bg-muted text-foreground  '
     }
   }
 
@@ -95,15 +95,15 @@ const Products = () => {
       {/* Header */}
       <div className='flex items-center justify-between'>
         <div>
-          <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>Products</h1>
-          <p className='text-gray-600 dark:text-gray-400'>Manage your product catalog</p>
+          <h1 className='text-2xl font-bold text-foreground'>Products</h1>
+          <p className='text-muted-foreground'>Manage your product catalog</p>
         </div>
         <button
           onClick={() => {
             setEditingProduct(null)
             setShowForm(true)
           }}
-          className='flex items-center px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+          className='flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
         >
           <PlusIcon className='w-4 h-4 mr-2' />
           Add Product
@@ -113,20 +113,20 @@ const Products = () => {
       {/* Search and Filters */}
       <div className='flex flex-col sm:flex-row gap-4'>
         <div className='flex-1 relative'>
-          <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-gray-400' />
+          <SearchIcon className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
           <input
             type='text'
             placeholder='Search products...'
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+            className='w-full pl-10 pr-4 py-2 border border-border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent   '
           />
         </div>
         <div className='flex gap-2'>
           <select
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value as any)}
-            className='px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+            className='px-3 py-2 border border-border rounded-md focus:ring-2 focus:ring-primary   '
           >
             <option value='all'>All Types</option>
             <option value='product'>Physical Product</option>
@@ -137,7 +137,7 @@ const Products = () => {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as any)}
-            className='px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+            className='px-3 py-2 border border-border rounded-md focus:ring-2 focus:ring-primary   '
           >
             <option value='all'>All Status</option>
             <option value='active'>Active</option>
@@ -147,44 +147,41 @@ const Products = () => {
       </div>
 
       {/* Products Table */}
-      <div className='bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden'>
+      <div className='bg-card shadow rounded-lg overflow-hidden'>
         {loading ? (
           <LoadingSpinner />
         ) : (
           <div className='overflow-x-auto'>
-            <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
-              <thead className='bg-gray-50 dark:bg-gray-700'>
+            <table className='min-w-full divide-y divide-border'>
+              <thead className='bg-muted'>
                 <tr>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Product
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Type
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Price
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Stock
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Supplier
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Status
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
+              <tbody className='bg-card divide-y divide-border'>
                 {products.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className='px-6 py-4 text-center text-gray-500 dark:text-gray-400'
-                    >
+                    <td colSpan={7} className='px-6 py-4 text-center text-muted-foreground'>
                       No products found.
                     </td>
                   </tr>
@@ -192,21 +189,21 @@ const Products = () => {
                   products.map(product => {
                     const stockStatus = getStockStatus(product)
                     return (
-                      <tr key={product._id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
+                      <tr key={product._id} className='hover:bg-muted '>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <div className='flex items-center'>
                             <div className='flex-shrink-0 h-10 w-10'>
-                              <div className='h-10 w-10 rounded bg-teal-100 dark:bg-teal-900 flex items-center justify-center'>
-                                <span className='text-sm font-medium text-teal-600 dark:text-teal-300'>
+                              <div className='h-10 w-10 rounded bg-primary-light dark:bg-primary/20 flex items-center justify-center'>
+                                <span className='text-sm font-medium text-primary dark:text-primary'>
                                   {product.name.charAt(0).toUpperCase()}
                                 </span>
                               </div>
                             </div>
                             <div className='ml-4'>
-                              <div className='text-sm font-medium text-gray-900 dark:text-white'>
+                              <div className='text-sm font-medium text-foreground'>
                                 {product.name}
                               </div>
-                              <div className='text-sm text-gray-500 dark:text-gray-400'>
+                              <div className='text-sm text-muted-foreground'>
                                 {product.sku && `SKU: ${product.sku}`}
                                 {product.sku && product.category && ' • '}
                                 {product.category}
@@ -220,11 +217,11 @@ const Products = () => {
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
-                          <div className='text-sm text-gray-900 dark:text-white'>
+                          <div className='text-sm text-foreground'>
                             ${product.sellingPrice.toFixed(2)}
                           </div>
                           {product.costPrice && (
-                            <div className='text-sm text-gray-500 dark:text-gray-400'>
+                            <div className='text-sm text-muted-foreground'>
                               Cost: ${product.costPrice.toFixed(2)}
                             </div>
                           )}
@@ -232,7 +229,7 @@ const Products = () => {
                         <td className='px-6 py-4 whitespace-nowrap'>
                           {product.trackInventory ? (
                             <div>
-                              <div className='text-sm text-gray-900 dark:text-white'>
+                              <div className='text-sm text-foreground'>
                                 {product.currentStock || 0} {product.unit}
                               </div>
                               {stockStatus && (
@@ -244,9 +241,7 @@ const Products = () => {
                               )}
                             </div>
                           ) : (
-                            <span className='text-sm text-gray-500 dark:text-gray-400'>
-                              Not tracked
-                            </span>
+                            <span className='text-sm text-muted-foreground'>Not tracked</span>
                           )}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
@@ -254,17 +249,13 @@ const Products = () => {
                           typeof product.supplier === 'object' &&
                           product.supplier.name ? (
                             <div>
-                              <div className='text-sm text-gray-900 dark:text-white font-medium'>
+                              <div className='text-sm text-foreground font-medium'>
                                 {product.supplier.name}
                               </div>
-                              <div className='text-xs text-gray-500 dark:text-gray-400'>
-                                Primary Supplier
-                              </div>
+                              <div className='text-xs text-muted-foreground'>Primary Supplier</div>
                             </div>
                           ) : (
-                            <span className='text-sm text-gray-500 dark:text-gray-400'>
-                              No supplier
-                            </span>
+                            <span className='text-sm text-muted-foreground'>No supplier</span>
                           )}
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
@@ -272,7 +263,7 @@ const Products = () => {
                             className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               product.isActive
                                 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                                : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                                : 'bg-muted text-foreground  '
                             }`}
                           >
                             {product.isActive ? 'Active' : 'Inactive'}
@@ -282,7 +273,7 @@ const Products = () => {
                           <div className='flex space-x-2'>
                             <Link
                               href={`products/${product._id}`}
-                              className='text-teal-600 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300'
+                              className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
                               title='View Details'
                             >
                               <EyeIcon className='w-4 h-4' />

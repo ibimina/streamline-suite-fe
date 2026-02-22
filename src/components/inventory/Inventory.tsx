@@ -133,10 +133,10 @@ const InventoryTransactions = () => {
     <div className='space-y-6'>
       {/* Header */}
       <div className='flex justify-between items-center'>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Inventory Transactions</h1>
+        <h1 className='text-3xl font-bold text-foreground'>Inventory Transactions</h1>
         <button
           onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
         >
           <PlusIcon className='w-5 h-5' />
           <span>Add Transaction</span>
@@ -144,27 +144,27 @@ const InventoryTransactions = () => {
       </div>
 
       {/* Filters and Search */}
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm'>
+      <div className='bg-card p-4 rounded-lg shadow-sm'>
         <div className='flex flex-col md:flex-row gap-4'>
           {/* Search */}
           <div className='flex-1 relative'>
-            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
+            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Search transactions...'
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full pl-10 pr-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             />
           </div>
 
           {/* Status Filter */}
           <div className='flex items-center space-x-2'>
-            <FilterIcon className='w-5 h-5 text-gray-400' />
+            <FilterIcon className='w-5 h-5 text-muted-foreground' />
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value as any)}
-              className='px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             >
               <option value='all'>All Types</option>
               <option value='stock_in'>Stock In</option>
@@ -190,44 +190,41 @@ const InventoryTransactions = () => {
       )}
 
       {/* Transactions Table */}
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden'>
+      <div className='bg-card rounded-lg shadow-sm overflow-hidden'>
         {isLoading ? (
           <div className='p-8 text-center'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto'></div>
-            <p className='mt-2 text-gray-500 dark:text-gray-400'>Loading transactions...</p>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto'></div>
+            <p className='mt-2 text-muted-foreground'>Loading transactions...</p>
           </div>
         ) : (
           <div className='overflow-x-auto'>
-            <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
-              <thead className='bg-gray-50 dark:bg-gray-700'>
+            <table className='min-w-full divide-y divide-border'>
+              <thead className='bg-muted'>
                 <tr>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Date & Reference
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Product
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Type
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Quantity
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Value
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
+              <tbody className='bg-card divide-y divide-border'>
                 {transactions.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className='px-6 py-12 text-center text-gray-500 dark:text-gray-400'
-                    >
+                    <td colSpan={6} className='px-6 py-12 text-center text-muted-foreground'>
                       No transactions found. Create your first transaction to get started.
                     </td>
                   </tr>
@@ -237,24 +234,24 @@ const InventoryTransactions = () => {
                     const IconComponent = statusConfig.icon
 
                     return (
-                      <tr key={transaction._id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
+                      <tr key={transaction._id} className='hover:bg-muted '>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <div>
-                            <div className='text-sm font-medium text-gray-900 dark:text-white'>
+                            <div className='text-sm font-medium text-foreground'>
                               {new Date(transaction.createdAt).toLocaleDateString()}
                             </div>
-                            <div className='text-sm text-gray-500 dark:text-gray-400'>
+                            <div className='text-sm text-muted-foreground'>
                               {transaction.reference}
                             </div>
                           </div>
                         </td>
                         <td className='px-6 py-4'>
                           <div>
-                            <div className='text-sm font-medium text-gray-900 dark:text-white'>
+                            <div className='text-sm font-medium text-foreground'>
                               {transaction.productName || transaction.product}
                             </div>
                             {transaction.notes && (
-                              <div className='text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate'>
+                              <div className='text-sm text-muted-foreground max-w-xs truncate'>
                                 {transaction.notes}
                               </div>
                             )}
@@ -280,7 +277,7 @@ const InventoryTransactions = () => {
                             {transaction.quantity}
                           </div>
                           {transaction.runningStock !== undefined && (
-                            <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            <div className='text-xs text-muted-foreground'>
                               Stock: {transaction.runningStock}
                             </div>
                           )}
@@ -298,7 +295,7 @@ const InventoryTransactions = () => {
                             </div>
                           )}
                           {transaction.unitCost && (
-                            <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            <div className='text-xs text-muted-foreground'>
                               @ ${transaction.unitCost.toFixed(2)}
                             </div>
                           )}
@@ -307,7 +304,7 @@ const InventoryTransactions = () => {
                           <div className='flex space-x-2'>
                             <button
                               onClick={() => handleEditTransaction(transaction)}
-                              className='text-teal-600 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300'
+                              className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
                             >
                               <PencilIcon className='w-4 h-4' />
                             </button>
@@ -328,8 +325,8 @@ const InventoryTransactions = () => {
 
             {/* Pagination */}
             {data?.payload?.total && data.payload.total > limit && (
-              <div className='flex justify-between items-center p-4 border-t dark:border-gray-700'>
-                <p className='text-sm text-gray-500'>
+              <div className='flex justify-between items-center p-4 border-t border-border'>
+                <p className='text-sm text-muted-foreground'>
                   Showing {(page - 1) * limit + 1} to {Math.min(page * limit, data.payload.total)}{' '}
                   of {data.payload.total} transactions
                 </p>
@@ -337,14 +334,14 @@ const InventoryTransactions = () => {
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                    className='px-3 py-1 rounded border  disabled:opacity-50'
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => p + 1)}
                     disabled={page * limit >= data.payload.total}
-                    className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                    className='px-3 py-1 rounded border  disabled:opacity-50'
                   >
                     Next
                   </button>

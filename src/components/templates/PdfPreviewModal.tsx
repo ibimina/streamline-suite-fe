@@ -34,7 +34,7 @@ const PdfPreviewModal: React.FC<{
           </thead>
           <tbody>
             {pdfData.items.map((item, index) => (
-              <tr key={item.id} className='border-b dark:border-gray-700'>
+              <tr key={item.id} className='border-b border-border'>
                 <td className='px-6 py-4'>{index + 1}</td>
                 <td className='px-6 py-4'>{item.description}</td>
                 <td className='px-6 py-4 text-right'>{item.quantity}</td>
@@ -55,18 +55,18 @@ const PdfPreviewModal: React.FC<{
         <div className='flex justify-end mb-8'>
           <div className='w-64 text-right'>
             <p className='flex justify-between'>
-              <span className='text-gray-500 dark:text-gray-400'>Subtotal:</span>
+              <span className='text-muted-foreground'>Subtotal:</span>
               <span>
                 {pdfData.subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
               </span>
             </p>
             <p className='flex justify-between'>
-              <span className='text-gray-500 dark:text-gray-400'>VAT {pdfData?.vatRate}%:</span>
+              <span className='text-muted-foreground'>VAT {pdfData?.vatRate}%:</span>
               <span>
                 {pdfData?.totalVat.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
               </span>
             </p>
-            <div className='w-full h-px bg-gray-300 dark:bg-gray-600 my-2'></div>
+            <div className='w-full h-px bg-muted  my-2'></div>
             <p className='flex justify-between font-bold text-lg mt-1'>
               <span>Total Due:</span>
               <span>
@@ -77,9 +77,7 @@ const PdfPreviewModal: React.FC<{
         </div>
         <div>
           <h3 className='font-semibold mb-2'>Payment Terms</h3>
-          <p className='text-xs text-gray-500 dark:text-gray-400 whitespace-pre-wrap'>
-            {pdfData.terms}
-          </p>
+          <p className='text-xs text-muted-foreground whitespace-pre-wrap'>{pdfData.terms}</p>
         </div>
       </>
     )
@@ -91,7 +89,7 @@ const PdfPreviewModal: React.FC<{
         )
       case 'modern':
         return (
-          <div className='bg-white dark:bg-gray-800'>
+          <div className='bg-card'>
             <div style={{ backgroundColor: accentColor }} className='p-8 text-white'>
               <div className='flex justify-between items-start'>
                 {companyDetails.logoUrl && (
@@ -103,7 +101,7 @@ const PdfPreviewModal: React.FC<{
             <div className='p-8'>
               <div className='flex justify-between mb-8'>
                 <div>
-                  <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
+                  <h3 className='font-semibold text-muted-foreground'>Bill To</h3>
                   <p>{pdfData?.customer?.companyName}</p>
                   <p>{pdfData?.customer?.billingAddress?.street}</p>
                   <p>
@@ -134,7 +132,7 @@ const PdfPreviewModal: React.FC<{
         )
       case 'corporate':
         return (
-          <div className='flex bg-white dark:bg-gray-800'>
+          <div className='flex bg-card'>
             <div style={{ backgroundColor: accentColor }} className='w-1/4 p-8 text-white'>
               {companyDetails.logoUrl && (
                 <Image
@@ -148,12 +146,12 @@ const PdfPreviewModal: React.FC<{
               <h2 className='text-2xl font-bold mb-2'>{companyDetails.name}</h2>
             </div>
             <div className='w-3/4 p-8'>
-              <h2 className='text-4xl font-bold text-gray-400 dark:text-gray-500 tracking-widest text-right mb-8'>
+              <h2 className='text-4xl font-bold text-muted-foreground tracking-widest text-right mb-8'>
                 {documentTitle}
               </h2>
               <div className='flex justify-between mb-8'>
                 <div>
-                  <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
+                  <h3 className='font-semibold text-muted-foreground'>Bill To</h3>
                   <p>{pdfData.customer.companyName}</p>
                   <p>{pdfData.customer.billingAddress.street}</p>
                   <p>
@@ -186,10 +184,10 @@ const PdfPreviewModal: React.FC<{
       case 'classic':
       default:
         return (
-          <div className='p-8 bg-white dark:bg-gray-800 relative'>
+          <div className='p-8 bg-card relative'>
             {pdfData.template === 'creative' && (
               <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
-                <h1 className='text-8xl font-bold text-gray-200 dark:text-gray-700 opacity-50 transform -rotate-45 select-none'>
+                <h1 className='text-8xl font-bold text-muted-foreground dark:text-secondary-foreground opacity-50 transform -rotate-45 select-none'>
                   {companyDetails.name}
                 </h1>
               </div>
@@ -206,22 +204,22 @@ const PdfPreviewModal: React.FC<{
                   />
                 )}
                 <h2
-                  className={`text-2xl font-bold ${pdfData.template === 'minimalist' ? '' : 'text-gray-900 dark:text-white'}`}
+                  className={`text-2xl font-bold ${pdfData.template === 'minimalist' ? '' : 'text-foreground'}`}
                 >
                   {companyDetails.name}
                 </h2>
-                <p className='text-sm text-gray-500 dark:text-gray-400'>{companyDetails.address}</p>
+                <p className='text-sm text-muted-foreground'>{companyDetails.address}</p>
               </div>
               <h2 className='text-4xl font-bold tracking-widest' style={{ color: accentColor }}>
                 {documentTitle}
               </h2>
             </div>
             <div
-              className={`w-full h-px mb-8 ${pdfData.template === 'minimalist' ? 'bg-gray-200 dark:bg-gray-700' : ''}`}
+              className={`w-full h-px mb-8 ${pdfData.template === 'minimalist' ? 'bg-muted' : ''}`}
             ></div>
             <div className='flex justify-between mb-8 relative'>
               <div>
-                <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
+                <h3 className='font-semibold text-muted-foreground'>Bill To</h3>
                 <p>{pdfData.customer.companyName}</p>
                 <p>{pdfData.customer.billingAddress.street}</p>
                 <p>
@@ -253,10 +251,10 @@ const PdfPreviewModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative'>
+      <div className='bg-card rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative'>
         <button
           onClick={onClose}
-          className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 absolute top-4 right-4 z-10'
+          className='p-2 rounded-full hover:bg-muted  absolute top-4 right-4 z-10'
         >
           <XIcon className='w-6 h-6' />
         </button>

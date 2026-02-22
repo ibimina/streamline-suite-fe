@@ -17,8 +17,8 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
   return (
     <div className='space-y-6'>
       <div className='text-center mb-8'>
-        <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>Company Information</h2>
-        <p className='text-sm text-gray-600 dark:text-gray-400 mt-2'>
+        <h2 className='text-2xl font-bold text-foreground'>Company Information</h2>
+        <p className='text-sm text-muted-foreground mt-2'>
           Let&apos;s start by learning about your business
         </p>
       </div>
@@ -26,7 +26,7 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='companyName'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Company Name *
         </label>
@@ -34,7 +34,7 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
           {...register('name')}
           type='text'
           id='name'
-          className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+          className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
           placeholder='Enter your company name'
         />
         {errors.name && (
@@ -46,7 +46,7 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='companyName'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Company Address *
         </label>
@@ -54,7 +54,7 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
           {...register('address')}
           type='text'
           id='address'
-          className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+          className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
           placeholder='Enter your company address'
         />
         {errors.address && (
@@ -67,14 +67,14 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='industry'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Industry
         </label>
         <select
           {...register('industry')}
           id='industry'
-          className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+          className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
         >
           <option value=''>Select your industry</option>
           {industryOptions.map(industry => (
@@ -93,14 +93,14 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='companySize'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Company Size
         </label>
         <select
           {...register('companySize')}
           id='companySize'
-          className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+          className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
         >
           <option value=''>Select company size</option>
           {companySizeOptions.map(size => (
@@ -119,14 +119,14 @@ const CompanyInfoStep: React.FC<CompanyInfoStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='country'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Country
         </label>
         <select
           {...register('country')}
           id='country'
-          className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+          className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
         >
           <option value=''>Select your country</option>
           {countryOptions.map(country => (

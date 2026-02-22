@@ -14,10 +14,10 @@ export default function EditInvoicePage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-muted  flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
-          <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading invoice...</p>
+          <p className='mt-4 text-muted-foreground'>Loading invoice...</p>
         </div>
       </div>
     )
@@ -25,7 +25,7 @@ export default function EditInvoicePage() {
 
   if (error || !invoice) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <div className='min-h-screen bg-muted '>
         <div className='container mx-auto px-4 py-8'>
           <div className='max-w-2xl mx-auto mt-10'>
             <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center'>
@@ -49,17 +49,17 @@ export default function EditInvoicePage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+    <div className='min-h-screen bg-muted '>
       <div className='container mx-auto px-4 py-8'>
         <div className='mb-6'>
           <button
             onClick={() => router.push('/invoices')}
-            className='text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2 mb-4'
+            className='text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground flex items-center gap-2 mb-4'
           >
             ← Back to Invoices
           </button>
-          <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Edit Invoice</h1>
-          <p className='text-gray-600 dark:text-gray-400 mt-2'>
+          <h1 className='text-3xl font-bold text-foreground'>Edit Invoice</h1>
+          <p className='text-muted-foreground mt-2'>
             Editing:{' '}
             <span className='font-medium'>{invoice.invoiceNumber || invoice.uniqueId}</span>
           </p>

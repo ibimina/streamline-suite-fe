@@ -20,28 +20,29 @@ import {
   useUpdateInvoiceStatusMutation,
 } from '@/store/api'
 import { Invoice } from '@/types/invoice.type'
+import { StatusBadge } from './shared/StatusBadge'
+import { SkeletonTable } from './ui/skeleton'
+import { EmptyInvoices } from './shared/EmptyState'
+import { Button } from './ui/button'
 
 export const defaultTerms = `1. Payment is due within 30 days of the invoice date.
 2. Late payments are subject to a 1.5% monthly interest charge.
 3. Please make all checks payable to Your Company Name.`
 
-const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const baseClasses = 'px-2 py-1 text-xs font-semibold rounded-full inline-block capitalize'
-  const statusClasses: Record<string, string> = {
-    paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
-    overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
-    partially_paid: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  }
-  return (
-    <span
-      className={`${baseClasses} ${statusClasses[status.toLowerCase()] || statusClasses.draft}`}
-    >
-      {status.replace('_', ' ')}
-    </span>
-  )
+// Map invoice status to StatusBadge status prop
+const mapInvoiceStatus = (
+  status: string
+): 'paid' | 'sent' | 'draft' | 'overdue' | 'cancelled' | 'partial' => {
+  const statusMap: Record<string, 'paid' | 'sent' | 'draft' | 'overdue' | 'cancelled' | 'partial'> =
+    {
+      paid: 'paid',
+      sent: 'sent',
+      draft: 'draft',
+      overdue: 'overdue',
+      cancelled: 'cancelled',
+      partially_paid: 'partial',
+    }
+  return statusMap[status.toLowerCase()] || 'draft'
 }
 
 const Invoices = () => {
@@ -161,8 +162,14 @@ const Invoices = () => {
 
   if (isLoading) {
     return (
-      <div className='flex justify-center items-center h-64'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500'></div>
+      <div className='space-y-6'>
+        <div>
+          <h1 className='text-3xl font-bold text-foreground'>Invoices</h1>
+          <p className='text-muted-foreground mt-1'>Manage, track, and send customer invoices.</p>
+        </div>
+        <div className='bg-card p-6 rounded-xl shadow-card border border-border'>
+          <SkeletonTable rows={5} columns={6} />
+        </div>
       </div>
     )
   }
@@ -170,13 +177,8 @@ const Invoices = () => {
   if (isError) {
     return (
       <div className='text-center py-12'>
-        <p className='text-red-500 mb-4'>Failed to load invoices</p>
-        <button
-          onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
-        >
-          Retry
-        </button>
+        <p className='text-destructive mb-4'>Failed to load invoices</p>
+        <Button onClick={() => refetch()}>Retry</Button>
       </div>
     )
   }
@@ -184,10 +186,8 @@ const Invoices = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Invoices</h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
-          Manage, track, and send customer invoices.
-        </p>
+        <h1 className='text-3xl font-bold text-foreground'>Invoices</h1>
+        <p className='text-muted-foreground mt-1'>Manage, track, and send customer invoices.</p>
       </div>
       <div className='flex justify-between items-center'>
         <input
@@ -195,20 +195,17 @@ const Invoices = () => {
           placeholder='Search...'
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className='w-full max-w-xs pl-4 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500'
+          className='w-full max-w-xs pl-4 pr-4 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all'
         />
-        <button
-          onClick={() => route.push('/invoices/create')}
-          className='flex items-center bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors'
-        >
+        <Button onClick={() => route.push('/invoices/create')}>
           <PlusIcon className='w-5 h-5 mr-0 sm:mr-2' />
           <span className='hidden sm:inline'>Create New Invoice</span>
-          <span className='inline sm:hidden'>Add Invoice</span>
-        </button>
+          <span className='inline sm:hidden'>Add</span>
+        </Button>
       </div>
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg overflow-x-auto'>
+      <div className='bg-card p-4 rounded-xl shadow-card border border-border overflow-x-auto'>
         <table className='w-full text-sm text-left'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <thead className='text-xs text-muted-foreground uppercase bg-muted'>
             <tr>
               <th className='px-6 py-3'>Invoice #</th>
               <th className='px-6 py-3'>Customer</th>
@@ -221,31 +218,31 @@ const Invoices = () => {
           <tbody>
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={6} className='px-6 py-12 text-center text-gray-500'>
-                  No invoices found. Create your first invoice to get started.
+                <td colSpan={6} className='px-6 py-4'>
+                  <EmptyInvoices onAction={() => route.push('/invoices/create')} />
                 </td>
               </tr>
             ) : (
               invoices.map(invoice => (
                 <tr
                   key={invoice._id}
-                  className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  className='border-b border-border hover:bg-muted/50 transition-colors'
                 >
-                  <td className='px-6 py-4 font-medium'>
+                  <td className='px-6 py-4 font-medium text-foreground'>
                     {invoice.uniqueId || invoice._id}
                     {invoice.quotation && (
-                      <span className='block text-xs text-gray-500'>From Quote</span>
+                      <span className='block text-xs text-muted-foreground'>From Quote</span>
                     )}
                   </td>
-                  <td className='px-6 py-4'>{getCustomerName(invoice)}</td>
-                  <td className='px-6 py-4 hidden md:table-cell'>
+                  <td className='px-6 py-4 text-foreground'>{getCustomerName(invoice)}</td>
+                  <td className='px-6 py-4 hidden md:table-cell text-foreground'>
                     {new Date(invoice.dueDate).toLocaleDateString()}
                   </td>
-                  <td className='px-6 py-4 font-semibold'>
+                  <td className='px-6 py-4 font-semibold text-foreground'>
                     ${invoice.grandTotal?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
                   <td className='px-6 py-4'>
-                    <StatusBadge status={invoice.status} />
+                    <StatusBadge status={mapInvoiceStatus(invoice.status)} />
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <div
@@ -256,16 +253,16 @@ const Invoices = () => {
                         onClick={() =>
                           setActiveDropdown(activeDropdown === invoice._id ? null : invoice._id)
                         }
-                        className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                        className='p-2 rounded-full hover:bg-accent transition-colors'
                       >
-                        <DotsVerticalIcon className='w-5 h-5' />
+                        <DotsVerticalIcon className='w-5 h-5 text-muted-foreground' />
                       </button>
                       {activeDropdown === invoice._id && (
-                        <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10'>
+                        <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-lg shadow-dropdown bg-popover border border-border focus:outline-none z-10'>
                           <div className='py-1'>
                             <button
                               onClick={() => openModal(setViewModalOpen, invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors'
                             >
                               <EyeIcon className='w-5 h-5 mr-3' />
                               View
@@ -273,7 +270,7 @@ const Invoices = () => {
                             {invoice.status === 'Draft' && (
                               <button
                                 onClick={() => route.push(`/invoices/${invoice._id}`)}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                className='w-full text-left flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors'
                               >
                                 <PencilIcon className='w-5 h-5 mr-3' />
                                 Edit
@@ -283,7 +280,7 @@ const Invoices = () => {
                               <button
                                 onClick={() => handleMarkAsPaid(invoice)}
                                 disabled={isUpdatingStatus}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50'
+                                className='w-full text-left flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors disabled:opacity-50'
                               >
                                 <CheckCircleIcon className='w-5 h-5 mr-3' />
                                 Mark as Paid
@@ -291,14 +288,14 @@ const Invoices = () => {
                             )}
                             <button
                               onClick={() => downloadPdf(invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors'
                             >
                               <DownloadIcon className='w-5 h-5 mr-3' />
                               Download PDF
                             </button>
                             <button
                               onClick={() => handleDelete(invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-destructive hover:bg-destructive-light transition-colors'
                             >
                               <TrashIcon className='w-5 h-5 mr-3' />
                               Delete
@@ -316,27 +313,29 @@ const Invoices = () => {
 
         {/* Pagination */}
         {invoicesData?.payload?.total && invoicesData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-            <p className='text-sm text-gray-500'>
+          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+            <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to{' '}
               {Math.min(page * limit, invoicesData.payload.total)} of {invoicesData.payload.total}{' '}
               invoices
             </p>
             <div className='flex gap-2'>
-              <button
+              <Button
+                variant='outline'
+                size='sm'
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
               >
                 Previous
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
                 onClick={() => setPage(p => p + 1)}
                 disabled={page * limit >= invoicesData.payload.total}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}

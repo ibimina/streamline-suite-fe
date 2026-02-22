@@ -31,14 +31,14 @@ const StatCard: React.FC<{
   change: string
   icon: React.ReactNode
 }> = ({ title, value, change, icon }) => (
-  <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col justify-between'>
+  <div className='bg-card p-6 rounded-xl shadow-lg flex flex-col justify-between'>
     <div className='flex justify-between items-start'>
-      <span className='text-gray-500 dark:text-gray-400 font-medium'>{title}</span>
+      <span className='text-muted-foreground font-medium'>{title}</span>
       {icon}
     </div>
     <div>
-      <p className='text-3xl font-bold text-gray-900 dark:text-white mt-2'>{value}</p>
-      <div className='flex items-center mt-1 text-teal-500 dark:text-teal-400'>
+      <p className='text-3xl font-bold text-foreground mt-2'>{value}</p>
+      <div className='flex items-center mt-1 text-primary dark:text-primary'>
         <ArrowUpIcon className='w-4 h-4' />
         <span className='ml-1 text-sm'>{change}</span>
       </div>
@@ -46,7 +46,7 @@ const StatCard: React.FC<{
   </div>
 )
 
-const COLORS = ['#14B8A6', '#3B82F6', '#F97316', '#F59E0B', '#EF4444']
+const COLORS = ['#2563eb', '#3B82F6', '#F97316', '#F59E0B', '#EF4444']
 
 // Helper function to format period labels
 const formatPeriodLabel = (period: string) => {
@@ -101,10 +101,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
-          Welcome, {user?.account.name}!
-        </h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
+        <h1 className='text-3xl font-bold text-foreground'>Welcome, {user?.account.name}!</h1>
+        <p className='text-muted-foreground mt-1'>
           {new Date().toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
@@ -124,7 +122,7 @@ const Dashboard: React.FC = () => {
               ? `${stats.growth.revenueGrowthPercent > 0 ? '+' : ''}${stats.growth.revenueGrowthPercent.toFixed(1)}% last month`
               : 'No data'
           }
-          icon={<CurrencyDollarIcon className='w-7 h-7 text-gray-400 dark:text-gray-500' />}
+          icon={<CurrencyDollarIcon className='w-7 h-7 text-muted-foreground' />}
         />
         <StatCard
           title='Outstanding Invoices'
@@ -134,7 +132,7 @@ const Dashboard: React.FC = () => {
               ? `${stats.outstandingInvoices.count} pending${stats.outstandingInvoices.overdue > 0 ? `, ${stats.outstandingInvoices.overdue} overdue` : ''}`
               : 'No data'
           }
-          icon={<DocumentReportIcon className='w-7 h-7 text-gray-400 dark:text-gray-500' />}
+          icon={<DocumentReportIcon className='w-7 h-7 text-muted-foreground' />}
         />
         <StatCard
           title='Weekly Quotations'
@@ -142,18 +140,16 @@ const Dashboard: React.FC = () => {
           change={
             stats ? `$${stats.weeklyQuotations.total.value.toLocaleString()} value` : 'No data'
           }
-          icon={<ShoppingCartIcon className='w-7 h-7 text-gray-400 dark:text-gray-500' />}
+          icon={<ShoppingCartIcon className='w-7 h-7 text-muted-foreground' />}
         />
       </div>
 
       {/* Charts */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-        <div className='lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-          <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-            Sales Over Time
-          </h3>
+        <div className='lg:col-span-2 bg-card p-6 rounded-xl shadow-lg'>
+          <h3 className='text-lg font-semibold text-foreground mb-4'>Sales Over Time</h3>
           {!stats?.salesTrend || stats.salesTrend.length === 0 ? (
-            <p className='text-gray-500 dark:text-gray-400'>No sales trend data available.</p>
+            <p className='text-muted-foreground'>No sales trend data available.</p>
           ) : (
             <ResponsiveContainer width='100%' height={300}>
               <LineChart
@@ -177,10 +173,10 @@ const Dashboard: React.FC = () => {
                 <Line
                   type='monotone'
                   dataKey='sales'
-                  stroke='#14B8A6'
+                  stroke='#2563eb'
                   strokeWidth={2}
-                  dot={{ r: 4, fill: '#14B8A6' }}
-                  activeDot={{ r: 8, stroke: '#10B981' }}
+                  dot={{ r: 4, fill: '#2563eb' }}
+                  activeDot={{ r: 8, stroke: '#1d4ed8' }}
                   name='Revenue'
                 />
                 <Line
@@ -196,12 +192,12 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           )}
         </div>
-        <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex flex-col items-center'>
-          <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4 self-start'>
+        <div className='bg-card p-6 rounded-xl shadow-lg flex flex-col items-center'>
+          <h3 className='text-lg font-semibold text-foreground mb-4 self-start'>
             Top Selling Items
           </h3>
           {!stats?.topProducts || stats.topProducts.length === 0 ? (
-            <p className='text-gray-500 dark:text-gray-400'>No top selling items data available.</p>
+            <p className='text-muted-foreground'>No top selling items data available.</p>
           ) : (
             <ResponsiveContainer width='100%' height={300}>
               <PieChart>
@@ -238,20 +234,18 @@ const Dashboard: React.FC = () => {
 
       {/* Activities and Alerts */}
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-          <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-            Recent Activities
-          </h3>
+        <div className='bg-card p-6 rounded-xl shadow-lg'>
+          <h3 className='text-lg font-semibold text-foreground mb-4'>Recent Activities</h3>
           <ul className='space-y-4'>
             {stats?.recentActivities && stats?.recentActivities?.length > 0 ? (
               stats.recentActivities?.slice(0, 5).map(activity => (
                 <li key={activity.id} className='flex items-start'>
-                  <div className='bg-gray-100 dark:bg-gray-700 p-2 rounded-full mr-4 mt-1'>
-                    <ClockIcon className='w-5 h-5 text-teal-500 dark:text-teal-400' />
+                  <div className='bg-muted  p-2 rounded-full mr-4 mt-1'>
+                    <ClockIcon className='w-5 h-5 text-primary dark:text-primary' />
                   </div>
                   <div>
-                    <p className='text-gray-800 dark:text-white text-sm'>{activity.text}</p>
-                    <p className='text-gray-500 dark:text-gray-400 text-xs'>
+                    <p className='text-foreground text-sm'>{activity.text}</p>
+                    <p className='text-muted-foreground text-xs'>
                       {activity.time}
                       {/* {new Date(activity.createdAt).toLocaleString()} */}
                     </p>
@@ -259,14 +253,12 @@ const Dashboard: React.FC = () => {
                 </li>
               ))
             ) : (
-              <li className='text-gray-500 dark:text-gray-400 text-sm'>No recent activities</li>
+              <li className='text-muted-foreground text-sm'>No recent activities</li>
             )}
           </ul>
         </div>
-        <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-          <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-            Low Stock Alerts
-          </h3>
+        <div className='bg-card p-6 rounded-xl shadow-lg'>
+          <h3 className='text-lg font-semibold text-foreground mb-4'>Low Stock Alerts</h3>
           <ul className='space-y-4'>
             {stats?.lowStockProducts && stats?.lowStockProducts?.length > 0 ? (
               stats?.lowStockProducts.slice(0, 5).map(product => {
@@ -281,10 +273,10 @@ const Dashboard: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <p className='text-gray-800 dark:text-white text-sm'>
+                      <p className='text-foreground text-sm'>
                         {product.name} (Qty: {product.currentStock})
                       </p>
-                      <p className='text-gray-500 dark:text-gray-400 text-xs'>
+                      <p className='text-muted-foreground text-xs'>
                         Alert level: {product.lowStockAlert}
                       </p>
                     </div>
@@ -292,7 +284,7 @@ const Dashboard: React.FC = () => {
                 )
               })
             ) : (
-              <li className='text-gray-500 dark:text-gray-400 text-sm'>No low stock alerts</li>
+              <li className='text-muted-foreground text-sm'>No low stock alerts</li>
             )}
           </ul>
         </div>

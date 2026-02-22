@@ -64,10 +64,10 @@ function CreateInvoiceContent() {
 
   if (duplicateId && isDuplicateLoading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-muted  flex items-center justify-center'>
         <div className='text-center'>
           <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
-          <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading invoice data...</p>
+          <p className='mt-4 text-muted-foreground'>Loading invoice data...</p>
         </div>
       </div>
     )
@@ -75,12 +75,12 @@ function CreateInvoiceContent() {
 
   if (showTemplateSelection) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <div className='min-h-screen bg-muted '>
         <div className='container mx-auto px-4 py-8'>
           <div className='mb-6'>
             <button
               onClick={handleCancel}
-              className='text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2'
+              className='text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground flex items-center gap-2'
             >
               ← Back to Invoices
             </button>
@@ -92,19 +92,19 @@ function CreateInvoiceContent() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+    <div className='min-h-screen bg-muted '>
       <div className='container mx-auto px-4 py-8'>
         <div className='mb-6'>
           <button
             onClick={handleCancel}
-            className='text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2 mb-4'
+            className='text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground flex items-center gap-2 mb-4'
           >
             ← Back to Invoices
           </button>
-          <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
+          <h1 className='text-3xl font-bold text-foreground'>
             {duplicateId ? 'Duplicate Invoice' : 'Create New Invoice'}
           </h1>
-          <p className='text-gray-600 dark:text-gray-400 mt-2'>
+          <p className='text-muted-foreground mt-2'>
             {duplicateId && duplicateData?.payload?.uniqueId && (
               <span className='mr-2'>
                 Duplicating from:{' '}
@@ -136,10 +136,10 @@ export default function CreateInvoicePage() {
   return (
     <Suspense
       fallback={
-        <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+        <div className='min-h-screen bg-muted  flex items-center justify-center'>
           <div className='text-center'>
             <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto'></div>
-            <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading...</p>
+            <p className='mt-4 text-muted-foreground'>Loading...</p>
           </div>
         </div>
       }

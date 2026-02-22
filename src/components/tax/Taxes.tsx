@@ -17,12 +17,12 @@ const StatCard: React.FC<{ title: string; value: string; isLoading?: boolean }> 
   value,
   isLoading,
 }) => (
-  <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-    <p className='text-gray-500 dark:text-gray-400 font-medium'>{title}</p>
+  <div className='bg-card p-6 rounded-xl shadow-lg'>
+    <p className='text-muted-foreground font-medium'>{title}</p>
     {isLoading ? (
-      <div className='h-9 mt-2 bg-gray-200 dark:bg-gray-700 animate-pulse rounded' />
+      <div className='h-9 mt-2 bg-muted animate-pulse rounded' />
     ) : (
-      <p className='text-3xl font-bold text-gray-900 dark:text-white mt-2'>{value}</p>
+      <p className='text-3xl font-bold text-foreground mt-2'>{value}</p>
     )}
   </div>
 )
@@ -41,7 +41,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
       case 'overdue':
         return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
+        return 'bg-muted text-foreground  '
     }
   }
   return <span className={`${baseClasses} ${getStatusClasses(status)}`}>{status}</span>
@@ -84,7 +84,7 @@ const Taxes: React.FC = () => {
         <p className='text-red-500 mb-4'>Failed to load tax reports</p>
         <button
           onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+          className='bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary'
         >
           Retry
         </button>
@@ -95,10 +95,8 @@ const Taxes: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Tax Filing Support</h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
-          Generate reports and track tax filings.
-        </p>
+        <h1 className='text-3xl font-bold text-foreground'>Tax Filing Support</h1>
+        <p className='text-muted-foreground mt-1'>Generate reports and track tax filings.</p>
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -118,22 +116,22 @@ const Taxes: React.FC = () => {
         <h2 className='text-xl font-semibold'>Tax Filing History</h2>
         <button
           onClick={() => setModalOpen(true)}
-          className='bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
         >
           <PlusIcon className='w-5 h-5 mr-2' />
           Generate New Report
         </button>
       </div>
 
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg overflow-x-auto'>
+      <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
         {isLoading ? (
           <div className='flex justify-center py-12'>
-            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500' />
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary' />
           </div>
         ) : (
           <>
             <table className='w-full text-sm text-left'>
-              <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+              <thead className='text-xs text-secondary-foreground uppercase bg-muted dark:text-muted-foreground'>
                 <tr>
                   <th className='px-6 py-3'>Period</th>
                   <th className='px-6 py-3'>Report Type</th>
@@ -145,16 +143,13 @@ const Taxes: React.FC = () => {
               <tbody>
                 {reports.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className='px-6 py-12 text-center text-gray-500'>
+                    <td colSpan={5} className='px-6 py-12 text-center text-muted-foreground'>
                       No tax reports found. Generate your first report to get started.
                     </td>
                   </tr>
                 ) : (
                   reports.map(report => (
-                    <tr
-                      key={report._id}
-                      className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                    >
+                    <tr key={report._id} className='border-b border-border hover:bg-muted '>
                       <td className='px-6 py-4 font-medium'>{report.period}</td>
                       <td className='px-6 py-4 capitalize'>{report.type.replace('_', ' ')}</td>
                       <td className='px-6 py-4 font-semibold'>${report.amount.toLocaleString()}</td>
@@ -164,7 +159,7 @@ const Taxes: React.FC = () => {
                       <td className='px-6 py-4 text-center'>
                         <button
                           onClick={() => handleDownload(report._id)}
-                          className='text-teal-600 dark:text-teal-400 hover:underline'
+                          className='text-primary dark:text-primary hover:underline'
                           title='Download Report'
                         >
                           <DownloadIcon className='w-5 h-5 inline-block' />
@@ -179,8 +174,8 @@ const Taxes: React.FC = () => {
 
             {/* Pagination */}
             {reportsData?.payload?.total && reportsData.payload.total > limit && (
-              <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-                <p className='text-sm text-gray-500'>
+              <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+                <p className='text-sm text-muted-foreground'>
                   Showing {(page - 1) * limit + 1} to{' '}
                   {Math.min(page * limit, reportsData.payload.total)} of {reportsData.payload.total}{' '}
                   reports
@@ -189,14 +184,14 @@ const Taxes: React.FC = () => {
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                    className='px-3 py-1 rounded border  disabled:opacity-50'
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => p + 1)}
                     disabled={page * limit >= reportsData.payload.total}
-                    className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                    className='px-3 py-1 rounded border  disabled:opacity-50'
                   >
                     Next
                   </button>
@@ -241,7 +236,7 @@ const GenerateReportModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md'>
+      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-md'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-2xl font-bold'>Generate Tax Report</h2>
           <button onClick={onClose}>
@@ -258,7 +253,7 @@ const GenerateReportModal: React.FC<{
               type='text'
               {...register('period')}
               placeholder='e.g., Q1 2024'
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
             />
             {errors.period && <InputErrorWrapper message={errors.period.message || ''} />}
           </div>
@@ -266,11 +261,7 @@ const GenerateReportModal: React.FC<{
             <label htmlFor='type' className='block text-sm font-medium mb-1'>
               Report Type
             </label>
-            <select
-              id='type'
-              {...register('type')}
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-            >
+            <select id='type' {...register('type')} className='p-2 w-full border rounded  '>
               <option value='sales_tax'>Sales Tax</option>
               <option value='purchase_tax'>Purchase Tax</option>
               <option value='vat'>VAT</option>
@@ -282,14 +273,14 @@ const GenerateReportModal: React.FC<{
             <button
               type='button'
               onClick={onClose}
-              className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
+              className='mr-2 px-4 py-2 rounded bg-muted'
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600 disabled:opacity-50'
+              className='px-4 py-2 rounded bg-primary text-white hover:bg-primary disabled:opacity-50'
               disabled={isLoading}
             >
               {isLoading ? 'Generating...' : 'Generate'}

@@ -99,7 +99,7 @@ const Expenses: React.FC = () => {
         <p className='text-red-500 mb-4'>Failed to load expenses</p>
         <button
           onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+          className='bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary'
         >
           Retry
         </button>
@@ -110,37 +110,35 @@ const Expenses: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Expense Tracking</h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
+        <h1 className='text-3xl font-bold text-foreground'>Expense Tracking</h1>
+        <p className='text-muted-foreground mt-1'>
           Record and analyze your company&apos;s expenses.
         </p>
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-        <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-          <p className='text-gray-500 dark:text-gray-400 font-medium'>Total Expenses</p>
-          <p className='text-3xl font-bold text-gray-900 dark:text-white mt-2'>
+        <div className='bg-card p-6 rounded-xl shadow-lg'>
+          <p className='text-muted-foreground font-medium'>Total Expenses</p>
+          <p className='text-3xl font-bold text-foreground mt-2'>
             ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-          <p className='text-gray-500 dark:text-gray-400 font-medium'>Pending Approval</p>
+        <div className='bg-card p-6 rounded-xl shadow-lg'>
+          <p className='text-muted-foreground font-medium'>Pending Approval</p>
           <p className='text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-2'>
             ${pendingAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
-        <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-          <p className='text-gray-500 dark:text-gray-400 font-medium'>Approved</p>
+        <div className='bg-card p-6 rounded-xl shadow-lg'>
+          <p className='text-muted-foreground font-medium'>Approved</p>
           <p className='text-3xl font-bold text-green-600 dark:text-green-400 mt-2'>
             ${approvedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
       </div>
 
-      <div className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'>
-        <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-          Monthly Expenses
-        </h3>
+      <div className='bg-card p-6 rounded-xl shadow-lg'>
+        <h3 className='text-lg font-semibold text-foreground mb-4'>Monthly Expenses</h3>
         <ResponsiveContainer width='100%' height={300}>
           <BarChart data={monthlyTrendData}>
             <CartesianGrid strokeDasharray='3 3' stroke='#4B5563' />
@@ -160,15 +158,15 @@ const Expenses: React.FC = () => {
       <div className='flex justify-end'>
         <button
           onClick={() => handleOpenModal()}
-          className='bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
         >
           <PlusIcon className='w-5 h-5 mr-2' /> Add New Expense
         </button>
       </div>
 
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg overflow-x-auto'>
+      <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
         <table className='w-full text-sm text-left'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <thead className='text-xs text-secondary-foreground uppercase bg-muted dark:text-muted-foreground'>
             <tr>
               <th className='px-6 py-3'>Date</th>
               <th className='px-6 py-3'>Category</th>
@@ -181,16 +179,13 @@ const Expenses: React.FC = () => {
           <tbody>
             {expenses.length === 0 ? (
               <tr>
-                <td colSpan={6} className='px-6 py-12 text-center text-gray-500'>
+                <td colSpan={6} className='px-6 py-12 text-center text-muted-foreground'>
                   No expenses found. Add your first expense to get started.
                 </td>
               </tr>
             ) : (
               expenses.map(exp => (
-                <tr
-                  key={exp._id}
-                  className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                >
+                <tr key={exp._id} className='border-b border-border hover:bg-muted '>
                   <td className='px-6 py-4'>{new Date(exp.date).toLocaleDateString()}</td>
                   <td className='px-6 py-4'>
                     <span className='px-2 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200'>
@@ -217,15 +212,15 @@ const Expenses: React.FC = () => {
                   <td className='px-6 py-4 text-center'>
                     <button
                       onClick={() => handleOpenModal(exp)}
-                      className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                      className='p-2 rounded-full hover:bg-muted '
                       title='Edit Expense'
                       disabled={isUpdating}
                     >
-                      <PencilIcon className='w-5 h-5 text-gray-500' />
+                      <PencilIcon className='w-5 h-5 text-muted-foreground' />
                     </button>
                     <button
                       onClick={() => openDeleteModal(exp)}
-                      className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                      className='p-2 rounded-full hover:bg-muted '
                       title='Delete Expense'
                       disabled={isDeleting}
                     >
@@ -240,8 +235,8 @@ const Expenses: React.FC = () => {
 
         {/* Pagination */}
         {expensesData?.payload?.total && expensesData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-            <p className='text-sm text-gray-500'>
+          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+            <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to{' '}
               {Math.min(page * limit, expensesData.payload.total)} of {expensesData.payload.total}{' '}
               expenses
@@ -250,14 +245,14 @@ const Expenses: React.FC = () => {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                className='px-3 py-1 rounded border  disabled:opacity-50'
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={page * limit >= expensesData.payload.total}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                className='px-3 py-1 rounded border  disabled:opacity-50'
               >
                 Next
               </button>
@@ -315,7 +310,7 @@ const ExpenseModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg'>
+      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-lg'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-2xl font-bold'>{expense ? 'Edit' : 'Add New'} Expense</h2>
           <button onClick={onClose}>
@@ -325,18 +320,11 @@ const ExpenseModal: React.FC<{
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <input
-                type='date'
-                {...register('date')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-              />
+              <input type='date' {...register('date')} className='p-2 w-full border rounded  ' />
               {errors.date && <InputErrorWrapper message={errors.date.message || ''} />}
             </div>
             <div>
-              <select
-                {...register('category')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-              >
+              <select {...register('category')} className='p-2 w-full border rounded  '>
                 {EXPENSE_CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -351,7 +339,7 @@ const ExpenseModal: React.FC<{
               type='text'
               {...register('vendor')}
               placeholder='Vendor (optional)'
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
             />
             {errors.vendor && <InputErrorWrapper message={errors.vendor.message || ''} />}
           </div>
@@ -360,7 +348,7 @@ const ExpenseModal: React.FC<{
               {...register('description')}
               placeholder='Description'
               rows={3}
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
             />
             {errors.description && <InputErrorWrapper message={errors.description.message || ''} />}
           </div>
@@ -371,15 +359,12 @@ const ExpenseModal: React.FC<{
                 step='0.01'
                 {...register('amount', { valueAsNumber: true })}
                 placeholder='Amount'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.amount && <InputErrorWrapper message={errors.amount.message || ''} />}
             </div>
             <div>
-              <select
-                {...register('paymentMethod')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-              >
+              <select {...register('paymentMethod')} className='p-2 w-full border rounded  '>
                 <option value='cash'>Cash</option>
                 <option value='bank_transfer'>Bank Transfer</option>
                 <option value='credit_card'>Credit Card</option>
@@ -396,7 +381,7 @@ const ExpenseModal: React.FC<{
               type='text'
               {...register('reference')}
               placeholder='Reference Number (optional)'
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
             />
             {errors.reference && <InputErrorWrapper message={errors.reference.message || ''} />}
           </div>
@@ -404,14 +389,14 @@ const ExpenseModal: React.FC<{
             <button
               type='button'
               onClick={onClose}
-              className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
+              className='mr-2 px-4 py-2 rounded bg-muted'
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600 disabled:opacity-50'
+              className='px-4 py-2 rounded bg-primary text-white hover:bg-primary disabled:opacity-50'
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save Expense'}
@@ -428,13 +413,11 @@ const DeleteConfirmationModal: React.FC<{ onConfirm: () => void; onCancel: () =>
   onCancel,
 }) => (
   <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-    <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm'>
+    <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-sm'>
       <h3 className='text-lg font-bold mb-2'>Confirm Deletion</h3>
-      <p className='text-gray-600 dark:text-gray-400 mb-4'>
-        Are you sure? This action cannot be undone.
-      </p>
+      <p className='text-muted-foreground mb-4'>Are you sure? This action cannot be undone.</p>
       <div className='flex justify-end'>
-        <button onClick={onCancel} className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'>
+        <button onClick={onCancel} className='mr-2 px-4 py-2 rounded bg-muted'>
           Cancel
         </button>
         <button

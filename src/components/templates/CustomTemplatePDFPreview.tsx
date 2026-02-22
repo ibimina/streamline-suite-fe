@@ -69,8 +69,8 @@ const CustomTemplatePDFPreview: React.FC<{
   if (isLoading) {
     return (
       <div className='text-center py-12'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4'></div>
-        <p className='text-gray-600 dark:text-gray-400'>Generating PDF preview...</p>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4'></div>
+        <p className='text-muted-foreground'>Generating PDF preview...</p>
       </div>
     )
   }
@@ -94,8 +94,8 @@ const CustomTemplatePDFPreview: React.FC<{
           </svg>
         </div>
         <h3 className='text-lg font-semibold mb-2 text-red-600'>Preview Error</h3>
-        <p className='text-gray-600 dark:text-gray-400 mb-4'>{error}</p>
-        <p className='text-sm text-gray-500'>
+        <p className='text-muted-foreground mb-4'>{error}</p>
+        <p className='text-sm text-muted-foreground'>
           You can still download the PDF using the download button.
         </p>
       </div>
@@ -106,7 +106,7 @@ const CustomTemplatePDFPreview: React.FC<{
     <div className='w-full h-full'>
       <div className='mb-4 text-center'>
         <h3 className='text-lg font-semibold mb-2'>Custom Template Preview</h3>
-        <p className='text-sm text-gray-600 dark:text-gray-400'>
+        <p className='text-sm text-muted-foreground'>
           Showing preview of quotation with custom template
         </p>
       </div>

@@ -21,7 +21,7 @@ import InputErrorWrapper from '../shared/InputErrorWrapper'
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const baseClasses = 'px-2 py-1 text-xs font-semibold rounded-full inline-block capitalize'
   const statusClasses: Record<string, string> = {
-    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+    draft: 'bg-muted text-foreground  ',
     pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     approved: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     processed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
@@ -94,7 +94,7 @@ const Payroll: React.FC = () => {
         <p className='text-red-500 mb-4'>Failed to load payroll data</p>
         <button
           onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+          className='bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary'
         >
           Retry
         </button>
@@ -105,26 +105,22 @@ const Payroll: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
-          Salary Payments (Payroll)
-        </h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
-          Manage and track all payroll history.
-        </p>
+        <h1 className='text-3xl font-bold text-foreground'>Salary Payments (Payroll)</h1>
+        <p className='text-muted-foreground mt-1'>Manage and track all payroll history.</p>
       </div>
       <div className='flex justify-between items-center'>
         <div />
         <button
           onClick={() => setModalOpen(true)}
-          className='bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors flex items-center'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
         >
           <PlusIcon className='w-5 h-5 mr-2' />
           Run New Payroll
         </button>
       </div>
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg overflow-x-auto'>
+      <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
         <table className='w-full text-sm text-left'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <thead className='text-xs text-secondary-foreground uppercase bg-muted dark:text-muted-foreground'>
             <tr>
               <th className='px-6 py-3'>Pay Period</th>
               <th className='px-6 py-3'>Employees</th>
@@ -136,16 +132,13 @@ const Payroll: React.FC = () => {
           <tbody>
             {payrollRuns.length === 0 ? (
               <tr>
-                <td colSpan={5} className='px-6 py-12 text-center text-gray-500'>
+                <td colSpan={5} className='px-6 py-12 text-center text-muted-foreground'>
                   No payroll runs found. Create your first payroll to get started.
                 </td>
               </tr>
             ) : (
               payrollRuns.map(run => (
-                <tr
-                  key={run._id}
-                  className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                >
+                <tr key={run._id} className='border-b border-border hover:bg-muted '>
                   <td className='px-6 py-4 font-medium'>
                     {new Date(run.payPeriodStart).toLocaleDateString()} -{' '}
                     {new Date(run.payPeriodEnd).toLocaleDateString()}
@@ -186,7 +179,7 @@ const Payroll: React.FC = () => {
                               : run.items[0].staff
                           )
                         }
-                        className='text-teal-600 dark:text-teal-400 hover:underline'
+                        className='text-primary dark:text-primary hover:underline'
                         title='Download Report'
                       >
                         <DownloadIcon className='w-5 h-5 inline-block' />
@@ -202,8 +195,8 @@ const Payroll: React.FC = () => {
 
         {/* Pagination */}
         {payrollData?.payload?.total && payrollData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-            <p className='text-sm text-gray-500'>
+          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+            <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to{' '}
               {Math.min(page * limit, payrollData.payload.total)} of {payrollData.payload.total}{' '}
               payroll runs
@@ -212,14 +205,14 @@ const Payroll: React.FC = () => {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                className='px-3 py-1 rounded border  disabled:opacity-50'
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={page * limit >= payrollData.payload.total}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                className='px-3 py-1 rounded border  disabled:opacity-50'
               >
                 Next
               </button>
@@ -264,7 +257,7 @@ const PayrollModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg'>
+      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-lg'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-2xl font-bold'>Run New Payroll</h2>
           <button onClick={onClose}>
@@ -281,7 +274,7 @@ const PayrollModal: React.FC<{
                 id='payPeriodStart'
                 type='date'
                 {...register('payPeriodStart')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.payPeriodStart && (
                 <InputErrorWrapper message={errors.payPeriodStart.message || ''} />
@@ -295,7 +288,7 @@ const PayrollModal: React.FC<{
                 id='payPeriodEnd'
                 type='date'
                 {...register('payPeriodEnd')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.payPeriodEnd && (
                 <InputErrorWrapper message={errors.payPeriodEnd.message || ''} />
@@ -310,7 +303,7 @@ const PayrollModal: React.FC<{
               id='paymentDate'
               type='date'
               {...register('paymentDate')}
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
             />
             {errors.paymentDate && <InputErrorWrapper message={errors.paymentDate.message || ''} />}
           </div>
@@ -322,7 +315,7 @@ const PayrollModal: React.FC<{
               id='notes'
               {...register('notes')}
               rows={3}
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
               placeholder='Any additional notes for this payroll run...'
             />
             {errors.notes && <InputErrorWrapper message={errors.notes.message || ''} />}
@@ -331,14 +324,14 @@ const PayrollModal: React.FC<{
             <button
               type='button'
               onClick={onClose}
-              className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
+              className='mr-2 px-4 py-2 rounded bg-muted'
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600 disabled:opacity-50'
+              className='px-4 py-2 rounded bg-primary text-white hover:bg-primary disabled:opacity-50'
               disabled={isLoading}
             >
               {isLoading ? 'Creating...' : 'Create Payroll'}

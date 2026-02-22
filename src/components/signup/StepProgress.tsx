@@ -29,18 +29,18 @@ const StepProgress: React.FC<StepProgressProps> = ({
 
     switch (status) {
       case 'completed':
-        return `${baseClasses} bg-teal-600 text-white`
+        return `${baseClasses} bg-primary text-white`
       case 'current':
-        return `${baseClasses} bg-teal-100 border-2 border-teal-600 text-teal-600 dark:bg-teal-900 dark:text-teal-300`
+        return `${baseClasses} bg-primary-light border-2 border-primary text-primary dark:bg-primary/20 dark:text-primary`
       default:
-        return `${baseClasses} bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400`
+        return `${baseClasses} bg-muted text-muted-foreground  dark:text-muted-foreground`
     }
   }
 
   const getConnectorClasses = (stepIndex: number) => {
     const isCompleted = completedSteps.has(stepIndex) || stepIndex < currentStep
     return `flex-auto border-t-2 transition-colors ${
-      isCompleted ? 'border-teal-600' : 'border-gray-200 dark:border-gray-700'
+      isCompleted ? 'border-primary' : 'border-border'
     }`
   }
 
@@ -55,7 +55,7 @@ const StepProgress: React.FC<StepProgressProps> = ({
             <div className='flex items-center'>
               <button
                 onClick={() => onStepClick?.(index)}
-                className={`${getStepClasses(index)} ${onStepClick ? 'hover:bg-teal-50 dark:hover:bg-teal-900/50 cursor-pointer' : 'cursor-default'}`}
+                className={`${getStepClasses(index)} ${onStepClick ? 'hover:bg-primary-light dark:hover:bg-primary/10 cursor-pointer' : 'cursor-default'}`}
                 aria-current={currentStep === index ? 'step' : undefined}
                 disabled={!onStepClick}
               >
@@ -76,16 +76,16 @@ const StepProgress: React.FC<StepProgressProps> = ({
                 <p
                   className={`text-sm font-medium ${
                     currentStep === index
-                      ? 'text-teal-600 dark:text-teal-400'
+                      ? 'text-primary dark:text-primary'
                       : completedSteps.has(index) || index < currentStep
-                        ? 'text-gray-900 dark:text-white'
-                        : 'text-gray-500 dark:text-gray-400'
+                        ? 'text-foreground'
+                        : 'text-muted-foreground'
                   }`}
                 >
                   {stepTitles[index]}
                 </p>
                 {currentStep === index && (
-                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                  <p className='text-xs text-muted-foreground'>
                     Step {index + 1} of {totalSteps}
                   </p>
                 )}
@@ -104,15 +104,15 @@ const StepProgress: React.FC<StepProgressProps> = ({
 
       {/* Progress bar */}
       <div className='mt-6'>
-        <div className='bg-gray-200 dark:bg-gray-700 rounded-full h-2'>
+        <div className='bg-muted rounded-full h-2'>
           <div
-            className='bg-teal-600 h-2 rounded-full transition-all duration-300 ease-in-out'
+            className='bg-primary h-2 rounded-full transition-all duration-300 ease-in-out'
             style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
           />
         </div>
-        <div className='flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2'>
+        <div className='flex justify-between text-xs text-muted-foreground mt-2'>
           <span>0%</span>
-          <span className='text-teal-600 dark:text-teal-400 font-medium'>
+          <span className='text-primary dark:text-primary font-medium'>
             {Math.round(((currentStep + 1) / totalSteps) * 100)}%
           </span>
           <span>100%</span>

@@ -57,10 +57,10 @@ const Suppliers = () => {
     <div className='space-y-6'>
       {/* Header */}
       <div className='flex justify-between items-center'>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Suppliers</h1>
+        <h1 className='text-3xl font-bold text-foreground'>Suppliers</h1>
         <button
           onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
         >
           <PlusIcon className='w-5 h-5' />
           <span>Add Supplier</span>
@@ -68,27 +68,27 @@ const Suppliers = () => {
       </div>
 
       {/* Filters and Search */}
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm'>
+      <div className='bg-card p-4 rounded-lg shadow-sm'>
         <div className='flex flex-col md:flex-row gap-4'>
           {/* Search */}
           <div className='flex-1 relative'>
-            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
+            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Search suppliers...'
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full pl-10 pr-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             />
           </div>
 
           {/* Status Filter */}
           <div className='flex items-center space-x-2'>
-            <FilterIcon className='w-5 h-5 text-gray-400' />
+            <FilterIcon className='w-5 h-5 text-muted-foreground' />
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-              className='px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             >
               <option value='all'>All Status</option>
               <option value='active'>Active</option>
@@ -99,59 +99,53 @@ const Suppliers = () => {
       </div>
 
       {/* Suppliers Table */}
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden'>
+      <div className='bg-card rounded-lg shadow-sm overflow-hidden'>
         {loading ? (
           <LoadingSpinner />
         ) : (
           <div className='overflow-x-auto'>
-            <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
-              <thead className='bg-gray-50 dark:bg-gray-700'>
+            <table className='min-w-full divide-y divide-border'>
+              <thead className='bg-muted'>
                 <tr>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Supplier
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Contact
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Payment Terms
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Status
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
+              <tbody className='bg-card divide-y divide-border'>
                 {suppliers.map(supplier => (
-                  <tr key={supplier._id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
+                  <tr key={supplier._id} className='hover:bg-muted '>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div>
-                        <div className='text-sm font-medium text-gray-900 dark:text-white'>
-                          {supplier.name}
-                        </div>
-                        <div className='text-sm text-gray-500 dark:text-gray-400'>
-                          {supplier.email}
-                        </div>
+                        <div className='text-sm font-medium text-foreground'>{supplier.name}</div>
+                        <div className='text-sm text-muted-foreground'>{supplier.email}</div>
                         {supplier.taxId && (
-                          <div className='text-xs text-gray-400'>Tax ID: {supplier.taxId}</div>
+                          <div className='text-xs text-muted-foreground'>
+                            Tax ID: {supplier.taxId}
+                          </div>
                         )}
                       </div>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <div className='text-sm text-gray-900 dark:text-white'>
-                        {supplier.contact}
-                      </div>
-                      <div className='text-sm text-gray-500 dark:text-gray-400'>
-                        {supplier.phone}
-                      </div>
-                      <div className='text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate'>
+                      <div className='text-sm text-foreground'>{supplier.contact}</div>
+                      <div className='text-sm text-muted-foreground'>{supplier.phone}</div>
+                      <div className='text-sm text-muted-foreground max-w-xs truncate'>
                         {supplier.address}
                       </div>
                     </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white'>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-foreground'>
                       <span className='inline-flex px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
                         {supplier.paymentTerms}
                       </span>
@@ -196,7 +190,7 @@ const Suppliers = () => {
                         </Link>
                         <button
                           onClick={() => handleEditSupplier(supplier)}
-                          className='text-teal-600 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300'
+                          className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
                         >
                           <PencilIcon className='w-4 h-4' />
                         </button>
@@ -215,7 +209,7 @@ const Suppliers = () => {
 
             {suppliers.length === 0 && (
               <div className='text-center py-8'>
-                <p className='text-gray-500 dark:text-gray-400'>No suppliers found</p>
+                <p className='text-muted-foreground'>No suppliers found</p>
               </div>
             )}
           </div>

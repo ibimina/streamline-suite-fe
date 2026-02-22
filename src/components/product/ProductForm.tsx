@@ -88,7 +88,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
     <Sheet open={open} onOpenChange={handleCancel}>
       <SheetContent className='w-full sm:max-w-2xl bg-white overflow-y-auto'>
         <SheetHeader className='pb-6'>
-          <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>
+          <h2 className='text-xl font-semibold text-foreground'>
             {product?._id ? 'Edit Product' : 'Add New Product'}
           </h2>
         </SheetHeader>
@@ -96,39 +96,39 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           {/* Basic Information */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
               Product Name <span className='text-red-500'>*</span>
             </label>
             <input
               type='text'
               {...register('name')}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               placeholder='Enter product name'
             />
             {errors.name && <InputErrorWrapper message={errors.name?.message || ''} />}
 
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              SKU <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              SKU <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <input
               type='text'
               {...register('sku')}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               placeholder='Enter SKU'
             />
             {errors.sku && <InputErrorWrapper message={errors.sku.message || ''} />}
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Barcode <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              Barcode <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <input
               type='text'
               {...register('barcode')}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               placeholder='Enter barcode'
             />
             {errors.barcode && <InputErrorWrapper message={errors.barcode.message || ''} />}
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Product Type <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              Product Type <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <Select
               // value={watch('type')}
@@ -148,40 +148,40 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
           </div>
 
           {/* Description */}
-          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-            Description <span className='text-xs text-gray-400'>(optional)</span>
+          <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+            Description <span className='text-xs text-muted-foreground'>(optional)</span>
           </label>
           <textarea
             {...register('description')}
             rows={3}
-            className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+            className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             placeholder='Enter product description'
           />
           {errors.description && <InputErrorWrapper message={errors.description.message || ''} />}
           {/* Pricing */}
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Cost Price <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Cost Price <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='number'
                 step='0.01'
                 {...register('costPrice', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0.00'
               />
               {errors.costPrice && <InputErrorWrapper message={errors.costPrice.message || ''} />}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
                 Selling Price <span className='text-red-500'>*</span>
               </label>
               <input
                 type='number'
                 step='0.01'
                 {...register('sellingPrice', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0.00'
               />
               {errors.sellingPrice && (
@@ -190,14 +190,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Wholesale Price <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Wholesale Price <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='number'
                 step='0.01'
                 {...register('wholesalePrice', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0.00'
               />
               {errors.wholesalePrice && (
@@ -208,37 +208,37 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
           {/* Category and Brand */}
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Category <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Category <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='text'
                 {...register('category')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Enter category'
               />
               {errors.category && <InputErrorWrapper message={errors.category.message || ''} />}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Brand <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Brand <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='text'
                 {...register('brand')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Enter brand'
               />
               {errors.brand && <InputErrorWrapper message={errors.brand.message || ''} />}
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Unit <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Unit <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='text'
                 {...register('unit')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='pcs, kg, lbs, etc.'
               />
               {errors.unit && <InputErrorWrapper message={errors.unit.message || ''} />}
@@ -248,8 +248,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
           {/* Tax Rates */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Sales Tax Rate (%) <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Sales Tax Rate (%) <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='number'
@@ -257,7 +257,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                 min='0'
                 max='100'
                 {...register('salesTaxRate', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0.00'
               />
               {errors.salesTaxRate && (
@@ -266,8 +266,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
             </div>
 
             <div className='w-full'>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Purchase Tax Rate (%) <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Purchase Tax Rate (%){' '}
+                <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='number'
@@ -275,7 +276,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                 min='0'
                 max='100'
                 {...register('purchaseTaxRate', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0.00'
               />
               {errors.purchaseTaxRate && (
@@ -283,14 +284,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
               )}
             </div>
             <div className='w-full'>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Low Stock Alert Level <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Low Stock Alert Level{' '}
+                <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='number'
                 min='0'
                 {...register('lowStockAlert', { valueAsNumber: true })}
-                className='w-full  px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full  px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0'
               />
               {errors.lowStockAlert && (
@@ -298,14 +300,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
               )}
             </div>
             <div className='w-full'>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Current Stock <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Current Stock <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='number'
                 min='0'
                 {...register('currentStock', { valueAsNumber: true })}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='0'
               />
               {errors.currentStock && (
@@ -316,14 +318,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
 
           {/* Supplier Information */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
-              Supplier Information <span className='text-xs text-gray-400'>(optional)</span>
+            <h3 className='text-lg font-medium text-foreground'>
+              Supplier Information <span className='text-xs text-muted-foreground'>(optional)</span>
             </h3>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                  Primary Supplier <span className='text-xs text-gray-400'>(optional)</span>
+                <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                  Primary Supplier <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <Select
                   // value={watch('supplierId') || undefined}
@@ -344,8 +346,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                  Alternative Suppliers <span className='text-xs text-gray-400'>(optional)</span>
+                <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                  Alternative Suppliers{' '}
+                  <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
 
                 <MultiSelect
@@ -362,7 +365,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                   maxCount={3}
                   className='w-full bg-white'
                 />
-                <p className='text-sm text-gray-500 dark:text-gray-400 mb-2'>
+                <p className='text-sm text-muted-foreground mb-2'>
                   Backup suppliers for this product
                 </p>
                 {errors.alternativeSuppliers && (
@@ -374,8 +377,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
 
           {/* Inventory Settings */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
-              Inventory Settings <span className='text-xs text-gray-400'>(optional)</span>
+            <h3 className='text-lg font-medium text-foreground'>
+              Inventory Settings <span className='text-xs text-muted-foreground'>(optional)</span>
             </h3>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
@@ -383,45 +386,39 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
               <input
                 type='checkbox'
                 {...register('trackInventory')}
-                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+                className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
               />
-              <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-                Track Inventory
-              </label>
+              <label className='ml-2 block text-sm text-foreground '>Track Inventory</label>
             </div>
 
             <div className='flex items-center'>
               <input
                 type='checkbox'
                 {...register('trackSerialNumber')}
-                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+                className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
               />
-              <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-                Track Serial Numbers
-              </label>
+              <label className='ml-2 block text-sm text-foreground '>Track Serial Numbers</label>
             </div>
 
             <div className='flex items-center'>
               <input
                 type='checkbox'
                 {...register('trackExpiryDate')}
-                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+                className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
               />
-              <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-                Track Expiry Dates
-              </label>
+              <label className='ml-2 block text-sm text-foreground '>Track Expiry Dates</label>
             </div>
 
             {/* Conditional Expiry Date Input */}
             {/* {watch('trackExpiryDate') && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Expiry Date <span className="text-xs text-gray-400">(optional)</span>
+                                <label className="block text-sm font-medium text-secondary-foreground mb-1">
+                                    Expiry Date <span className="text-xs text-muted-foreground">(optional)</span>
                                 </label>
                                 <input
                                     type="date"
                                     {...register('expiryDate')}
-                                    className="w-full md:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"
+                                    className="w-full md:w-1/3 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary    dark:[color-scheme:dark]"
                                 />
                                 {errors.expiryDate && <InputErrorWrapper message={errors.expiryDate.message || ''} />}
                             </div>
@@ -433,11 +430,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
             <input
               type='checkbox'
               {...register('isActive')}
-              className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+              className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
             />
-            <label className='ml-2 block text-sm text-gray-900 dark:text-gray-300'>
-              Product is Active
-            </label>
+            <label className='ml-2 block text-sm text-foreground '>Product is Active</label>
           </div>
 
           {/* Form Actions */}
@@ -445,14 +440,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
             <button
               type='button'
               onClick={handleCancel}
-              className='px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500'
+              className='px-4 py-2 text-secondary-foreground bg-muted rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary   hover:bg-accent'
             >
               Cancel
             </button>
             <button
               type='submit'
               disabled={isSubmitting}
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50'
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50'
             >
               {isSubmitting ? 'Saving...' : product?._id ? 'Update Product' : 'Create Product'}
             </button>

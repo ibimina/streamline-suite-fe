@@ -30,9 +30,9 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const statusClasses: Record<string, string> = {
     paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+    draft: 'bg-muted text-foreground  ',
     overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+    cancelled: 'bg-muted text-foreground  ',
     partially_paid: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
   }
   return (
@@ -144,7 +144,7 @@ const Invoices = () => {
         <p className='text-red-500 mb-4'>Failed to load invoices</p>
         <button
           onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+          className='bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary'
         >
           Retry
         </button>
@@ -155,10 +155,8 @@ const Invoices = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Invoices</h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
-          Manage, track, and send customer invoices.
-        </p>
+        <h1 className='text-3xl font-bold text-foreground'>Invoices</h1>
+        <p className='text-muted-foreground mt-1'>Manage, track, and send customer invoices.</p>
       </div>
       <div className='flex justify-between items-center'>
         <input
@@ -166,20 +164,20 @@ const Invoices = () => {
           placeholder='Search...'
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className='w-full max-w-xs pl-4 pr-4 py-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500'
+          className='w-full max-w-xs pl-4 pr-4 py-2 border rounded-lg bg-card  focus:outline-none focus:ring-2 focus:ring-primary'
         />
         <button
           onClick={() => route.push('/invoices/create')}
-          className='flex items-center bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors'
+          className='flex items-center bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors'
         >
           <PlusIcon className='w-5 h-5 mr-0 sm:mr-2' />
           <span className='hidden sm:inline'>Create New Invoice</span>
           <span className='inline sm:hidden'>Add Invoice</span>
         </button>
       </div>
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg overflow-x-auto'>
+      <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
         <table className='w-full text-sm text-left'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <thead className='text-xs text-secondary-foreground uppercase bg-muted dark:text-muted-foreground'>
             <tr>
               <th className='px-6 py-3'>Invoice #</th>
               <th className='px-6 py-3'>Customer</th>
@@ -192,20 +190,17 @@ const Invoices = () => {
           <tbody>
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={6} className='px-6 py-12 text-center text-gray-500'>
+                <td colSpan={6} className='px-6 py-12 text-center text-muted-foreground'>
                   No invoices found. Create your first invoice to get started.
                 </td>
               </tr>
             ) : (
               invoices.map(invoice => (
-                <tr
-                  key={invoice._id}
-                  className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                >
+                <tr key={invoice._id} className='border-b border-border hover:bg-muted '>
                   <td className='px-6 py-4 font-medium'>
                     {invoice.uniqueId}
                     {invoice.quotation && (
-                      <span className='block text-xs text-gray-500'>From Quote</span>
+                      <span className='block text-xs text-muted-foreground'>From Quote</span>
                     )}
                   </td>
                   <td className='px-6 py-4'>{getCustomerName(invoice)}</td>
@@ -227,16 +222,16 @@ const Invoices = () => {
                         onClick={() =>
                           setActiveDropdown(activeDropdown === invoice._id ? null : invoice._id)
                         }
-                        className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                        className='p-2 rounded-full hover:bg-muted '
                       >
                         <DotsVerticalIcon className='w-5 h-5' />
                       </button>
                       {activeDropdown === invoice._id && (
-                        <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10'>
+                        <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card ring-1 ring-black ring-opacity-5 focus:outline-none z-10'>
                           <div className='py-1'>
                             <button
                               onClick={() => openModal(setViewModalOpen, invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted '
                             >
                               <EyeIcon className='w-5 h-5 mr-3' />
                               Preview Pdf
@@ -244,7 +239,7 @@ const Invoices = () => {
                             {invoice.status === 'Draft' && (
                               <button
                                 onClick={() => route.push(`/invoices/edit/${invoice._id}`)}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted '
                               >
                                 <PencilIcon className='w-5 h-5 mr-3' />
                                 Edit
@@ -254,7 +249,7 @@ const Invoices = () => {
                               <button
                                 onClick={() => handleMarkAsPaid(invoice)}
                                 disabled={isUpdatingStatus}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50'
+                                className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted  disabled:opacity-50'
                               >
                                 <CheckCircleIcon className='w-5 h-5 mr-3' />
                                 Mark as Paid
@@ -262,14 +257,14 @@ const Invoices = () => {
                             )}
                             <button
                               onClick={() => downloadPdf(invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted '
                             >
                               <DownloadIcon className='w-5 h-5 mr-3' />
                               Download PDF
                             </button>
                             <button
                               onClick={() => handleDelete(invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-muted '
                             >
                               <TrashIcon className='w-5 h-5 mr-3' />
                               Delete
@@ -287,8 +282,8 @@ const Invoices = () => {
 
         {/* Pagination */}
         {invoicesData?.payload?.total && invoicesData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-            <p className='text-sm text-gray-500'>
+          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+            <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to{' '}
               {Math.min(page * limit, invoicesData.payload.total)} of {invoicesData.payload.total}{' '}
               invoices
@@ -297,14 +292,14 @@ const Invoices = () => {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                className='px-3 py-1 rounded border  disabled:opacity-50'
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={page * limit >= invoicesData.payload.total}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+                className='px-3 py-1 rounded border  disabled:opacity-50'
               >
                 Next
               </button>

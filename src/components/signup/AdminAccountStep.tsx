@@ -16,17 +16,15 @@ const AdminAccountStep: React.FC<AdminAccountStepProps> = ({ formMethods }) => {
   return (
     <div className='space-y-6'>
       <div className='text-center mb-8'>
-        <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>Admin Account</h2>
-        <p className='text-sm text-gray-600 dark:text-gray-400 mt-2'>
-          Create your administrator account
-        </p>
+        <h2 className='text-2xl font-bold text-foreground'>Admin Account</h2>
+        <p className='text-sm text-muted-foreground mt-2'>Create your administrator account</p>
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         <div>
           <label
             htmlFor='firstName'
-            className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+            className='block text-sm font-medium text-secondary-foreground mb-2'
           >
             First Name *
           </label>
@@ -34,7 +32,7 @@ const AdminAccountStep: React.FC<AdminAccountStepProps> = ({ formMethods }) => {
             {...register('firstName')}
             type='text'
             id='firstName'
-            className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+            className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
             placeholder='Enter your first name'
           />
           {errors.firstName && (
@@ -47,7 +45,7 @@ const AdminAccountStep: React.FC<AdminAccountStepProps> = ({ formMethods }) => {
         <div>
           <label
             htmlFor='lastName'
-            className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+            className='block text-sm font-medium text-secondary-foreground mb-2'
           >
             Last Name *
           </label>
@@ -55,7 +53,7 @@ const AdminAccountStep: React.FC<AdminAccountStepProps> = ({ formMethods }) => {
             {...register('lastName')}
             type='text'
             id='lastName'
-            className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+            className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
             placeholder='Enter your last name'
           />
           {errors.lastName && (
@@ -67,17 +65,14 @@ const AdminAccountStep: React.FC<AdminAccountStepProps> = ({ formMethods }) => {
       </div>
 
       <div>
-        <label
-          htmlFor='email'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
-        >
+        <label htmlFor='email' className='block text-sm font-medium text-secondary-foreground mb-2'>
           Email Address *
         </label>
         <input
           {...register('email')}
           type='email'
           id='email'
-          className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+          className='w-full px-3 py-2 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
           placeholder='Enter your email address'
           autoComplete='email'
         />

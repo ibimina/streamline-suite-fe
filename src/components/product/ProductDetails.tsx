@@ -62,7 +62,7 @@ const ProductDetails = () => {
       case 'in-stock':
         return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+        return 'bg-muted text-foreground  '
     }
   }
 
@@ -85,7 +85,7 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <div className='min-h-screen bg-muted '>
         <LoadingSpinner />
       </div>
     )
@@ -93,11 +93,11 @@ const ProductDetails = () => {
 
   if (!product) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-        <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+      <div className='min-h-screen bg-muted '>
+        <div className='bg-card border-b border-border px-6 py-4'>
           <Link
             href={'/products'}
-            className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+            className='text-muted-foreground mb-2 hover:text-muted-foreground dark:hover:text-muted-foreground flex items-center'
           >
             <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
@@ -116,11 +116,11 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
-      <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+    <div className='min-h-screen bg-muted '>
+      <div className='bg-card border-b border-border px-6 py-4'>
         <Link
           href={'/products'}
-          className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+          className='text-muted-foreground mb-2 hover:text-muted-foreground dark:hover:text-muted-foreground flex items-center'
         >
           <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path
@@ -136,21 +136,21 @@ const ProductDetails = () => {
         <div className='flex items-center justify-between max-w-7xl mx-auto'>
           <div className='flex items-center space-x-4'>
             <div className='flex-shrink-0 h-16 w-16'>
-              <div className='h-16 w-16 rounded-lg bg-teal-100 dark:bg-teal-900 flex items-center justify-center'>
-                <span className='text-xl font-bold text-teal-600 dark:text-teal-300'>
+              <div className='h-16 w-16 rounded-lg bg-primary-light dark:bg-primary/20 flex items-center justify-center'>
+                <span className='text-xl font-bold text-primary dark:text-primary'>
                   {product.name.charAt(0).toUpperCase()}
                 </span>
               </div>
             </div>
             <div>
-              <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>{product.name}</h1>
+              <h1 className='text-2xl font-bold text-foreground'>{product.name}</h1>
               <div className='flex items-center gap-2 mt-1'>
-                {product.sku && (
-                  <p className='text-sm text-gray-500 dark:text-gray-400'>SKU: {product.sku}</p>
+                {product.sku && <p className='text-sm text-muted-foreground'>SKU: {product.sku}</p>}
+                {product.sku && product.category && (
+                  <span className='text-muted-foreground'>•</span>
                 )}
-                {product.sku && product.category && <span className='text-gray-400'>•</span>}
                 {product.category && (
-                  <p className='text-sm text-gray-500 dark:text-gray-400'>{product.category}</p>
+                  <p className='text-sm text-muted-foreground'>{product.category}</p>
                 )}
               </div>
             </div>
@@ -160,7 +160,7 @@ const ProductDetails = () => {
               className={`px-3 py-1 rounded-full text-sm font-medium ${
                 product.isActive
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                  : 'bg-muted text-foreground  '
               }`}
             >
               {product.isActive ? 'Active' : 'Inactive'}
@@ -174,7 +174,7 @@ const ProductDetails = () => {
             )}
             <button
               onClick={() => setShowForm(true)}
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
             >
               Edit Product
             </button>
@@ -185,35 +185,29 @@ const ProductDetails = () => {
       <div className='max-w-7xl mx-auto px-6 py-8'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {/* Basic Information */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Basic Information
-            </h3>
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Basic Information</h3>
             <div className='space-y-3'>
               <div>
-                <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                <label className='block text-sm font-medium text-muted-foreground'>
                   Product Name
                 </label>
-                <p className='text-gray-900 dark:text-white'>{product.name}</p>
+                <p className='text-foreground'>{product.name}</p>
               </div>
               {product.sku && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    SKU
-                  </label>
-                  <p className='text-gray-900 dark:text-white font-mono'>{product.sku}</p>
+                  <label className='block text-sm font-medium text-muted-foreground'>SKU</label>
+                  <p className='text-foreground font-mono'>{product.sku}</p>
                 </div>
               )}
               {product.barcode && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Barcode
-                  </label>
-                  <p className='text-gray-900 dark:text-white font-mono'>{product.barcode}</p>
+                  <label className='block text-sm font-medium text-muted-foreground'>Barcode</label>
+                  <p className='text-foreground font-mono'>{product.barcode}</p>
                 </div>
               )}
               <div>
-                <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                <label className='block text-sm font-medium text-muted-foreground'>
                   Product Type
                 </label>
                 <span className='inline-flex px-2 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
@@ -222,50 +216,46 @@ const ProductDetails = () => {
               </div>
               {product.description && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Description
                   </label>
-                  <p className='text-gray-900 dark:text-white'>{product.description}</p>
+                  <p className='text-foreground'>{product.description}</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Pricing Information */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Pricing Information
-            </h3>
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Pricing Information</h3>
             <div className='space-y-3'>
               <div>
-                <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                <label className='block text-sm font-medium text-muted-foreground'>
                   Selling Price
                 </label>
-                <p className='text-xl font-bold text-gray-900 dark:text-white'>
+                <p className='text-xl font-bold text-foreground'>
                   ${product.sellingPrice.toFixed(2)}
                 </p>
               </div>
               {product.costPrice && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Cost Price
                   </label>
-                  <p className='text-gray-900 dark:text-white'>${product.costPrice.toFixed(2)}</p>
+                  <p className='text-foreground'>${product.costPrice.toFixed(2)}</p>
                 </div>
               )}
               {product.wholesalePrice && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Wholesale Price
                   </label>
-                  <p className='text-gray-900 dark:text-white'>
-                    ${product.wholesalePrice.toFixed(2)}
-                  </p>
+                  <p className='text-foreground'>${product.wholesalePrice.toFixed(2)}</p>
                 </div>
               )}
               {product.costPrice && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Profit Margin
                   </label>
                   <p className='text-green-600 dark:text-green-400 font-medium'>
@@ -282,45 +272,43 @@ const ProductDetails = () => {
 
           {/* Inventory Information */}
           {product.trackInventory && (
-            <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                Inventory Information
-              </h3>
+            <div className='bg-muted rounded-lg p-4'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Inventory Information</h3>
               <div className='space-y-3'>
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Current Stock
                   </label>
-                  <p className='text-xl font-bold text-gray-900 dark:text-white'>
+                  <p className='text-xl font-bold text-foreground'>
                     {product.currentStock || 0} {product.unit}
                   </p>
                 </div>
                 {product.minStock && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                    <label className='block text-sm font-medium text-muted-foreground'>
                       Minimum Stock
                     </label>
-                    <p className='text-gray-900 dark:text-white'>
+                    <p className='text-foreground'>
                       {product.minStock} {product.unit}
                     </p>
                   </div>
                 )}
                 {product.lowStockAlert && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                    <label className='block text-sm font-medium text-muted-foreground'>
                       Low Stock Alert
                     </label>
-                    <p className='text-gray-900 dark:text-white'>
+                    <p className='text-foreground'>
                       {product.lowStockAlert} {product.unit}
                     </p>
                   </div>
                 )}
                 {product.trackExpiryDate && product.expiryDate && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                    <label className='block text-sm font-medium text-muted-foreground'>
                       Expiry Date
                     </label>
-                    <p className='text-gray-900 dark:text-white'>
+                    <p className='text-foreground'>
                       {new Date(product.expiryDate).toLocaleDateString()}
                     </p>
                   </div>
@@ -330,33 +318,29 @@ const ProductDetails = () => {
           )}
 
           {/* Product Details */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Product Details
-            </h3>
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Product Details</h3>
             <div className='space-y-3'>
               {product.category && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Category
                   </label>
-                  <p className='text-gray-900 dark:text-white'>{product.category}</p>
+                  <p className='text-foreground'>{product.category}</p>
                 </div>
               )}
               {product.brand && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Brand
-                  </label>
-                  <p className='text-gray-900 dark:text-white'>{product.brand}</p>
+                  <label className='block text-sm font-medium text-muted-foreground'>Brand</label>
+                  <p className='text-foreground'>{product.brand}</p>
                 </div>
               )}
               {product.unit && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Unit of Measurement
                   </label>
-                  <p className='text-gray-900 dark:text-white'>{product.unit}</p>
+                  <p className='text-foreground'>{product.unit}</p>
                 </div>
               )}
             </div>
@@ -364,23 +348,19 @@ const ProductDetails = () => {
 
           {/* Supplier Information */}
           {(product.supplier || product.alternativeSuppliers?.length) && (
-            <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                Supplier Information
-              </h3>
+            <div className='bg-muted rounded-lg p-4'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Supplier Information</h3>
               <div className='space-y-4'>
                 {product.supplier &&
                   typeof product.supplier === 'object' &&
                   product.supplier.name && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2'>
+                      <label className='block text-sm font-medium text-muted-foreground mb-2'>
                         Primary Supplier
                       </label>
-                      <div className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-teal-500'>
+                      <div className='flex items-center p-3 bg-white  rounded-md border-l-4 border-primary'>
                         <div className='flex-1'>
-                          <p className='font-medium text-gray-900 dark:text-white'>
-                            {product.supplier.name}
-                          </p>
+                          <p className='font-medium text-foreground'>{product.supplier.name}</p>
                           <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
                             Primary
                           </span>
@@ -391,7 +371,7 @@ const ProductDetails = () => {
 
                 {product.alternativeSuppliers && product.alternativeSuppliers.length > 0 && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2'>
+                    <label className='block text-sm font-medium text-muted-foreground mb-2'>
                       Alternative Suppliers
                     </label>
                     <div className='space-y-2'>
@@ -401,13 +381,11 @@ const ProductDetails = () => {
                         return (
                           <div
                             key={supplierId || index}
-                            className='flex items-center p-3 bg-white dark:bg-gray-600 rounded-md border-l-4 border-gray-300'
+                            className='flex items-center p-3 bg-white  rounded-md border-l-4 border-border'
                           >
                             <div className='flex-1'>
-                              <p className='font-medium text-gray-900 dark:text-white'>
-                                {supplierName}
-                              </p>
-                              <span className='px-2 py-1 text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 rounded-full'>
+                              <p className='font-medium text-foreground'>{supplierName}</p>
+                              <span className='px-2 py-1 text-xs bg-muted text-foreground   rounded-full'>
                                 Alternative
                               </span>
                             </div>
@@ -422,44 +400,40 @@ const ProductDetails = () => {
           )}
 
           {/* Tracking Settings */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Tracking Settings
-            </h3>
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Tracking Settings</h3>
             <div className='space-y-3'>
               <div className='flex items-center justify-between'>
-                <span className='text-sm text-gray-700 dark:text-gray-300'>Track Inventory</span>
+                <span className='text-sm text-secondary-foreground'>Track Inventory</span>
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
                     product.trackInventory
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      : 'bg-muted text-foreground  '
                   }`}
                 >
                   {product.trackInventory ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
               <div className='flex items-center justify-between'>
-                <span className='text-sm text-gray-700 dark:text-gray-300'>
-                  Track Serial Numbers
-                </span>
+                <span className='text-sm text-secondary-foreground'>Track Serial Numbers</span>
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
                     product.trackSerialNumber
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      : 'bg-muted text-foreground  '
                   }`}
                 >
                   {product.trackSerialNumber ? 'Enabled' : 'Disabled'}
                 </span>
               </div>
               <div className='flex items-center justify-between'>
-                <span className='text-sm text-gray-700 dark:text-gray-300'>Track Expiry Dates</span>
+                <span className='text-sm text-secondary-foreground'>Track Expiry Dates</span>
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
                     product.trackExpiryDate
                       ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                      : 'bg-muted text-foreground  '
                   }`}
                 >
                   {product.trackExpiryDate ? 'Enabled' : 'Disabled'}
@@ -470,25 +444,23 @@ const ProductDetails = () => {
 
           {/* Tax Information */}
           {(product.salesTaxRate || product.purchaseTaxRate) && (
-            <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                Tax Information
-              </h3>
+            <div className='bg-muted rounded-lg p-4'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Tax Information</h3>
               <div className='space-y-3'>
                 {product.salesTaxRate && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                    <label className='block text-sm font-medium text-muted-foreground'>
                       Sales Tax Rate
                     </label>
-                    <p className='text-gray-900 dark:text-white'>{product.salesTaxRate}%</p>
+                    <p className='text-foreground'>{product.salesTaxRate}%</p>
                   </div>
                 )}
                 {product.purchaseTaxRate && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                    <label className='block text-sm font-medium text-muted-foreground'>
                       Purchase Tax Rate
                     </label>
-                    <p className='text-gray-900 dark:text-white'>{product.purchaseTaxRate}%</p>
+                    <p className='text-foreground'>{product.purchaseTaxRate}%</p>
                   </div>
                 )}
               </div>
@@ -496,37 +468,33 @@ const ProductDetails = () => {
           )}
 
           {/* Metadata */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4 lg:col-span-2'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Record Information
-            </h3>
+          <div className='bg-muted rounded-lg p-4 lg:col-span-2'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Record Information</h3>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
               {product.createdAt && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Created
-                  </label>
-                  <p className='text-gray-900 dark:text-white'>
+                  <label className='block text-sm font-medium text-muted-foreground'>Created</label>
+                  <p className='text-foreground'>
                     {new Date(product.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               )}
               {product.updatedAt && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Last Updated
                   </label>
-                  <p className='text-gray-900 dark:text-white'>
+                  <p className='text-foreground'>
                     {new Date(product.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
               )}
               {product._id && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Product ID
                   </label>
-                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{product._id}</p>
+                  <p className='text-foreground font-mono text-xs'>{product._id}</p>
                 </div>
               )}
             </div>
@@ -534,14 +502,14 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      <div className='mt-8 flex items-center justify-between p-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-lg'>
+      <div className='mt-8 flex items-center justify-between p-6 bg-card border-t border-border rounded-lg'>
         <button
           onClick={handleDelete}
           className='px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500'
         >
           Delete Product
         </button>
-        <div className='text-sm text-gray-500 dark:text-gray-400'>
+        <div className='text-sm text-muted-foreground'>
           Last updated:{' '}
           {product.updatedAt ? new Date(product.updatedAt).toLocaleDateString() : 'Never'}
         </div>

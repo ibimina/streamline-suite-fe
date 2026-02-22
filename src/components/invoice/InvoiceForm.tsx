@@ -449,12 +449,12 @@ export default function InvoiceForm({
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      Draft: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+      Draft: 'bg-muted text-foreground  ',
       Sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
       Paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
       Partial: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
       Overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      Cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+      Cancelled: 'bg-muted text-foreground  ',
     }
     return colors[status] || colors.Draft
   }
@@ -492,7 +492,7 @@ export default function InvoiceForm({
         {/* Top Section - Customer & Invoice Details */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Customer Card */}
-          <div className='lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='lg:col-span-2 bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
             <div className='bg-linear-to-r from-blue-500 to-blue-600 px-6 py-4'>
               <div className='flex items-center gap-3'>
                 <div className='p-2 bg-white/20 rounded-lg'>
@@ -506,30 +506,28 @@ export default function InvoiceForm({
                 <div className='flex gap-3'>
                   <div className='flex-1 relative'>
                     <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                      <SearchIcon className='h-5 w-5 text-gray-400' />
+                      <SearchIcon className='h-5 w-5 text-muted-foreground' />
                     </div>
                     <input
                       type='text'
                       placeholder='Search customers by name or email...'
                       value={customerSearch}
                       onChange={e => setCustomerSearch(e.target.value)}
-                      className='w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-all'
+                      className='w-full pl-10 pr-4 py-3 border border-border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-card text-foreground transition-all'
                     />
                     {customerSearch && filteredCustomers.length > 0 && (
-                      <div className='absolute z-20 w-full mt-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl shadow-xl max-h-60 overflow-y-auto'>
+                      <div className='absolute z-20 w-full mt-2 bg-card border border-border rounded-xl shadow-xl max-h-60 overflow-y-auto'>
                         {filteredCustomers.map(customer => (
                           <button
                             type='button'
                             key={customer._id}
                             onClick={() => handleCustomerSelect(customer._id)}
-                            className='w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-gray-600 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors'
+                            className='w-full text-left px-4 py-3 hover:bg-accent  cursor-pointer border-b border-border  last:border-b-0 transition-colors'
                           >
-                            <div className='font-medium text-gray-900 dark:text-gray-100'>
+                            <div className='font-medium text-foreground'>
                               {customer.companyName || customer.fullName}
                             </div>
-                            <div className='text-sm text-gray-500 dark:text-gray-400'>
-                              {customer.email}
-                            </div>
+                            <div className='text-sm text-muted-foreground'>{customer.email}</div>
                           </button>
                         ))}
                       </div>
@@ -538,7 +536,7 @@ export default function InvoiceForm({
                   <button
                     type='button'
                     onClick={() => setShowForm(true)}
-                    className='px-5 py-3 bg-linear-to-r from-teal-500 to-teal-600 text-white font-medium rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all shadow-sm flex items-center gap-2'
+                    className='px-5 py-3 bg-linear-to-r from-primary to-primary-hover text-white font-medium rounded-xl hover:from-primary hover:to-primary-hover transition-all shadow-sm flex items-center gap-2'
                   >
                     <PlusIcon className='h-4 w-4' />
                     <span className='hidden sm:inline'>New Customer</span>
@@ -546,7 +544,7 @@ export default function InvoiceForm({
                 </div>
 
                 {selectedCustomer && (
-                  <div className='bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-4 border border-gray-200 dark:border-gray-600'>
+                  <div className='bg-linear-to-br from-muted to-accent rounded-xl p-4 border border-border'>
                     <div className='flex items-start justify-between'>
                       <div className='flex items-center gap-3'>
                         <div className='w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg'>
@@ -555,14 +553,14 @@ export default function InvoiceForm({
                             .toUpperCase()}
                         </div>
                         <div>
-                          <div className='font-semibold text-gray-900 dark:text-gray-100'>
+                          <div className='font-semibold text-foreground'>
                             {selectedCustomer.companyName || selectedCustomer.fullName}
                           </div>
-                          <div className='text-sm text-gray-600 dark:text-gray-400'>
+                          <div className='text-sm text-muted-foreground'>
                             {selectedCustomer.email}
                           </div>
                           {selectedCustomer.address && (
-                            <div className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                            <div className='text-sm text-muted-foreground mt-1'>
                               📍 {selectedCustomer.address}
                             </div>
                           )}
@@ -577,8 +575,9 @@ export default function InvoiceForm({
                 {selectedCustomer && !isEditMode && (
                   <div className='mt-4'>
                     <div className='flex items-center justify-between mb-2'>
-                      <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                        Link Quotation <span className='text-gray-400 font-normal'>(Optional)</span>
+                      <label className='text-sm font-medium text-secondary-foreground'>
+                        Link Quotation{' '}
+                        <span className='text-muted-foreground font-normal'>(Optional)</span>
                       </label>
                     </div>
 
@@ -606,10 +605,10 @@ export default function InvoiceForm({
                         type='button'
                         onClick={() => setShowQuotationSelector(!showQuotationSelector)}
                         disabled={isLoadingQuotations || availableQuotations.length === 0}
-                        className='w-full text-left px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='w-full text-left px-4 py-3 border border-border rounded-xl hover:border-blue-500 dark:hover:border-blue-400 hover:bg-accent dark:hover:bg-blue-900/20 transition-colors flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed'
                       >
-                        <LinkIcon className='h-5 w-5 text-gray-400' />
-                        <span className='text-gray-600 dark:text-gray-400'>
+                        <LinkIcon className='h-5 w-5 text-muted-foreground' />
+                        <span className='text-muted-foreground'>
                           {isLoadingQuotations
                             ? 'Loading quotations...'
                             : availableQuotations.length === 0
@@ -621,29 +620,29 @@ export default function InvoiceForm({
 
                     {/* Quotation Selector Dropdown */}
                     {showQuotationSelector && availableQuotations.length > 0 && (
-                      <div className='mt-2 border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 shadow-lg max-h-60 overflow-y-auto'>
+                      <div className='mt-2 border border-border rounded-xl bg-card shadow-lg max-h-60 overflow-y-auto'>
                         {availableQuotations.map(quotation => (
                           <button
                             type='button'
                             key={quotation._id}
                             onClick={() => handleQuotationSelect(quotation)}
-                            className='w-full text-left px-4 py-3 hover:bg-blue-50 dark:hover:bg-gray-600 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors'
+                            className='w-full text-left px-4 py-3 hover:bg-accent  cursor-pointer border-b border-border  last:border-b-0 transition-colors'
                           >
                             <div className='flex items-center justify-between'>
                               <div>
-                                <div className='font-medium text-gray-900 dark:text-gray-100'>
+                                <div className='font-medium text-foreground'>
                                   {quotation.uniqueId}
                                 </div>
-                                <div className='text-sm text-gray-500 dark:text-gray-400'>
+                                <div className='text-sm text-muted-foreground'>
                                   {quotation.items?.length || 0} items •{' '}
                                   {new Date(quotation.createdAt || '').toLocaleDateString()}
                                 </div>
                               </div>
                               <div className='text-right'>
-                                <div className='font-medium text-gray-900 dark:text-gray-100'>
+                                <div className='font-medium text-foreground'>
                                   ₦{(quotation.grandTotal || 0).toLocaleString()}
                                 </div>
-                                <div className='text-xs text-gray-500 dark:text-gray-400 capitalize'>
+                                <div className='text-xs text-muted-foreground capitalize'>
                                   {quotation.status}
                                 </div>
                               </div>
@@ -659,7 +658,7 @@ export default function InvoiceForm({
           </div>
 
           {/* Invoice Details Card */}
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
             <div className='bg-linear-to-r from-purple-500 to-purple-600 px-6 py-4'>
               <div className='flex items-center gap-3'>
                 <div className='p-2 bg-white/20 rounded-lg'>
@@ -672,7 +671,7 @@ export default function InvoiceForm({
               <div>
                 <label
                   htmlFor='status'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                  className='block text-sm font-medium text-secondary-foreground mb-2'
                 >
                   Status
                 </label>
@@ -683,7 +682,7 @@ export default function InvoiceForm({
                     <select
                       {...field}
                       id='status'
-                      className={`w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white font-medium ${getStatusColor(field.value || 'Draft')}`}
+                      className={`w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500   font-medium ${getStatusColor(field.value || 'Draft')}`}
                     >
                       <option value='Draft'>📝 Draft</option>
                       <option value='Sent'>📤 Sent</option>
@@ -698,22 +697,22 @@ export default function InvoiceForm({
               <div>
                 <label
                   htmlFor='poNumber'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                  className='block text-sm font-medium text-secondary-foreground mb-2'
                 >
-                  PO Number <span className='text-gray-400 font-normal'>(Optional)</span>
+                  PO Number <span className='text-muted-foreground font-normal'>(Optional)</span>
                 </label>
                 <input
                   type='text'
                   id='poNumber'
                   {...register('poNumber')}
                   placeholder='e.g., PO-2024-001'
-                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500  '
                 />
               </div>
               <div>
                 <label
                   htmlFor='issuedDate'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                  className='block text-sm font-medium text-secondary-foreground mb-2'
                 >
                   Issue Date
                 </label>
@@ -721,13 +720,13 @@ export default function InvoiceForm({
                   type='date'
                   id='issuedDate'
                   {...register('issuedDate')}
-                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500  '
                 />
               </div>
               <div>
                 <label
                   htmlFor='dueDate'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                  className='block text-sm font-medium text-secondary-foreground mb-2'
                 >
                   Due Date
                 </label>
@@ -735,13 +734,13 @@ export default function InvoiceForm({
                   id='dueDate'
                   type='date'
                   {...register('dueDate')}
-                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500  '
                 />
               </div>
               <div>
                 <label
                   htmlFor='template'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+                  className='block text-sm font-medium text-secondary-foreground mb-2'
                 >
                   Template
                 </label>
@@ -750,7 +749,7 @@ export default function InvoiceForm({
                   id='template'
                   {...register('template')}
                   placeholder='e.g., Professional, Modern'
-                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500  '
                 />
               </div>
             </div>
@@ -758,8 +757,8 @@ export default function InvoiceForm({
         </div>
 
         {/* Line Items Card */}
-        <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
-          <div className='bg-linear-to-r from-teal-500 to-teal-600 px-6 py-4'>
+        <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
+          <div className='bg-linear-to-r from-primary to-primary-hover px-6 py-4'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-3'>
                 <div className='p-2 bg-white/20 rounded-lg'>
@@ -767,7 +766,7 @@ export default function InvoiceForm({
                 </div>
                 <div>
                   <h3 className='text-lg font-semibold text-white'>Line Items</h3>
-                  <p className='text-teal-100 text-sm'>
+                  <p className='text-primary-foreground/80 text-sm'>
                     {fields.length} item{fields.length > 1 ? 's' : ''} added
                   </p>
                 </div>
@@ -784,7 +783,7 @@ export default function InvoiceForm({
                 <button
                   type='button'
                   onClick={addItem}
-                  className='bg-white text-teal-600 px-4 py-2 rounded-lg hover:bg-teal-50 transition-colors flex items-center gap-2 font-medium shadow-sm'
+                  className='bg-white text-primary px-4 py-2 rounded-lg hover:bg-primary-light transition-colors flex items-center gap-2 font-medium shadow-sm'
                 >
                   <PlusIcon className='h-4 w-4' />
                   Add Item
@@ -795,43 +794,40 @@ export default function InvoiceForm({
 
           <div className='overflow-x-auto'>
             <table className='w-full'>
-              <thead className='bg-gray-50 dark:bg-gray-700/50'>
+              <thead className='bg-muted/50'>
                 <tr>
-                  <th className='px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
                     Product/Description
                   </th>
-                  <th className='px-3 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-20'>
+                  <th className='px-3 py-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20'>
                     Qty
                   </th>
-                  <th className='px-3 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-28'>
+                  <th className='px-3 py-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider w-28'>
                     Unit Cost
                   </th>
-                  <th className='px-3 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-28'>
+                  <th className='px-3 py-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider w-28'>
                     Unit Price
                   </th>
-                  <th className='px-3 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-20'>
+                  <th className='px-3 py-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20'>
                     Disc %
                   </th>
-                  <th className='px-3 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-20'>
+                  <th className='px-3 py-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20'>
                     VAT %
                   </th>
-                  <th className='px-3 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-28'>
+                  <th className='px-3 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider w-28'>
                     Total
                   </th>
-                  <th className='px-3 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-28'>
+                  <th className='px-3 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider w-28'>
                     Profit
                   </th>
-                  <th className='px-3 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider w-16'></th>
+                  <th className='px-3 py-4 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider w-16'></th>
                 </tr>
               </thead>
-              <tbody className='divide-y divide-gray-100 dark:divide-gray-700'>
+              <tbody className='divide-y divide-border'>
                 {fields.map((field, index) => {
                   const calculatedItem = calculatedValues.items[index]
                   return (
-                    <tr
-                      key={field.id}
-                      className='bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors'
-                    >
+                    <tr key={field.id} className='bg-card hover:bg-muted  transition-colors'>
                       <td className='px-4 py-4'>
                         <Controller
                           name={`items.${index}.product`}
@@ -844,7 +840,7 @@ export default function InvoiceForm({
                                 productField.onChange(e.target.value)
                                 if (e.target.value) handleProductSelect(index, e.target.value)
                               }}
-                              className='w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-700 dark:text-white bg-gray-50'
+                              className='w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary   bg-muted'
                             >
                               <option value=''>Select Product (Optional)</option>
                               {products.map(product => (
@@ -865,7 +861,7 @@ export default function InvoiceForm({
                               type='number'
                               {...qtyField}
                               onChange={e => qtyField.onChange(Number(e.target.value) || 0)}
-                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white ${errors.items?.[index]?.quantity ? 'border-red-500 bg-red-50' : 'border-gray-200 dark:border-gray-600 bg-gray-50'}`}
+                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary   ${errors.items?.[index]?.quantity ? 'border-red-500 bg-red-50' : 'border-border bg-muted'}`}
                               min='1'
                             />
                           )}
@@ -880,7 +876,7 @@ export default function InvoiceForm({
                               type='number'
                               {...costField}
                               onChange={e => costField.onChange(Number(e.target.value) || 0)}
-                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white ${errors.items?.[index]?.unitCost ? 'border-red-500 bg-red-50' : 'border-gray-200 dark:border-gray-600 bg-gray-50'}`}
+                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary   ${errors.items?.[index]?.unitCost ? 'border-red-500 bg-red-50' : 'border-border bg-muted'}`}
                               min='0'
                               step='0.01'
                             />
@@ -896,7 +892,7 @@ export default function InvoiceForm({
                               type='number'
                               {...priceField}
                               onChange={e => priceField.onChange(Number(e.target.value) || 0)}
-                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white ${errors.items?.[index]?.unitPrice ? 'border-red-500 bg-red-50' : 'border-gray-200 dark:border-gray-600 bg-gray-50'}`}
+                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary   ${errors.items?.[index]?.unitPrice ? 'border-red-500 bg-red-50' : 'border-border bg-muted'}`}
                               min='0'
                               step='0.01'
                             />
@@ -913,7 +909,7 @@ export default function InvoiceForm({
                               {...discountField}
                               value={discountField.value || 0}
                               onChange={e => discountField.onChange(Number(e.target.value) || 0)}
-                              className='w-full px-2 py-2 text-sm text-center border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white bg-gray-50'
+                              className='w-full px-2 py-2 text-sm text-center border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary   bg-muted'
                               min='0'
                               max='100'
                               step='0.01'
@@ -930,7 +926,7 @@ export default function InvoiceForm({
                               type='number'
                               {...vatField}
                               onChange={e => vatField.onChange(Number(e.target.value) || 0)}
-                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white ${errors.items?.[index]?.vatRate ? 'border-red-500 bg-red-50' : 'border-gray-200 dark:border-gray-600 bg-gray-50'}`}
+                              className={`w-full px-2 py-2 text-sm text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary   ${errors.items?.[index]?.vatRate ? 'border-red-500 bg-red-50' : 'border-border bg-muted'}`}
                               min='0'
                               max='100'
                               step='0.01'
@@ -939,7 +935,7 @@ export default function InvoiceForm({
                         />
                       </td>
                       <td className='px-3 py-4 text-right'>
-                        <span className='text-sm font-semibold text-gray-900 dark:text-gray-100'>
+                        <span className='text-sm font-semibold text-foreground'>
                           ₦
                           {calculatedItem?.lineTotal?.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
@@ -977,7 +973,7 @@ export default function InvoiceForm({
         </div>
 
         {/* Invoice Summary Card */}
-        <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+        <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
           <div className='bg-linear-to-r from-amber-500 to-amber-600 px-6 py-4'>
             <div className='flex items-center gap-3'>
               <div className='p-2 bg-white/20 rounded-lg'>
@@ -994,13 +990,13 @@ export default function InvoiceForm({
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
               {/* Left column - Pricing */}
               <div className='space-y-4'>
-                <h4 className='text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
+                <h4 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider'>
                   Pricing Details
                 </h4>
-                <div className='bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 space-y-4'>
+                <div className='bg-muted/50 rounded-xl p-5 space-y-4'>
                   <div className='flex justify-between items-center'>
-                    <span className='text-gray-600 dark:text-gray-400'>Subtotal</span>
-                    <span className='font-semibold text-gray-900 dark:text-gray-100 text-lg'>
+                    <span className='text-muted-foreground'>Subtotal</span>
+                    <span className='font-semibold text-foreground text-lg'>
                       ₦
                       {calculatedValues.subtotal.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -1009,7 +1005,7 @@ export default function InvoiceForm({
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
-                    <span className='text-gray-600 dark:text-gray-400 flex items-center gap-2'>
+                    <span className='text-muted-foreground flex items-center gap-2'>
                       <span className='w-2 h-2 rounded-full bg-blue-500'></span>
                       VAT ({calculatedValues.vatRate.toFixed(1)}%)
                     </span>
@@ -1021,12 +1017,10 @@ export default function InvoiceForm({
                       })}
                     </span>
                   </div>
-                  <div className='border-t border-gray-200 dark:border-gray-600 pt-4'>
+                  <div className='border-t border-border pt-4'>
                     <div className='flex justify-between items-center'>
-                      <span className='text-gray-900 dark:text-white font-semibold text-lg'>
-                        Grand Total
-                      </span>
-                      <span className='font-bold text-2xl text-gray-900 dark:text-white'>
+                      <span className='text-foreground font-semibold text-lg'>Grand Total</span>
+                      <span className='font-bold text-2xl text-foreground'>
                         ₦
                         {calculatedValues.grandTotal.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
@@ -1040,12 +1034,12 @@ export default function InvoiceForm({
 
               {/* Right column - WHT & Profit */}
               <div className='space-y-4'>
-                <h4 className='text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
+                <h4 className='text-sm font-semibold text-muted-foreground uppercase tracking-wider'>
                   Profit Analysis
                 </h4>
-                <div className='bg-gray-50 dark:bg-gray-700/50 rounded-xl p-5 space-y-4'>
+                <div className='bg-muted/50 rounded-xl p-5 space-y-4'>
                   <div className='flex justify-between items-center'>
-                    <span className='text-gray-600 dark:text-gray-400 flex items-center gap-2'>
+                    <span className='text-muted-foreground flex items-center gap-2'>
                       WHT Rate
                       <Controller
                         name='whtRate'
@@ -1055,14 +1049,14 @@ export default function InvoiceForm({
                             type='number'
                             {...field}
                             onChange={e => field.onChange(Number(e.target.value) || 0)}
-                            className='w-16 px-2 py-1 text-sm text-center border border-gray-300 dark:border-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 dark:bg-gray-600 dark:text-white'
+                            className='w-16 px-2 py-1 text-sm text-center border border-border  rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500  '
                             min='0'
                             max='100'
                             step='0.5'
                           />
                         )}
                       />
-                      <span className='text-gray-500'>%</span>
+                      <span className='text-muted-foreground'>%</span>
                     </span>
                     <span className='font-medium text-red-600 dark:text-red-400 flex items-center gap-1'>
                       <span className='w-2 h-2 rounded-full bg-red-500'></span>
@@ -1074,8 +1068,8 @@ export default function InvoiceForm({
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
-                    <span className='text-gray-600 dark:text-gray-400'>Net Receivable</span>
-                    <span className='font-semibold text-gray-900 dark:text-gray-100'>
+                    <span className='text-muted-foreground'>Net Receivable</span>
+                    <span className='font-semibold text-foreground'>
                       ₦
                       {calculatedValues.netReceivableTotal.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -1084,8 +1078,8 @@ export default function InvoiceForm({
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
-                    <span className='text-gray-600 dark:text-gray-400'>Total Cost</span>
-                    <span className='font-medium text-gray-700 dark:text-gray-300'>
+                    <span className='text-muted-foreground'>Total Cost</span>
+                    <span className='font-medium text-secondary-foreground'>
                       ₦
                       {calculatedValues.totalCost.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -1093,9 +1087,9 @@ export default function InvoiceForm({
                       })}
                     </span>
                   </div>
-                  <div className='border-t border-gray-200 dark:border-gray-600 pt-4'>
+                  <div className='border-t border-border pt-4'>
                     <div className='flex justify-between items-center'>
-                      <span className='text-gray-900 dark:text-white font-semibold text-lg flex items-center gap-2'>
+                      <span className='text-foreground font-semibold text-lg flex items-center gap-2'>
                         📈 Expected Profit
                       </span>
                       <span
@@ -1117,8 +1111,8 @@ export default function InvoiceForm({
 
         {/* Notes and Terms Card */}
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
-            <div className='bg-linear-to-r from-gray-600 to-gray-700 px-5 py-3'>
+          <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
+            <div className='bg-linear-to-r from-secondary to-muted px-5 py-3'>
               <div className='flex items-center gap-2'>
                 <div className='p-1.5 bg-white/20 rounded-lg'>
                   <ClipboardIcon className='h-4 w-4 text-white' />
@@ -1130,13 +1124,13 @@ export default function InvoiceForm({
               <textarea
                 {...register('notes')}
                 rows={4}
-                className='w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 dark:bg-gray-700 dark:text-white resize-none text-sm'
+                className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-border   resize-none text-sm'
                 placeholder='Add any additional notes for this invoice...'
               />
             </div>
           </div>
 
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
             <div className='bg-linear-to-r from-indigo-600 to-indigo-700 px-5 py-3'>
               <div className='flex items-center gap-2'>
                 <div className='p-1.5 bg-white/20 rounded-lg'>
@@ -1149,7 +1143,7 @@ export default function InvoiceForm({
               <textarea
                 {...register('terms')}
                 rows={4}
-                className='w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white resize-none text-sm'
+                className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500   resize-none text-sm'
                 placeholder='Enter terms and conditions for this invoice...'
               />
             </div>
@@ -1157,9 +1151,9 @@ export default function InvoiceForm({
         </div>
 
         {/* Action Buttons */}
-        <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 px-6 py-5'>
+        <div className='bg-card rounded-xl shadow-sm border border-border px-6 py-5'>
           <div className='flex flex-col sm:flex-row justify-between items-center gap-4'>
-            <p className='text-sm text-gray-500 dark:text-gray-400'>
+            <p className='text-sm text-muted-foreground'>
               {invoice
                 ? 'Update the invoice details above'
                 : 'Review all details before saving your invoice'}
@@ -1168,7 +1162,7 @@ export default function InvoiceForm({
               <button
                 type='button'
                 onClick={() => router.back()}
-                className='px-6 py-2.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all font-medium'
+                className='px-6 py-2.5 border-2 border-border text-secondary-foreground rounded-xl hover:bg-muted  transition-all font-medium'
               >
                 Cancel
               </button>

@@ -39,27 +39,19 @@ const Settings: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Settings</h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
-          Manage your application and company settings.
-        </p>
+        <h1 className='text-3xl font-bold text-foreground'>Settings</h1>
+        <p className='text-muted-foreground mt-1'>Manage your application and company settings.</p>
       </div>
 
       <div className='max-w-2xl'>
-        <form
-          onSubmit={handleSubmit}
-          className='bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg'
-        >
+        <form onSubmit={handleSubmit} className='bg-card p-6 rounded-xl shadow-lg'>
           <h2 className='text-xl font-semibold mb-4'>Company Details</h2>
-          <p className='text-sm text-gray-500 dark:text-gray-400 mb-6'>
+          <p className='text-sm text-muted-foreground mb-6'>
             This information will appear on your quotations and invoices.
           </p>
           <div className='space-y-4'>
             <div>
-              <label
-                htmlFor='name'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300'
-              >
+              <label htmlFor='name' className='block text-sm font-medium text-secondary-foreground'>
                 Company Name
               </label>
               <input
@@ -68,13 +60,13 @@ const Settings: React.FC = () => {
                 id='name'
                 value={localDetails.name}
                 onChange={handleChange}
-                className='mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700'
+                className='mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-card'
               />
             </div>
             <div>
               <label
                 htmlFor='address'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300'
+                className='block text-sm font-medium text-secondary-foreground'
               >
                 Address
               </label>
@@ -84,13 +76,13 @@ const Settings: React.FC = () => {
                 id='address'
                 value={localDetails.address}
                 onChange={handleChange}
-                className='mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700'
+                className='mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-card'
               />
             </div>
             <div>
               <label
                 htmlFor='contact'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300'
+                className='block text-sm font-medium text-secondary-foreground'
               >
                 Contact Information (Email / Phone)
               </label>
@@ -100,17 +92,17 @@ const Settings: React.FC = () => {
                 id='contact'
                 value={localDetails.contact}
                 onChange={handleChange}
-                className='mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700'
+                className='mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-card'
               />
             </div>
 
             {/* Logo Upload Section */}
             <div className='pt-2'>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
+              <label className='block text-sm font-medium text-secondary-foreground'>
                 Company Logo
               </label>
               <div className='mt-2 flex items-center'>
-                <span className=' h-12 w-32 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center'>
+                <span className=' h-12 w-32 rounded-md overflow-hidden bg-muted  flex items-center justify-center'>
                   {localDetails.logoUrl ? (
                     <Image
                       src={localDetails.logoUrl}
@@ -118,7 +110,7 @@ const Settings: React.FC = () => {
                       className='h-full w-full object-contain'
                     />
                   ) : (
-                    <span className='text-xs text-gray-500'>No Logo</span>
+                    <span className='text-xs text-muted-foreground'>No Logo</span>
                   )}
                 </span>
                 <input
@@ -131,7 +123,7 @@ const Settings: React.FC = () => {
                 <button
                   type='button'
                   onClick={() => fileInputRef.current?.click()}
-                  className='ml-5 bg-white dark:bg-gray-700 py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
+                  className='ml-5 bg-card py-2 px-3 border border-border rounded-md shadow-sm text-sm leading-4 font-medium text-foreground hover:bg-muted  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'
                 >
                   Change Logo
                 </button>
@@ -146,7 +138,7 @@ const Settings: React.FC = () => {
             )}
             <button
               type='submit'
-              className='inline-flex items-center bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors'
+              className='inline-flex items-center bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors'
             >
               <SaveIcon className='w-5 h-5 mr-2' />
               Save Changes
