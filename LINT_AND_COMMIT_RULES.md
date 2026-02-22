@@ -1,5 +1,7 @@
 # Lint and Commit Rules 📋
 
+#
+
 This document outlines the linting and commit message rules for Streamline Suite
 to ensure code quality and consistency.
 
