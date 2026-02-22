@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios'
 import queryString from 'query-string'
 import { IPost, IPatch, IGet, IBaseUrl, IPut } from './axios.interface'
 import { LocalStorageManager } from '@/utils/localStorage'
@@ -18,7 +18,7 @@ class HttpFacade {
 
     // Request interceptor - check token expiration and attach to requests
     this.http.interceptors.request.use(
-      async config => {
+      async (config: InternalAxiosRequestConfig) => {
         if (typeof window !== 'undefined') {
           let token = LocalStorageManager.getAuthToken()
 
@@ -40,13 +40,13 @@ class HttpFacade {
         }
         return config
       },
-      error => Promise.reject(error)
+      (error: AxiosError) => Promise.reject(error)
     )
 
     // Response interceptor - handle 401 errors
     this.http.interceptors.response.use(
-      response => response,
-      async error => {
+      (response: AxiosResponse) => response,
+      async (error: AxiosError & { config: { _retry?: boolean } }) => {
         const originalRequest = error.config
 
         // Check if it's a 401 error and not already retried
