@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useRef, useEffect } from 'react'
-import { Invoice, InvoiceStatus } from '../types'
+import { InvoiceStatus } from '../types'
 import {
   DownloadIcon,
   EyeIcon,
@@ -10,48 +10,69 @@ import {
   PlusIcon,
   CheckCircleIcon,
 } from './Icons'
-import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { setInvoices, updateInvoiceStatus } from '@/store/slices/invoiceSlice'
 import { useRouter } from 'next/navigation'
 import DeleteConfirmationModal from './shared/DeleteConfirmationModal'
 import PdfPreviewModal from './templates/PdfPreviewModal'
 import useGeneratePdf from '@/hooks/useGeneratePdf'
+import {
+  useGetInvoicesQuery,
+  useDeleteInvoiceMutation,
+  useUpdateInvoiceStatusMutation,
+} from '@/store/api'
+import { Invoice } from '@/types/invoice.type'
 
 export const defaultTerms = `1. Payment is due within 30 days of the invoice date.
 2. Late payments are subject to a 1.5% monthly interest charge.
 3. Please make all checks payable to Your Company Name.`
-// --- END MOCK DATA ---
 
-const StatusBadge: React.FC<{ status: InvoiceStatus }> = ({ status }) => {
-  const baseClasses = 'px-2 py-1 text-xs font-semibold rounded-full inline-block'
-  const statusClasses = {
-    Paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    Sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    Draft: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
-    Overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const baseClasses = 'px-2 py-1 text-xs font-semibold rounded-full inline-block capitalize'
+  const statusClasses: Record<string, string> = {
+    paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+    sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    draft: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+    overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+    partially_paid: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
   }
-  return <span className={`${baseClasses} ${statusClasses[status]}`}>{status}</span>
+  return (
+    <span
+      className={`${baseClasses} ${statusClasses[status.toLowerCase()] || statusClasses.draft}`}
+    >
+      {status.replace('_', ' ')}
+    </span>
+  )
 }
 
 const Invoices = () => {
   const route = useRouter()
   const { generatePdf } = useGeneratePdf()
 
-  const { invoices } = useAppSelector(state => state.invoice)
   const [searchTerm, setSearchTerm] = useState('')
+  const [page, setPage] = useState(1)
+  const limit = 10
+
+  // RTK Query hooks
+  const {
+    data: invoicesData,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetInvoicesQuery({
+    page,
+    limit,
+    search: searchTerm || undefined,
+  })
+  const [deleteInvoice, { isLoading: isDeleting }] = useDeleteInvoiceMutation()
+  const [updateInvoiceStatus, { isLoading: isUpdatingStatus }] = useUpdateInvoiceStatusMutation()
+
   const [isViewModalOpen, setViewModalOpen] = useState(false)
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const dispatch = useAppDispatch()
-
-  const filteredInvoices = invoices.filter(
-    i =>
-      i?.id?.toLowerCase()?.includes(searchTerm?.toLowerCase()) ||
-      i?.customerName?.toLowerCase()?.includes(searchTerm?.toLowerCase())
-  )
+  const invoices = invoicesData?.payload?.data || []
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,11 +90,27 @@ const Invoices = () => {
     setActiveDropdown(null)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedInvoice) {
-      dispatch(setInvoices(invoices.filter(i => i.id !== selectedInvoice.id)))
-      setDeleteModalOpen(false)
-      setSelectedInvoice(null)
+      try {
+        await deleteInvoice(selectedInvoice._id).unwrap()
+        setDeleteModalOpen(false)
+        setSelectedInvoice(null)
+      } catch (error) {
+        console.error('Failed to delete invoice:', error)
+      }
+    }
+  }
+
+  const handleMarkAsPaid = async (invoice: Invoice) => {
+    try {
+      await updateInvoiceStatus({
+        id: invoice._id,
+        status: 'Paid',
+      }).unwrap()
+      setActiveDropdown(null)
+    } catch (error) {
+      console.error('Failed to update invoice status:', error)
     }
   }
 
@@ -84,8 +121,64 @@ const Invoices = () => {
   }
 
   const downloadPdf = async (invoice: Invoice) => {
-    await generatePdf(invoice, `REQUEST FOR INVOICE`, 'INVOICE')
+    // Transform to legacy format for PDF generation
+    const legacyInvoice = {
+      id: invoice._id,
+      clientName: typeof invoice.customer === 'object' ? invoice.customer.companyName : '',
+      clientAddress:
+        typeof invoice.customer === 'object' && invoice.customer.billingAddress
+          ? `${invoice.customer.billingAddress.street}, ${invoice.customer.billingAddress.city}`
+          : '',
+      issueDate: invoice.issuedDate,
+      dueDate: invoice.dueDate,
+      status: invoice.status as InvoiceStatus,
+      items: invoice.items.map(item => ({
+        id: item.id || '',
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        amount: item.quantity * item.unitPrice,
+        sku: item.sku || '',
+      })),
+      subtotal: invoice.subtotal,
+      vat: invoice.totalVat || 0,
+      total: invoice.grandTotal,
+      terms: invoice.terms || defaultTerms,
+      quotationId: invoice.quotation,
+      template: invoice.template || 'classic',
+      accentColor: invoice.accentColor || 'teal',
+    }
+    await generatePdf(legacyInvoice as any, `REQUEST FOR INVOICE`, 'INVOICE')
     setActiveDropdown(null)
+  }
+
+  const getCustomerName = (invoice: Invoice) => {
+    if (typeof invoice.customer === 'object' && invoice.customer) {
+      return invoice.customer.companyName
+    }
+    return 'Unknown Customer'
+  }
+
+  if (isLoading) {
+    return (
+      <div className='flex justify-center items-center h-64'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500'></div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className='text-center py-12'>
+        <p className='text-red-500 mb-4'>Failed to load invoices</p>
+        <button
+          onClick={() => refetch()}
+          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+        >
+          Retry
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -117,7 +210,7 @@ const Invoices = () => {
         <table className='w-full text-sm text-left'>
           <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
             <tr>
-              <th className='px-6 py-3'>ID</th>
+              <th className='px-6 py-3'>Invoice #</th>
               <th className='px-6 py-3'>Customer</th>
               <th className='px-6 py-3 hidden md:table-cell'>Due Date</th>
               <th className='px-6 py-3'>Total</th>
@@ -126,96 +219,169 @@ const Invoices = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredInvoices.map(i => (
-              <tr
-                key={i.id}
-                className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-              >
-                <td className='px-6 py-4 font-medium'>
-                  {i?.id}
-                  {i?.quotationId && (
-                    <span className='block text-xs text-gray-500'>From {i?.quotationId}</span>
-                  )}
-                </td>
-                <td className='px-6 py-4'>{i?.customerName}</td>
-                <td className='px-6 py-4 hidden md:table-cell'>{i?.dueDate}</td>
-                <td className='px-6 py-4 font-semibold'>
-                  ${i?.total?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </td>
-                <td className='px-6 py-4'>
-                  <StatusBadge status={i.status} />
-                </td>
-                <td className='px-6 py-4 text-center'>
-                  <div
-                    className='relative inline-block text-left'
-                    ref={activeDropdown === i.id ? dropdownRef : null}
-                  >
-                    <button
-                      onClick={() => setActiveDropdown(activeDropdown === i.id ? null : i.id)}
-                      className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
-                    >
-                      <DotsVerticalIcon className='w-5 h-5' />
-                    </button>
-                    {activeDropdown === i.id && (
-                      <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10'>
-                        <div className='py-1'>
-                          <button
-                            onClick={() => openModal(setViewModalOpen, i)}
-                            className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                          >
-                            <EyeIcon className='w-5 h-5 mr-3' />
-                            View
-                          </button>
-                          {i.status === 'Draft' && (
-                            <button
-                              onClick={() => route.push(`/invoices/${i.id}`)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                            >
-                              <PencilIcon className='w-5 h-5 mr-3' />
-                              Edit
-                            </button>
-                          )}
-                          {(i.status === 'Sent' || i.status === 'Overdue') && (
-                            <button
-                              onClick={() =>
-                                dispatch(updateInvoiceStatus({ invoiceId: i.id, status: 'Paid' }))
-                              }
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                            >
-                              <CheckCircleIcon className='w-5 h-5 mr-3' />
-                              Mark as Paid
-                            </button>
-                          )}
-                          <button
-                            onClick={() => downloadPdf(i)}
-                            className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                          >
-                            <DownloadIcon className='w-5 h-5 mr-3' />
-                            Download PDF
-                          </button>
-                          <button
-                            onClick={() => handleDelete(i)}
-                            className='w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700'
-                          >
-                            <TrashIcon className='w-5 h-5 mr-3' />
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+            {invoices.length === 0 ? (
+              <tr>
+                <td colSpan={6} className='px-6 py-12 text-center text-gray-500'>
+                  No invoices found. Create your first invoice to get started.
                 </td>
               </tr>
-            ))}
+            ) : (
+              invoices.map(invoice => (
+                <tr
+                  key={invoice._id}
+                  className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                >
+                  <td className='px-6 py-4 font-medium'>
+                    {invoice.uniqueId || invoice._id}
+                    {invoice.quotation && (
+                      <span className='block text-xs text-gray-500'>From Quote</span>
+                    )}
+                  </td>
+                  <td className='px-6 py-4'>{getCustomerName(invoice)}</td>
+                  <td className='px-6 py-4 hidden md:table-cell'>
+                    {new Date(invoice.dueDate).toLocaleDateString()}
+                  </td>
+                  <td className='px-6 py-4 font-semibold'>
+                    ${invoice.grandTotal?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </td>
+                  <td className='px-6 py-4'>
+                    <StatusBadge status={invoice.status} />
+                  </td>
+                  <td className='px-6 py-4 text-center'>
+                    <div
+                      className='relative inline-block text-left'
+                      ref={activeDropdown === invoice._id ? dropdownRef : null}
+                    >
+                      <button
+                        onClick={() =>
+                          setActiveDropdown(activeDropdown === invoice._id ? null : invoice._id)
+                        }
+                        className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                      >
+                        <DotsVerticalIcon className='w-5 h-5' />
+                      </button>
+                      {activeDropdown === invoice._id && (
+                        <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10'>
+                          <div className='py-1'>
+                            <button
+                              onClick={() => openModal(setViewModalOpen, invoice)}
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            >
+                              <EyeIcon className='w-5 h-5 mr-3' />
+                              View
+                            </button>
+                            {invoice.status === 'Draft' && (
+                              <button
+                                onClick={() => route.push(`/invoices/${invoice._id}`)}
+                                className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                              >
+                                <PencilIcon className='w-5 h-5 mr-3' />
+                                Edit
+                              </button>
+                            )}
+                            {(invoice.status === 'Sent' || invoice.status === 'Overdue') && (
+                              <button
+                                onClick={() => handleMarkAsPaid(invoice)}
+                                disabled={isUpdatingStatus}
+                                className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50'
+                              >
+                                <CheckCircleIcon className='w-5 h-5 mr-3' />
+                                Mark as Paid
+                              </button>
+                            )}
+                            <button
+                              onClick={() => downloadPdf(invoice)}
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            >
+                              <DownloadIcon className='w-5 h-5 mr-3' />
+                              Download PDF
+                            </button>
+                            <button
+                              onClick={() => handleDelete(invoice)}
+                              className='w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            >
+                              <TrashIcon className='w-5 h-5 mr-3' />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
+
+        {/* Pagination */}
+        {invoicesData?.payload?.total && invoicesData.payload.total > limit && (
+          <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
+            <p className='text-sm text-gray-500'>
+              Showing {(page - 1) * limit + 1} to{' '}
+              {Math.min(page * limit, invoicesData.payload.total)} of {invoicesData.payload.total}{' '}
+              invoices
+            </p>
+            <div className='flex gap-2'>
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page * limit >= invoicesData.payload.total}
+                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {isViewModalOpen && selectedInvoice && (
         <PdfPreviewModal
-          pdfData={selectedInvoice}
+          pdfData={
+            {
+              id: selectedInvoice._id,
+              clientName: getCustomerName(selectedInvoice),
+              clientAddress:
+                typeof selectedInvoice.customer === 'object' &&
+                selectedInvoice.customer.billingAddress
+                  ? `${selectedInvoice.customer.billingAddress.street}, ${selectedInvoice.customer.billingAddress.city}`
+                  : '',
+              issueDate: selectedInvoice.issuedDate,
+              dueDate: selectedInvoice.dueDate,
+              status: selectedInvoice.status as InvoiceStatus,
+              items: selectedInvoice.items.map(item => ({
+                id: item.id || '',
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                amount: item.quantity * item.unitPrice,
+                sku: item.sku || '',
+              })),
+              subtotal: selectedInvoice.subtotal,
+              vat: selectedInvoice.totalVat || 0,
+              total: selectedInvoice.grandTotal,
+              terms: selectedInvoice.terms || defaultTerms,
+              template:
+                (selectedInvoice.template as
+                  | 'classic'
+                  | 'modern'
+                  | 'minimalist'
+                  | 'corporate'
+                  | 'creative'
+                  | 'custom') || 'classic',
+              accentColor:
+                (selectedInvoice.accentColor as 'teal' | 'blue' | 'crimson' | 'slate') || 'teal',
+            } as any
+          }
           onClose={() => setViewModalOpen(false)}
-          documentTitle={`Invoice ${selectedInvoice.id}`}
+          documentTitle={`Invoice ${selectedInvoice.uniqueId || selectedInvoice._id}`}
           documentType='INVOICE'
           title=''
         />
@@ -229,4 +395,5 @@ const Invoices = () => {
     </div>
   )
 }
+
 export default Invoices

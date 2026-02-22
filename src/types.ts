@@ -89,54 +89,8 @@ export interface LineItem {
 
 export type QuotationStatus = 'Draft' | 'Sent' | 'Accepted' | 'Rejected'
 
-export interface Quotation {
-  id: string
-  customerName: string
-  customerAddress: string
-  date: string
-  status: QuotationStatus
-  items: LineItem[]
-  // Dynamic tax rates
-  vatRate: number
-  whtRate: number
-  // Calculated totals
-  subtotal: number
-  vat: number
-  total: number
-  terms: string
-  template: Template
-  accentColor: AccentColor
-  customTemplateId?: string // For custom templates
-}
-
-// --- Invoice Types ---
 export type InvoiceStatus = 'Paid' | 'Sent' | 'Draft' | 'Overdue'
-export interface InvoiceLineItem {
-  id: string
-  description: string
-  quantity: number
-  unitPrice: number
-  sku?: string // Stock Keeping Unit
-}
-export interface Invoice {
-  id: string
-  customerName: string
-  customerAddress: string
-  date: string
-  dueDate: string
-  status: InvoiceStatus
-  items: InvoiceLineItem[]
-  subtotal: number
-  vat: number
-  total: number
-  terms: string
-  quotationId?: string
-  template: Template
-  accentColor: AccentColor
-  customTemplateId?: string // For custom templates
-}
 
-// --- User & Staff Types ---
 export const ROLES = ['Admin', 'Manager', 'Accountant', 'Sales Rep', 'Technician'] as const
 export type Role = (typeof ROLES)[number]
 
@@ -217,3 +171,7 @@ export interface InventoryLog {
   purpose: string
   date: string
 }
+
+// Re-export types from type files
+export type { Quotation } from './types/quotation.type'
+export type { Invoice } from './types/invoice.type'

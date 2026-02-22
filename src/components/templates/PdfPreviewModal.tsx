@@ -1,16 +1,11 @@
 import { useAppSelector } from '@/store/hooks'
-import { AccentColor, Invoice, Quotation } from '@/types'
+import { AccentColor } from '@/types'
 import { XIcon } from '../Icons'
 import CustomTemplatePDFPreview from './CustomTemplatePDFPreview'
 import Image from 'next/image'
-
-const ACCENT_COLORS: Record<AccentColor, string> = {
-  teal: '#14B8A6',
-  blue: '#3B82F6',
-  crimson: '#DC2626',
-  slate: '#64748B',
-}
-const VAT_RATE = 0.075 // 7.5%
+import { Invoice } from '@/types/invoice.type'
+import { Quotation } from '@/types/quotation.type'
+import { ACCENT_COLORS } from '@/contants'
 
 const PdfPreviewModal: React.FC<{
   pdfData: Invoice | Quotation
@@ -20,7 +15,7 @@ const PdfPreviewModal: React.FC<{
   title: string
 }> = ({ pdfData, documentTitle, onClose, documentType, title }) => {
   const companyDetails = useAppSelector(state => state.company.details)
-  const accentColor = ACCENT_COLORS[pdfData.accentColor]
+  const accentColor = ACCENT_COLORS[pdfData?.accentColor as AccentColor] ?? ACCENT_COLORS['blue']
 
   const renderContent = () => {
     const commonTable = (
@@ -44,9 +39,14 @@ const PdfPreviewModal: React.FC<{
                 <td className='px-6 py-4'>{item.description}</td>
                 <td className='px-6 py-4 text-right'>{item.quantity}</td>
                 <td className='px-6 py-4 text-right'>{item.sku}</td>
-                <td className='px-6 py-4 text-right'>${item.unitPrice.toFixed(2)}</td>
                 <td className='px-6 py-4 text-right'>
-                  ${(item.quantity * item.unitPrice).toFixed(2)}
+                  {item.unitPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                </td>
+                <td className='px-6 py-4 text-right'>
+                  {(item.quantity * item.unitPrice).toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                  })}
                 </td>
               </tr>
             ))}
@@ -56,18 +56,22 @@ const PdfPreviewModal: React.FC<{
           <div className='w-64 text-right'>
             <p className='flex justify-between'>
               <span className='text-gray-500 dark:text-gray-400'>Subtotal:</span>
-              <span>${pdfData.subtotal.toFixed(2)}</span>
+              <span>
+                {pdfData.subtotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              </span>
             </p>
             <p className='flex justify-between'>
-              <span className='text-gray-500 dark:text-gray-400'>
-                VAT ({(VAT_RATE * 100).toFixed(1)}%):
+              <span className='text-gray-500 dark:text-gray-400'>VAT {pdfData?.vatRate}%:</span>
+              <span>
+                {pdfData?.totalVat.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
               </span>
-              <span>${pdfData.vat.toFixed(2)}</span>
             </p>
             <div className='w-full h-px bg-gray-300 dark:bg-gray-600 my-2'></div>
             <p className='flex justify-between font-bold text-lg mt-1'>
               <span>Total Due:</span>
-              <span>${pdfData.total.toFixed(2)}</span>
+              <span>
+                {pdfData.grandTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              </span>
             </p>
           </div>
         </div>
@@ -100,17 +104,23 @@ const PdfPreviewModal: React.FC<{
               <div className='flex justify-between mb-8'>
                 <div>
                   <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
-                  <p>{pdfData.customerName}</p>
-                  <p>{pdfData.customerAddress}</p>
+                  <p>{pdfData?.customer?.companyName}</p>
+                  <p>{pdfData?.customer?.billingAddress?.street}</p>
+                  <p>
+                    {pdfData?.customer?.billingAddress?.city},{' '}
+                    {pdfData?.customer?.billingAddress?.state}{' '}
+                    {pdfData?.customer?.billingAddress?.zipCode}
+                  </p>
+                  <p>{pdfData?.customer?.billingAddress?.country}</p>
                 </div>
                 <div className='text-right'>
                   <p>
                     <span className='font-semibold'>{documentType} ID: </span>
-                    {pdfData.id}
+                    {pdfData?.uniqueId}
                   </p>
                   <p>
                     <span className='font-semibold'>Date: </span>
-                    {pdfData.date}
+                    {new Date(pdfData.issuedDate).toLocaleDateString()}
                   </p>
                   {/* <p className='font-bold'>
                     <span className='font-semibold'>Due Date: </span>
@@ -144,21 +154,26 @@ const PdfPreviewModal: React.FC<{
               <div className='flex justify-between mb-8'>
                 <div>
                   <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
-                  <p>{pdfData.customerName}</p>
-                  <p>{pdfData.customerAddress}</p>
+                  <p>{pdfData.customer.companyName}</p>
+                  <p>{pdfData.customer.billingAddress.street}</p>
+                  <p>
+                    {pdfData.customer.billingAddress.city}, {pdfData.customer.billingAddress.state}{' '}
+                    {pdfData.customer.billingAddress.zipCode}
+                  </p>
+                  <p>{pdfData.customer.billingAddress.country}</p>
                 </div>
                 <div className='text-right'>
                   <p>
                     <span className='font-semibold'>{documentType} ID: </span>
-                    {pdfData.id}
+                    {pdfData.uniqueId}
                   </p>
                   <p>
                     <span className='font-semibold'>Date: </span>
-                    {pdfData.date}
+                    {new Date(pdfData.issuedDate).toLocaleDateString()}
                   </p>
                   {/* <p className='font-bold'>
                     <span className='font-semibold'>Due Date: </span>
-                    {pdfData.dueDate}
+                    {new Date(pdfData.dueDate).toLocaleDateString()}
                   </p> */}
                 </div>
               </div>
@@ -207,21 +222,26 @@ const PdfPreviewModal: React.FC<{
             <div className='flex justify-between mb-8 relative'>
               <div>
                 <h3 className='font-semibold text-gray-600 dark:text-gray-300'>Bill To</h3>
-                <p>{pdfData.customerName}</p>
-                <p>{pdfData.customerAddress}</p>
+                <p>{pdfData.customer.companyName}</p>
+                <p>{pdfData.customer.billingAddress.street}</p>
+                <p>
+                  {pdfData.customer.billingAddress.city}, {pdfData.customer.billingAddress.state}{' '}
+                  {pdfData.customer.billingAddress.zipCode}
+                </p>
+                <p>{pdfData.customer.billingAddress.country}</p>
               </div>
               <div className='text-right'>
                 <p>
                   <span className='font-semibold'>{documentType} ID: </span>
-                  {pdfData.id}
+                  {pdfData.uniqueId}
                 </p>
                 <p>
                   <span className='font-semibold'>Date: </span>
-                  {pdfData.date}
+                  {new Date(pdfData.issuedDate).toLocaleDateString()}
                 </p>
                 {/* <p className='font-bold'>
                   <span className='font-semibold'>Due Date: </span>
-                  {pdfData.dueDate}
+                  {new Date(pdfData.dueDate).toLocaleDateString()}
                 </p> */}
               </div>
             </div>

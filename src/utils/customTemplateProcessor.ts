@@ -8,6 +8,8 @@ import {
   Invoice,
   CompanyDetails,
 } from '../types'
+import { QuotationLineItem } from '../types/quotation.type'
+import { InvoiceLineItem } from '../types/invoice.type'
 import { title } from 'process'
 
 export class CustomTemplateProcessor {
@@ -191,13 +193,15 @@ export class CustomTemplateProcessor {
   }
 
   private addTable(placeholder: TemplatePlaceholder, document: Quotation | Invoice): void {
-    const tableBody = document.items.map((item, index) => [
-      (index + 1).toString(), // Add item number
-      item.description,
-      item.quantity.toString(),
-      `$${item.unitPrice.toFixed(2)}`,
-      `$${(item.quantity * item.unitPrice).toFixed(2)}`,
-    ])
+    const tableBody = document.items.map(
+      (item: QuotationLineItem | InvoiceLineItem, index: number) => [
+        (index + 1).toString(), // Add item number
+        item.description,
+        item.quantity.toString(),
+        `$${item.unitPrice.toFixed(2)}`,
+        `$${(item.quantity * item.unitPrice).toFixed(2)}`,
+      ]
+    )
 
     autoTable(this.doc, {
       startY: placeholder.y,
@@ -246,20 +250,26 @@ export class CustomTemplateProcessor {
     companyDetails: CompanyDetails,
     documentType: string
   ): TemplateMapping {
+    const customerName = typeof document.customer === 'object' ? document.customer.companyName : ''
+    const customerAddress =
+      typeof document.customer === 'object' && document.customer.billingAddress
+        ? `${document.customer.billingAddress.street}, ${document.customer.billingAddress.city}`
+        : ''
+
     return {
-      documentNumber: document.id,
-      documentDate: document.date,
+      documentNumber: document._id || '',
+      documentDate: document.issuedDate,
       documentType,
-      customerName: document.customerName,
-      customerAddress: document.customerAddress,
+      customerName,
+      customerAddress,
 
       itemsTable: '', // Handled specially
       subtotal: document.subtotal.toString(),
-      vat: document.vat.toString(),
-      vatRate: '10', // Default or calculate from document
-      total: document.total.toString(),
+      vat: (document.totalVat || 0).toString(),
+      vatRate: (document.vatRate || 10).toString(), // Default or calculate from document
+      total: document.grandTotal.toString(),
 
-      terms: document.terms,
+      terms: document.terms || '',
       notes: '',
       watermark: companyDetails.name,
     }
@@ -295,10 +305,10 @@ export class CustomTemplateProcessor {
       case 'subtotal':
         return `Subtotal: $${document.subtotal.toFixed(2)}`
       case 'vat':
-        const vatRate = 'vatRate' in document ? document.vatRate : 7.5 // Default rate
-        return `VAT (${vatRate}%): $${document.vat.toFixed(2)}`
+        const vatRate = document.vatRate || 7.5 // Default rate
+        return `VAT (${vatRate}%): $${(document.totalVat || 0).toFixed(2)}`
       case 'total':
-        return `Total: $${document.total.toFixed(2)}`
+        return `Total: $${document.grandTotal.toFixed(2)}`
       case 'terms':
         return mapping.terms
       case 'notes':
@@ -358,7 +368,7 @@ export const generateCustomTemplatePDF = async (
   const doc = await generateCustomTemplate(template, document, companyDetails, documentType, title)
 
   // Save the PDF
-  const filename = `${documentType === 'INVOICE' ? 'Invoice' : 'Quotation'}-${document.id}.pdf`
+  const filename = `${documentType === 'INVOICE' ? 'Invoice' : 'Quotation'}-${document._id || 'doc'}.pdf`
   doc.save(filename)
 }
 // Helper function to generate a custom template PDF
@@ -402,15 +412,21 @@ export const generateCustomTemplate = async (
   const detailsY = 75
   const startX = 15
 
+  const customerName = typeof document.customer === 'object' ? document.customer.companyName : ''
+  const customerAddress =
+    typeof document.customer === 'object' && document.customer.billingAddress
+      ? `${document.customer.billingAddress.street}, ${document.customer.billingAddress.city}`
+      : ''
+
   doc.setFont('helvetica', 'bold')
   // doc.text('BILL TO:', clientX, detailsY,)
   doc.setFont('helvetica', 'normal')
-  doc.text(`${document.date}`, companyX, detailsY)
-  doc.text(document.customerName, companyX, detailsY + 5)
-  doc.text(document.customerAddress, companyX, detailsY + 10)
+  doc.text(`${document.issuedDate}`, companyX, detailsY)
+  doc.text(customerName, companyX, detailsY + 5)
+  doc.text(customerAddress, companyX, detailsY + 10)
 
   doc.setFontSize(12)
-  doc.text(`${documentType} #: ${document.id}`, clientX, detailsY, { align: 'right' })
+  doc.text(`${documentType} #: ${document._id || ''}`, clientX, detailsY, { align: 'right' })
   // doc.text(`Date: ${document.date}`, startX, detailsY + 32)
 
   // Centered document type title
@@ -432,13 +448,15 @@ export const generateCustomTemplate = async (
   doc.text(title, centerX, detailsY + 28, { align: 'center' })
 
   if (documentType === 'QUOTATION') {
-    const tableBody = document.items.map((item, index) => [
-      index + 1,
-      item.description,
-      item.quantity,
-      `$${item.unitPrice.toFixed(2)}`,
-      `$${(item.quantity * item.unitPrice).toFixed(2)}`,
-    ])
+    const tableBody = document.items.map(
+      (item: QuotationLineItem | InvoiceLineItem, index: number) => [
+        index + 1,
+        item.description,
+        item.quantity,
+        `$${item.unitPrice.toFixed(2)}`,
+        `$${(item.quantity * item.unitPrice).toFixed(2)}`,
+      ]
+    )
 
     autoTable(doc, {
       startY: 110,
@@ -458,14 +476,16 @@ export const generateCustomTemplate = async (
     })
   } else {
     const tableColumn = ['#', 'Description', 'Quantity', 'SKU', 'Unit Price', 'Total']
-    const tableRows = document.items.map((item, index) => [
-      index + 1,
-      item.description ?? '',
-      item.quantity ?? 0,
-      item.sku ?? '',
-      `$${(item.unitPrice ?? 0).toFixed(2)}`,
-      `$${((item.quantity ?? 0) * (item.unitPrice ?? 0)).toFixed(2)}`,
-    ]) as (string | number)[][]
+    const tableRows = document.items.map(
+      (item: QuotationLineItem | InvoiceLineItem, index: number) => [
+        index + 1,
+        item.description ?? '',
+        item.quantity ?? 0,
+        item.sku ?? '',
+        `$${(item.unitPrice ?? 0).toFixed(2)}`,
+        `$${((item.quantity ?? 0) * (item.unitPrice ?? 0)).toFixed(2)}`,
+      ]
+    ) as (string | number)[][]
 
     autoTable(doc, {
       head: [tableColumn],
@@ -491,21 +511,21 @@ export const generateCustomTemplate = async (
   doc.setFontSize(10)
   doc.text('Subtotal:', totalX - 30, finalY, { align: 'right' })
   doc.text(`$${document.subtotal.toFixed(2)}`, totalX, finalY, { align: 'right' })
-  const vatRate = 'vatRate' in document ? document.vatRate : 7.5
+  const vatRateValue = document.vatRate || 7.5
 
-  doc.text(`VAT (${vatRate}%):`, totalX - 30, finalY + 7, { align: 'right' })
-  doc.text(`$${document.vat.toFixed(2)}`, totalX, finalY + 7, { align: 'right' })
+  doc.text(`VAT (${vatRateValue}%):`, totalX - 30, finalY + 7, { align: 'right' })
+  doc.text(`$${(document.totalVat || 0).toFixed(2)}`, totalX, finalY + 7, { align: 'right' })
   doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
   doc.text('Total:', totalX - 30, finalY + 14, { align: 'right' })
-  doc.text(`$${document.total.toFixed(2)}`, totalX, finalY + 14, { align: 'right' })
+  doc.text(`$${document.grandTotal.toFixed(2)}`, totalX, finalY + 14, { align: 'right' })
 
   // Terms
   doc.setFontSize(8)
   doc.setTextColor(150)
   doc.text('Terms & Conditions', startX, finalY + 30)
   doc.setFont('helvetica', 'normal')
-  doc.text(document.terms, startX, finalY + 35, { maxWidth: pageWidth - startX - 15 })
+  doc.text(document.terms || '', startX, finalY + 35, { maxWidth: pageWidth - startX - 15 })
 
   // Closing greetings.
   doc.setFont('helvetica', 'normal')

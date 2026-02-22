@@ -1,28 +1,40 @@
 import React, { useState } from 'react'
-import Logo from './Logo'
 import { EyeIcon, EyeOffIcon } from './Icons'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoginFormData } from '@/types/login.types'
+import { loginSchema } from '@/schemas/login.schema'
+import { useLoginMutation } from '@/store/api'
+import { useRouter } from 'next/navigation'
+import InputErrorWrapper from './shared/InputErrorWrapper'
+import Link from 'next/link'
 
-interface LoginProps {
-  onLoginSuccess: () => void
-  onNavigateToSignUp: () => void
-}
-
-const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigateToSignUp }) => {
-  const [email, setEmail] = useState('admin@example.com')
-  const [password, setPassword] = useState('password')
-  const [error, setError] = useState('')
+const Login: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [error, setError] = useState('')
+  const [login, { isLoading }] = useLoginMutation()
+  const router = useRouter()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    // Simple validation
-    if (!email || !password) {
-      setError('Please enter both email and password.')
-      return
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      setError('')
+      await login(data).unwrap()
+      reset()
+      router.push('/dashboard')
+    } catch (err: any) {
+      console.error('Login error:', err)
+      const message =
+        err?.data?.message ?? err?.message ?? 'Login failed. Please check your credentials.'
+      setError(message)
     }
-    // Simulate successful login
-    onLoginSuccess()
   }
 
   const togglePasswordVisibility = () => {
@@ -30,20 +42,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigateToSignUp }) => 
   }
 
   return (
-    <div className='w-full max-w-md'>
-      <div className='flex justify-center'>
-        <Logo className='h-12 w-auto' />
-      </div>
+    <div className='w-full max-w-md mx-auto'>
       <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white'>
         Sign in to your account
       </h2>
-      <p className='mt-2 text-center text-sm text-gray-600 dark:text-gray-400'>
-        to continue to Streamline Suite
-      </p>
 
       <div className='mt-8'>
         <div className='bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-lg sm:px-10'>
-          <form className='space-y-6' onSubmit={handleSubmit}>
+          <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
             <div>
               <label
                 htmlFor='email'
@@ -54,14 +60,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigateToSignUp }) => 
               <div className='mt-1'>
                 <input
                   id='email'
-                  name='email'
                   type='email'
                   autoComplete='email'
-                  required
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
+                  {...register('email')}
                   className='appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+                  placeholder='Enter your email'
                 />
+                {errors.email && <InputErrorWrapper message={errors.email.message || ''} />}
               </div>
             </div>
 
@@ -75,13 +80,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigateToSignUp }) => 
               <div className='mt-1 relative'>
                 <input
                   id='password'
-                  name='password'
                   type={isPasswordVisible ? 'text' : 'password'}
                   autoComplete='current-password'
-                  required
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  {...register('password')}
                   className='pr-10 appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+                  placeholder='Enter your password'
                 />
                 <button
                   type='button'
@@ -95,40 +98,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigateToSignUp }) => 
                     <EyeIcon className='h-5 w-5' />
                   )}
                 </button>
+                {errors.password && <InputErrorWrapper message={errors.password.message || ''} />}
               </div>
             </div>
-
             {error && <p className='text-sm text-red-500'>{error}</p>}
-
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center'>
-                <input
-                  id='remember-me'
-                  name='remember-me'
-                  type='checkbox'
-                  className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
-                />
-                <label
-                  htmlFor='remember-me'
-                  className='ml-2 block text-sm text-gray-900 dark:text-gray-300'
-                >
-                  Remember me
-                </label>
-              </div>
-
-              <div className='text-sm'>
-                <a href='#' className='font-medium text-teal-600 hover:text-teal-500'>
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-
             <div>
               <button
                 type='submit'
-                className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
+                disabled={isLoading}
+                className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed'
               >
-                Sign in
+                {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
           </form>
@@ -144,12 +124,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigateToSignUp }) => 
               </div>
             </div>
             <div className='mt-6'>
-              <button
-                onClick={onNavigateToSignUp}
+              <Link
+                href={'/signup'}
                 className='w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500'
               >
                 Create an account
-              </button>
+              </Link>
             </div>
           </div>
         </div>

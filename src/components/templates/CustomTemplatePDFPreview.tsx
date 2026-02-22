@@ -1,5 +1,6 @@
 import { useAppSelector } from '@/store/hooks'
-import { Quotation, Invoice } from '@/types'
+import { Quotation } from '@/types/quotation.type'
+import { Invoice } from '@/types/invoice.type'
 import { useState, useEffect } from 'react'
 
 const CustomTemplatePDFPreview: React.FC<{
@@ -22,7 +23,7 @@ const CustomTemplatePDFPreview: React.FC<{
 
         // Find the custom template
         const customTemplate = companyDetails?.customTemplates?.find(
-          (t: any) => t.id === pdfData.customTemplateId
+          (t: any) => t.id === pdfData._id
         )
 
         if (!customTemplate) {
@@ -31,9 +32,8 @@ const CustomTemplatePDFPreview: React.FC<{
         }
 
         // Import the custom template processor
-        const { generateCustomTemplatePDFBlob } = await import(
-          '../../utils/customTemplateProcessor'
-        )
+        const { generateCustomTemplatePDFBlob } =
+          await import('../../utils/customTemplateProcessor')
 
         // Generate PDF as blob instead of downloading
         const pdfBlob = await generateCustomTemplatePDFBlob(

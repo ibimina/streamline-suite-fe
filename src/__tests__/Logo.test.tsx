@@ -2,8 +2,9 @@
  * @jest-environment jsdom
  */
 
+import '@testing-library/jest-dom'
 import { render } from '@testing-library/react'
-import Logo from '../components/Logo'
+import Logo from '../components/shared/Logo'
 
 // Mock Next.js modules
 jest.mock('next/navigation', () => ({
