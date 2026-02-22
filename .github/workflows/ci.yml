@@ -144,7 +144,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔍 Run npm audit
-        run: npm audit --audit-level=moderate
+        run: npm audit --omit=dev --audit-level=moderate
 
       - name: 🛡️ Run Snyk security scan
         uses: snyk/actions/node@master

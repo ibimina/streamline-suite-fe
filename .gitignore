@@ -119,6 +119,10 @@ pids
 tmp/
 temp/
 
+# Generated sitemaps (created by next-sitemap)
+public/sitemap.xml
+public/sitemap-*.xml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
