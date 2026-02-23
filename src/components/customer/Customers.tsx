@@ -7,21 +7,50 @@ import { useDeleteCustomerMutation, useGetCustomersQuery } from '@/store/api'
 import { Customer } from '@/interface/customer.interface'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { Paginator } from '../ui/pagination'
 
 const Customers = () => {
   const { data, isLoading: loading } = useGetCustomersQuery()
 
   const [deleteCustomer] = useDeleteCustomerMutation()
 
-  const customers = data?.payload?.customers ?? []
+  const allCustomers = data?.payload?.customers ?? []
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'suspended'>(
     'all'
   )
+  const [page, setPage] = useState(1)
+  const limit = 10
   const [showForm, setShowForm] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null)
+
+  // Filter customers based on search and status
+  const filteredCustomers = allCustomers.filter(customer => {
+    const matchesSearch =
+      searchTerm === '' ||
+      customer.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || customer.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  // Paginate filtered results
+  const totalCustomers = filteredCustomers.length
+  const customers = filteredCustomers.slice((page - 1) * limit, page * limit)
+
+  // Reset page when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPage(1)
+  }
+
+  const handleStatusChange = (value: 'all' | 'active' | 'inactive' | 'suspended') => {
+    setStatusFilter(value)
+    setPage(1)
+  }
   const handleEditCustomer = (customer: Customer) => {
     setEditingCustomer(customer)
     setShowForm(true)
@@ -66,7 +95,7 @@ const Customers = () => {
               type='text'
               placeholder='Search customers...'
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => handleSearchChange(e.target.value)}
               className='w-full pl-10 pr-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             />
           </div>
@@ -77,7 +106,7 @@ const Customers = () => {
             <select
               value={statusFilter}
               onChange={e =>
-                setStatusFilter(e.target.value as 'all' | 'active' | 'inactive' | 'suspended')
+                handleStatusChange(e.target.value as 'all' | 'active' | 'inactive' | 'suspended')
               }
               className='px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             >
@@ -241,7 +270,23 @@ const Customers = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteCustomer}
+          open={showDeleteModal}
         />
+      )}
+
+      {/* Pagination */}
+      {totalCustomers > limit && (
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
+          <p className='text-sm text-muted-foreground'>
+            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalCustomers)} of{' '}
+            {totalCustomers} customers
+          </p>
+          <Paginator
+            currentPage={page}
+            totalPages={Math.ceil(totalCustomers / limit)}
+            onPageChange={setPage}
+          />
+        </div>
       )}
     </div>
   )

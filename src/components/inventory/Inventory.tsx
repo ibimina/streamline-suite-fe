@@ -17,6 +17,7 @@ import { toast } from 'react-toastify'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import InventoryTransactionForm from './InventoryTransactionsForm'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
+import { Paginator } from '../ui/pagination'
 
 // Transaction type filter options
 const TYPE_OPTIONS: FilterOption[] = [
@@ -323,27 +324,16 @@ const InventoryTransactions = () => {
 
             {/* Pagination */}
             {data?.payload?.total && data.payload.total > limit && (
-              <div className='flex justify-between items-center p-4 border-t border-border'>
+              <div className='flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-t border-border'>
                 <p className='text-sm text-muted-foreground'>
                   Showing {(page - 1) * limit + 1} to {Math.min(page * limit, data.payload.total)}{' '}
                   of {data.payload.total} transactions
                 </p>
-                <div className='flex gap-2'>
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className='px-3 py-1 rounded border  disabled:opacity-50'
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={page * limit >= data.payload.total}
-                    className='px-3 py-1 rounded border  disabled:opacity-50'
-                  >
-                    Next
-                  </button>
-                </div>
+                <Paginator
+                  currentPage={page}
+                  totalPages={Math.ceil(data.payload.total / limit)}
+                  onPageChange={setPage}
+                />
               </div>
             )}
           </div>
@@ -364,6 +354,7 @@ const InventoryTransactions = () => {
         <DeleteConfirmationModal
           onConfirm={handleConfirmDelete}
           onCancel={() => setShowDeleteModal(false)}
+          open={showDeleteModal}
         />
       )}
     </div>

@@ -7,17 +7,21 @@ import Link from 'next/dist/client/link'
 import { useGetSuppliersQuery, useDeleteSupplierMutation, Supplier } from '@/store/api/supplierApi'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { Paginator } from '../ui/pagination'
 
 const Suppliers = () => {
+  const [page, setPage] = useState(1)
+  const limit = 10
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [showForm, setShowForm] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
 
   // RTK Query hooks
-  const { data, isLoading, isFetching } = useGetSuppliersQuery()
+  const { data, isLoading, isFetching } = useGetSuppliersQuery({ page, limit })
   const [deleteSupplier] = useDeleteSupplierMutation()
   const suppliers = data?.payload?.suppliers || []
+  const totalSuppliers = data?.payload?.total ?? 0
 
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [supplierId, setSupplierId] = useState<string | null>(null)
@@ -225,7 +229,23 @@ const Suppliers = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteSupplier}
+          open={showDeleteModal}
         />
+      )}
+
+      {/* Pagination */}
+      {totalSuppliers > limit && (
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
+          <p className='text-sm text-muted-foreground'>
+            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalSuppliers)} of{' '}
+            {totalSuppliers} suppliers
+          </p>
+          <Paginator
+            currentPage={page}
+            totalPages={Math.ceil(totalSuppliers / limit)}
+            onPageChange={setPage}
+          />
+        </div>
       )}
     </div>
   )

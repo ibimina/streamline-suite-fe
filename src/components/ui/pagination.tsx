@@ -52,7 +52,7 @@ export function Paginator({ currentPage, totalPages, onPageChange }: PaginatorPr
             className={cn(
               'flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium transition-colors',
               'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50',
-              'data-[active]:bg-accent/50'
+              'data-active:bg-accent/50'
             )}
             aria-label='Go to previous page'
           >
@@ -67,9 +67,11 @@ export function Paginator({ currentPage, totalPages, onPageChange }: PaginatorPr
             <button
               onClick={() => onPageChange(page)}
               className={cn(
-                'flex h-[31px] min-w-[31px] items-center justify-center rounded-[8px] px-3 text-xs font-medium transition-colors',
+                'flex h-7.75 min-w-7.75 items-center justify-center rounded-[8px] px-3 text-xs font-medium transition-colors',
                 'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50',
-                currentPage === page ? 'bg-[#0A3B83] text-white' : 'bg-[#E0E0E0] text-black'
+                currentPage === page
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground'
               )}
               aria-current={currentPage === page ? 'page' : undefined}
             >
@@ -86,7 +88,7 @@ export function Paginator({ currentPage, totalPages, onPageChange }: PaginatorPr
             className={cn(
               'flex h-9 items-center justify-center rounded-md px-3 text-sm font-medium transition-colors',
               'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50',
-              'data-[active]:bg-accent/50'
+              'data-active:bg-accent/50'
             )}
             aria-label='Go to next page'
           >

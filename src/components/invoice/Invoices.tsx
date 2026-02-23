@@ -27,6 +27,7 @@ import { useRouter } from 'next/navigation'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import PdfPreviewModal from '../templates/PdfPreviewModal'
 import useGeneratePdf from '@/hooks/useGeneratePdf'
+import { Paginator } from '../ui/pagination'
 import {
   useGetInvoicesQuery,
   useDeleteInvoiceMutation,
@@ -526,28 +527,17 @@ const Invoices = () => {
 
         {/* Pagination */}
         {invoicesData?.payload?.total && invoicesData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+          <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
             <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to{' '}
               {Math.min(page * limit, invoicesData.payload.total)} of {invoicesData.payload.total}{' '}
               invoices
             </p>
-            <div className='flex gap-2'>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className='px-3 py-1 rounded border  disabled:opacity-50'
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage(p => p + 1)}
-                disabled={page * limit >= invoicesData.payload.total}
-                className='px-3 py-1 rounded border  disabled:opacity-50'
-              >
-                Next
-              </button>
-            </div>
+            <Paginator
+              currentPage={page}
+              totalPages={Math.ceil(invoicesData.payload.total / limit)}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>
@@ -565,6 +555,7 @@ const Invoices = () => {
         <DeleteConfirmationModal
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
         />
       )}
     </div>

@@ -19,6 +19,7 @@ import {
 import LoadingSpinner from '../shared/LoadingSpinner'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
+import { Paginator } from '../ui/pagination'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -247,28 +248,17 @@ const Payroll: React.FC = () => {
 
         {/* Pagination */}
         {payrollData?.payload?.total && payrollData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+          <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
             <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to{' '}
               {Math.min(page * limit, payrollData.payload.total)} of {payrollData.payload.total}{' '}
               payroll runs
             </p>
-            <div className='flex gap-2'>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className='px-3 py-1 rounded border  disabled:opacity-50'
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage(p => p + 1)}
-                disabled={page * limit >= payrollData.payload.total}
-                className='px-3 py-1 rounded border  disabled:opacity-50'
-              >
-                Next
-              </button>
-            </div>
+            <Paginator
+              currentPage={page}
+              totalPages={Math.ceil(payrollData.payload.total / limit)}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>

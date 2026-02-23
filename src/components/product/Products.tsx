@@ -8,11 +8,15 @@ import LoadingSpinner from '../shared/LoadingSpinner'
 import { useDeleteProductMutation, useGetProductsQuery } from '@/store/api/productApi'
 import { toast } from 'react-toastify'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { Paginator } from '../ui/pagination'
 
 const Products = () => {
-  const { data, isLoading: loading } = useGetProductsQuery()
+  const [page, setPage] = useState(1)
+  const limit = 10
+  const { data, isLoading: loading } = useGetProductsQuery({ page, limit })
   const [deleteProduct] = useDeleteProductMutation()
   const products = data?.payload?.products ?? []
+  const totalProducts = data?.payload?.total ?? 0
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState<
     'all' | 'product' | 'service' | 'consumable' | 'digital'
@@ -192,7 +196,7 @@ const Products = () => {
                       <tr key={product._id} className='hover:bg-muted '>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <div className='flex items-center'>
-                            <div className='flex-shrink-0 h-10 w-10'>
+                            <div className='shrink-0 h-10 w-10'>
                               <div className='h-10 w-10 rounded bg-primary-light dark:bg-primary/20 flex items-center justify-center'>
                                 <span className='text-sm font-medium text-primary dark:text-primary'>
                                   {product.name.charAt(0).toUpperCase()}
@@ -316,7 +320,23 @@ const Products = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteProduct}
+          open={showDeleteModal}
         />
+      )}
+
+      {/* Pagination */}
+      {totalProducts > limit && (
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
+          <p className='text-sm text-muted-foreground'>
+            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalProducts)} of{' '}
+            {totalProducts} products
+          </p>
+          <Paginator
+            currentPage={page}
+            totalPages={Math.ceil(totalProducts / limit)}
+            onPageChange={setPage}
+          />
+        </div>
       )}
     </div>
   )

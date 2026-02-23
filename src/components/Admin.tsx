@@ -8,6 +8,8 @@ import {
   useDeleteUserMutation,
 } from '@/store/api'
 import { User, UserFormData, UserRole } from '@/types/user.type'
+import DeleteConfirmationModal from './shared/DeleteConfirmationModal'
+import { Paginator } from './ui/pagination'
 
 type RoleOption = { value: UserRole; label: string }
 
@@ -180,27 +182,16 @@ const Admin: React.FC = () => {
 
         {/* Pagination */}
         {usersData?.payload?.total && usersData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t border-border'>
+          <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
             <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to {Math.min(page * limit, usersData.payload.total)}{' '}
               of {usersData.payload.total} users
             </p>
-            <div className='flex gap-2'>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className='px-3 py-1 rounded border  disabled:opacity-50'
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage(p => p + 1)}
-                disabled={page * limit >= usersData.payload.total}
-                className='px-3 py-1 rounded border  disabled:opacity-50'
-              >
-                Next
-              </button>
-            </div>
+            <Paginator
+              currentPage={page}
+              totalPages={Math.ceil(usersData.payload.total / limit)}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>
@@ -217,6 +208,7 @@ const Admin: React.FC = () => {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
           isLoading={isDeleting}
+          open={isDeleteModalOpen}
         />
       )}
     </div>
@@ -371,39 +363,6 @@ const UserModal: React.FC<{
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  )
-}
-
-const DeleteConfirmationModal: React.FC<{
-  onConfirm: () => void
-  onCancel: () => void
-  isLoading?: boolean
-}> = ({ onConfirm, onCancel, isLoading }) => {
-  return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-sm'>
-        <h3 className='text-lg font-bold mb-2'>Confirm Deletion</h3>
-        <p className='text-muted-foreground mb-4'>
-          Are you sure you want to delete this user? This action cannot be undone.
-        </p>
-        <div className='flex justify-end'>
-          <button
-            onClick={onCancel}
-            className='mr-2 px-4 py-2 rounded bg-muted'
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className='px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50'
-            disabled={isLoading}
-          >
-            {isLoading ? 'Deleting...' : 'Delete'}
-          </button>
-        </div>
       </div>
     </div>
   )

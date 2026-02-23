@@ -19,8 +19,7 @@ import {
 import { CurrencyDollarIcon, PresentationChartLineIcon, UsersIcon } from '../Icons'
 import { useGetDashboardStatsQuery } from '@/store/api'
 import { DateFilter } from '../ui/date-filter'
-
-const COLORS = ['#2563eb', '#3B82F6', '#F97316', '#6B7280', '#8B5CF6', '#EC4899']
+import { useChartColors, useChartColorArray } from '@/hooks/useChartColors'
 
 const StatCard: React.FC<{
   title: string
@@ -50,6 +49,8 @@ const StatCard: React.FC<{
 
 const Analytics: React.FC = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const chartColors = useChartColors()
+  const colorArray = useChartColorArray()
 
   // Pass date range to query when backend supports it
   const { data, isLoading, isError, refetch } = useGetDashboardStatsQuery()
@@ -190,25 +191,29 @@ const Analytics: React.FC = () => {
         ) : revenueProfitData.length > 0 ? (
           <ResponsiveContainer width='100%' height={350}>
             <LineChart data={revenueProfitData}>
-              <CartesianGrid strokeDasharray='3 3' stroke='#4B5563' />
-              <XAxis dataKey='name' stroke='#6B7280' />
-              <YAxis stroke='#6B7280' />
+              <CartesianGrid strokeDasharray='3 3' className='stroke-border' />
+              <XAxis dataKey='name' className='fill-muted-foreground' />
+              <YAxis className='fill-muted-foreground' />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                itemStyle={{ color: '#E5E7EB' }}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                }}
+                itemStyle={{ color: 'hsl(var(--foreground))' }}
               />
-              <Legend wrapperStyle={{ color: '#E5E7EB' }} />
+              <Legend wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }} />
               <Line
                 type='monotone'
                 dataKey='revenue'
-                stroke='#3B82F6'
+                stroke={chartColors.primary}
                 strokeWidth={2}
                 name='Revenue'
               />
               <Line
                 type='monotone'
                 dataKey='profit'
-                stroke='#2563eb'
+                stroke={chartColors.success}
                 strokeWidth={2}
                 name='Profit'
               />
@@ -235,16 +240,25 @@ const Analytics: React.FC = () => {
                 layout='vertical'
                 margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray='3 3' stroke='#4B5563' />
-                <XAxis type='number' stroke='#6B7280' />
-                <YAxis type='category' dataKey='name' stroke='#6B7280' width={100} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                  itemStyle={{ color: '#E5E7EB' }}
-                  cursor={{ fill: 'rgba(107, 114, 128, 0.2)' }}
+                <CartesianGrid strokeDasharray='3 3' className='stroke-border' />
+                <XAxis type='number' className='fill-muted-foreground' />
+                <YAxis
+                  type='category'
+                  dataKey='name'
+                  className='fill-muted-foreground'
+                  width={100}
                 />
-                <Legend wrapperStyle={{ color: '#E5E7EB' }} />
-                <Bar dataKey='sales' fill='#2563eb' name='Revenue' />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+                />
+                <Legend wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }} />
+                <Bar dataKey='sales' fill={chartColors.primary} name='Revenue' />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -291,14 +305,18 @@ const Analytics: React.FC = () => {
                   }}
                 >
                   {topCustomersData.map((entry, index) => (
-                    <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${entry.name}`} fill={colorArray[index % colorArray.length]} />
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                  itemStyle={{ color: '#E5E7EB' }}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
                 />
-                <Legend wrapperStyle={{ color: '#9CA3AF' }} />
+                <Legend wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (

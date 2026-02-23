@@ -135,7 +135,7 @@ const ProductDetails = () => {
 
         <div className='flex items-center justify-between max-w-7xl mx-auto'>
           <div className='flex items-center space-x-4'>
-            <div className='flex-shrink-0 h-16 w-16'>
+            <div className='shrink-0 h-16 w-16'>
               <div className='h-16 w-16 rounded-lg bg-primary-light dark:bg-primary/20 flex items-center justify-center'>
                 <span className='text-xl font-bold text-primary dark:text-primary'>
                   {product.name.charAt(0).toUpperCase()}
@@ -530,6 +530,7 @@ const ProductDetails = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteProduct}
+          open={showDeleteModal}
         />
       )}
     </div>

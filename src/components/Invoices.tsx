@@ -389,6 +389,7 @@ const Invoices = () => {
         <DeleteConfirmationModal
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
         />
       )}
     </div>

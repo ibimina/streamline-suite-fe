@@ -16,6 +16,7 @@ import {
 import { Quotation, QuotationStatus } from '@/types/quotation.type'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
+import { Paginator } from '../ui/pagination'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -793,58 +794,11 @@ const Quotations = () => {
                   <span className='font-medium text-secondary-foreground'>{totalQuotations}</span>{' '}
                   quotations
                 </p>
-                <div className='flex items-center gap-2'>
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className='inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-secondary-foreground bg-card border border-border rounded-lg hover:bg-muted  disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
-                  >
-                    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M15 19l-7-7 7-7'
-                      />
-                    </svg>
-                    Previous
-                  </button>
-                  <div className='flex items-center gap-1'>
-                    {Array.from({ length: Math.ceil(totalQuotations / limit) }, (_, i) => i + 1)
-                      .slice(
-                        Math.max(0, page - 3),
-                        Math.min(Math.ceil(totalQuotations / limit), page + 2)
-                      )
-                      .map(p => (
-                        <button
-                          key={p}
-                          onClick={() => setPage(p)}
-                          className={`w-10 h-10 text-sm font-medium rounded-lg transition-colors ${
-                            p === page
-                              ? 'bg-primary text-white'
-                              : 'text-secondary-foreground hover:bg-muted '
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                  </div>
-                  <button
-                    onClick={() => setPage(p => p + 1)}
-                    disabled={page * limit >= totalQuotations}
-                    className='inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-secondary-foreground bg-card border border-border rounded-lg hover:bg-muted  disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
-                  >
-                    Next
-                    <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M9 5l7 7-7 7'
-                      />
-                    </svg>
-                  </button>
-                </div>
+                <Paginator
+                  currentPage={page}
+                  totalPages={Math.ceil(totalQuotations / limit)}
+                  onPageChange={setPage}
+                />
               </div>
             )}
           </>
@@ -867,6 +821,7 @@ const Quotations = () => {
         <DeleteConfirmationModal
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
+          open={isDeleteModalOpen}
         />
       )}
     </div>

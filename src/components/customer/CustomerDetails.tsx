@@ -386,6 +386,7 @@ const CustomerDetails = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteCustomer}
+          open={showDeleteModal}
         />
       )}
     </div>

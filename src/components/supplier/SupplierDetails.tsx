@@ -330,6 +330,7 @@ const SupplierDetails = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteSupplier}
+          open={showDeleteModal}
         />
       )}
     </div>
