@@ -11,6 +11,7 @@ import {
 import type {
   InventoryTransaction,
   CreateInventoryTransactionData,
+  TransactionType,
 } from '@/types/inventory-transaction.type'
 import { toast } from 'react-toastify'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
@@ -27,7 +28,7 @@ const TYPE_OPTIONS: FilterOption[] = [
 
 const InventoryTransactions = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<TransactionType | 'all'>('all')
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [showForm, setShowForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<InventoryTransaction | null>(null)
@@ -56,7 +57,7 @@ const InventoryTransactions = () => {
     setPage(1)
   }
   const handleStatusChange = (value: string) => {
-    setStatusFilter(value)
+    setStatusFilter(value as TransactionType | 'all')
     setPage(1)
   }
   const handleDateRangeChange = (range: DateRange | undefined) => {

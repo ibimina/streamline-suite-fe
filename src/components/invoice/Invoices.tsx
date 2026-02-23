@@ -366,18 +366,17 @@ const Invoices = () => {
                   outerRadius={90}
                   paddingAngle={2}
                   dataKey='value'
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {statusChartData.map(entry => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(
-                    value: number,
-                    name: string,
-                    props: { payload: { amount: number } }
-                  ) => [`${value} invoices (${formatCurrency(props.payload.amount)})`, name]}
+                  formatter={(value, name, props) => [
+                    `${value} invoices (${formatCurrency((props.payload as { amount: number }).amount)})`,
+                    name,
+                  ]}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -395,7 +394,7 @@ const Invoices = () => {
                   tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
+                  formatter={value => formatCurrency(Number(value))}
                   labelStyle={{ color: '#1F2937' }}
                 />
                 <Legend />

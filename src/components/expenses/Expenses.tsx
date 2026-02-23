@@ -22,7 +22,7 @@ import {
   useUpdateExpenseMutation,
   useDeleteExpenseMutation,
 } from '@/store/api'
-import { Expense, ExpenseFormData } from '@/types/expense.type'
+import { Expense, ExpenseFormData, ExpenseStatus, ExpenseCategory } from '@/types/expense.type'
 import {
   expenseSchema,
   type ExpenseFormData as ExpenseSchemaFormData,
@@ -48,8 +48,8 @@ const Expenses: React.FC = () => {
   const [page, setPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<ExpenseStatus | 'all'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<ExpenseCategory | 'all'>('all')
   const limit = 10
 
   // RTK Query hooks
@@ -84,11 +84,11 @@ const Expenses: React.FC = () => {
     setPage(1)
   }
   const handleStatusChange = (value: string) => {
-    setStatusFilter(value)
+    setStatusFilter(value as ExpenseStatus | 'all')
     setPage(1)
   }
   const handleCategoryChange = (value: string) => {
-    setCategoryFilter(value)
+    setCategoryFilter(value as ExpenseCategory | 'all')
     setPage(1)
   }
   const handleDateRangeChange = (range: DateRange | undefined) => {
