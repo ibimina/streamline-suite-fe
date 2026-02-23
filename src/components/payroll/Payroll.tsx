@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { DateRange } from 'react-day-picker'
 import { DownloadIcon, XIcon, PlusIcon } from '../Icons'
 import {
   useGetPayrollsQuery,
@@ -10,13 +11,23 @@ import {
   useProcessPayrollMutation,
   useLazyGeneratePayslipQuery,
 } from '@/store/api'
-import { PayrollFormData } from '@/types/payroll.type'
+import { PayrollFormData, PayrollStatus } from '@/types/payroll.type'
 import {
   payrollSchema,
   type PayrollFormData as PayrollSchemaFormData,
 } from '@/schemas/payroll.schema'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
+import { FilterBar, FilterOption } from '../shared/FilterBar'
+
+// Status filter options
+const STATUS_OPTIONS: FilterOption[] = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'processed', label: 'Processed' },
+  { value: 'cancelled', label: 'Cancelled' },
+]
 
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const baseClasses = 'px-2 py-1 text-xs font-semibold rounded-full inline-block capitalize'
@@ -38,10 +49,25 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 
 const Payroll: React.FC = () => {
   const [page, setPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [statusFilter, setStatusFilter] = useState<PayrollStatus | 'all'>('all')
   const limit = 10
 
   // RTK Query hooks
-  const { data: payrollData, isLoading, isError, refetch } = useGetPayrollsQuery({ page, limit })
+  const {
+    data: payrollData,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetPayrollsQuery({
+    page,
+    limit,
+    search: searchTerm || undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+    startDate: dateRange?.from?.toISOString(),
+    endDate: dateRange?.to?.toISOString(),
+  })
   const [createPayroll, { isLoading: isCreating }] = useCreatePayrollMutation()
   const [approvePayroll, { isLoading: isApproving }] = useApprovePayrollMutation()
   const [processPayroll, { isLoading: isProcessing }] = useProcessPayrollMutation()
@@ -50,6 +76,20 @@ const Payroll: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false)
 
   const payrollRuns = payrollData?.payload?.data || []
+
+  // Wrapper handlers that reset page when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPage(1)
+  }
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value as PayrollStatus | 'all')
+    setPage(1)
+  }
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    setPage(1)
+  }
 
   const handleRunPayroll = async (formData: PayrollFormData) => {
     try {
@@ -104,20 +144,32 @@ const Payroll: React.FC = () => {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h1 className='text-3xl font-bold text-foreground'>Salary Payments (Payroll)</h1>
-        <p className='text-muted-foreground mt-1'>Manage and track all payroll history.</p>
-      </div>
-      <div className='flex justify-between items-center'>
-        <div />
+      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+        <div>
+          <h1 className='text-3xl font-bold text-foreground'>Salary Payments (Payroll)</h1>
+          <p className='text-muted-foreground mt-1'>Manage and track all payroll history.</p>
+        </div>
         <button
           onClick={() => setModalOpen(true)}
-          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center'
         >
           <PlusIcon className='w-5 h-5 mr-2' />
           Run New Payroll
         </button>
       </div>
+
+      {/* Filters */}
+      <FilterBar
+        searchValue={searchTerm}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder='Search payroll...'
+        dateRange={dateRange}
+        onDateRangeChange={handleDateRangeChange}
+        statusValue={statusFilter}
+        onStatusChange={handleStatusChange}
+        statusOptions={STATUS_OPTIONS}
+        statusPlaceholder='All Status'
+      />
       <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
         <table className='w-full text-sm text-left'>
           <thead className='text-xs text-secondary-foreground uppercase bg-muted dark:text-muted-foreground'>

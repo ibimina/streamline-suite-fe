@@ -1,14 +1,7 @@
 'use client'
 import React, { useState } from 'react'
-import {
-  PlusIcon,
-  TrashIcon,
-  PencilIcon,
-  SearchIcon,
-  FilterIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-} from '../Icons'
+import { DateRange } from 'react-day-picker'
+import { PlusIcon, TrashIcon, PencilIcon, ArrowUpIcon, ArrowDownIcon } from '../Icons'
 import {
   useGetInventoryTransactionsQuery,
   useCreateInventoryTransactionMutation,
@@ -22,12 +15,20 @@ import type {
 import { toast } from 'react-toastify'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import InventoryTransactionForm from './InventoryTransactionsForm'
+import { FilterBar, FilterOption } from '../shared/FilterBar'
+
+// Transaction type filter options
+const TYPE_OPTIONS: FilterOption[] = [
+  { value: 'stock_in', label: 'Stock In' },
+  { value: 'stock_out', label: 'Stock Out' },
+  { value: 'adjustment', label: 'Adjustment' },
+  { value: 'transfer', label: 'Transfer' },
+]
 
 const InventoryTransactions = () => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'stock_in' | 'stock_out' | 'adjustment' | 'transfer'
-  >('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [showForm, setShowForm] = useState(false)
   const [editingTransaction, setEditingTransaction] = useState<InventoryTransaction | null>(null)
   const [page, setPage] = useState(1)
@@ -39,6 +40,8 @@ const InventoryTransactions = () => {
     limit,
     search: searchTerm || undefined,
     transactionType: statusFilter !== 'all' ? statusFilter : undefined,
+    startDate: dateRange?.from?.toISOString(),
+    endDate: dateRange?.to?.toISOString(),
   })
 
   const [deleteTransaction] = useDeleteInventoryTransactionMutation()
@@ -46,6 +49,20 @@ const InventoryTransactions = () => {
   const [updateTransaction] = useUpdateInventoryTransactionMutation()
 
   const transactions = data?.payload?.inventoryTransactions || []
+
+  // Wrapper handlers that reset page when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPage(1)
+  }
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setPage(1)
+  }
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    setPage(1)
+  }
 
   const handleSaveTransaction = async (transactionData: any) => {
     try {
@@ -136,45 +153,25 @@ const InventoryTransactions = () => {
         <h1 className='text-3xl font-bold text-foreground'>Inventory Transactions</h1>
         <button
           onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
+          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary'
         >
           <PlusIcon className='w-5 h-5' />
           <span>Add Transaction</span>
         </button>
       </div>
 
-      {/* Filters and Search */}
-      <div className='bg-card p-4 rounded-lg shadow-sm'>
-        <div className='flex flex-col md:flex-row gap-4'>
-          {/* Search */}
-          <div className='flex-1 relative'>
-            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground' />
-            <input
-              type='text'
-              placeholder='Search transactions...'
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
-            />
-          </div>
-
-          {/* Status Filter */}
-          <div className='flex items-center space-x-2'>
-            <FilterIcon className='w-5 h-5 text-muted-foreground' />
-            <select
-              value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value as any)}
-              className='px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
-            >
-              <option value='all'>All Types</option>
-              <option value='stock_in'>Stock In</option>
-              <option value='stock_out'>Stock Out</option>
-              <option value='adjustment'>Adjustment</option>
-              <option value='transfer'>Transfer</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      {/* Filters */}
+      <FilterBar
+        searchValue={searchTerm}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder='Search transactions...'
+        dateRange={dateRange}
+        onDateRangeChange={handleDateRangeChange}
+        statusValue={statusFilter}
+        onStatusChange={handleStatusChange}
+        statusOptions={TYPE_OPTIONS}
+        statusPlaceholder='All Types'
+      />
 
       {/* Error State */}
       {isError && (

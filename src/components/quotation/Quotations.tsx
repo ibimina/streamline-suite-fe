@@ -1,16 +1,9 @@
 'use client'
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { DateRange } from 'react-day-picker'
 import { toast } from 'react-toastify'
-import {
-  DownloadIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon,
-  DotsVerticalIcon,
-  PlusIcon,
-  SearchIcon,
-} from '../Icons'
+import { DownloadIcon, EyeIcon, PencilIcon, TrashIcon, DotsVerticalIcon, PlusIcon } from '../Icons'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import PdfPreviewModal from '../templates/PdfPreviewModal'
 import useGeneratePdf from '@/hooks/useGeneratePdf'
@@ -22,6 +15,16 @@ import {
 } from '@/store/api'
 import { Quotation, QuotationStatus } from '@/types/quotation.type'
 import LoadingSpinner from '../shared/LoadingSpinner'
+import { FilterBar, FilterOption } from '../shared/FilterBar'
+
+// Status filter options
+const STATUS_OPTIONS: FilterOption[] = [
+  { value: 'Draft', label: 'Draft' },
+  { value: 'Sent', label: 'Sent' },
+  { value: 'Accepted', label: 'Accepted' },
+  { value: 'Rejected', label: 'Rejected' },
+  { value: 'Expired', label: 'Expired' },
+]
 
 // Status Badge Component with dropdown capability
 const StatusBadge: React.FC<{ status: string; interactive?: boolean; onClick?: () => void }> = ({
@@ -213,6 +216,8 @@ const Quotations = () => {
   const { generatePdf } = useGeneratePdf()
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(1)
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [statusFilter, setStatusFilter] = useState<string>('all')
   const limit = 10
 
   // RTK Query hooks
@@ -225,6 +230,9 @@ const Quotations = () => {
     page,
     limit,
     search: searchTerm || undefined,
+    status: statusFilter !== 'all' ? (statusFilter as QuotationStatus) : undefined,
+    startDate: dateRange?.from?.toISOString(),
+    endDate: dateRange?.to?.toISOString(),
   })
   const [deleteQuotation] = useDeleteQuotationMutation()
   const [updateQuotationStatus, { isLoading: isUpdatingStatus }] =
@@ -255,6 +263,11 @@ const Quotations = () => {
 
     return { totalValue, totalProfit, acceptedCount, pendingCount }
   }, [quotations])
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [searchTerm, statusFilter, dateRange])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -491,22 +504,21 @@ const Quotations = () => {
         />
       </div>
 
-      {/* Search and Filters */}
-      <div className='bg-card rounded-xl border border-border'>
-        <div className='p-4 border-b border-border'>
-          <div className='relative max-w-md'>
-            <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
-            <input
-              type='text'
-              placeholder='Search quotations...'
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all'
-            />
-          </div>
-        </div>
+      {/* Filters */}
+      <FilterBar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder='Search quotations...'
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+        statusValue={statusFilter}
+        onStatusChange={setStatusFilter}
+        statusOptions={STATUS_OPTIONS}
+        statusPlaceholder='All Status'
+      />
 
-        {/* Table */}
+      {/* Table */}
+      <div className='bg-card rounded-xl border border-border'>
         {quotations.length === 0 ? (
           <EmptyState onCreateNew={() => router.push('/quotations/create')} />
         ) : (

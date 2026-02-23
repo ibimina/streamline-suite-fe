@@ -1,5 +1,6 @@
 'use client'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
+import { DateRange } from 'react-day-picker'
 import {
   Bar,
   BarChart,
@@ -17,6 +18,7 @@ import {
 } from 'recharts'
 import { CurrencyDollarIcon, PresentationChartLineIcon, UsersIcon } from '../Icons'
 import { useGetDashboardStatsQuery } from '@/store/api'
+import { DateFilter } from '../ui/date-filter'
 
 const COLORS = ['#2563eb', '#3B82F6', '#F97316', '#6B7280', '#8B5CF6', '#EC4899']
 
@@ -47,6 +49,9 @@ const StatCard: React.FC<{
 )
 
 const Analytics: React.FC = () => {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+
+  // Pass date range to query when backend supports it
   const { data, isLoading, isError, refetch } = useGetDashboardStatsQuery()
   const stats = data?.payload
 
@@ -138,9 +143,12 @@ const Analytics: React.FC = () => {
 
   return (
     <div className='space-y-6'>
-      <div>
-        <h1 className='text-3xl font-bold text-foreground'>Analytics & Reporting</h1>
-        <p className='text-muted-foreground mt-1'>Deep dive into your business performance.</p>
+      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+        <div>
+          <h1 className='text-3xl font-bold text-foreground'>Analytics & Reporting</h1>
+          <p className='text-muted-foreground mt-1'>Deep dive into your business performance.</p>
+        </div>
+        <DateFilter value={dateRange} onChange={setDateRange} />
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>

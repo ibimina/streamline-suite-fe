@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { DateRange } from 'react-day-picker'
 import { EXPENSE_CATEGORIES } from '../../types'
 import { PencilIcon, TrashIcon, XIcon, PlusIcon } from '../Icons'
 import {
@@ -28,13 +29,44 @@ import {
 } from '@/schemas/expense.schema'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
+import { FilterBar, FilterOption } from '../shared/FilterBar'
+
+// Status filter options
+const STATUS_OPTIONS: FilterOption[] = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
+]
+
+// Category filter options
+const CATEGORY_OPTIONS: FilterOption[] = EXPENSE_CATEGORIES.map(cat => ({
+  value: cat,
+  label: cat,
+}))
 
 const Expenses: React.FC = () => {
   const [page, setPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const limit = 10
 
   // RTK Query hooks
-  const { data: expensesData, isLoading, isError, refetch } = useGetExpensesQuery({ page, limit })
+  const {
+    data: expensesData,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetExpensesQuery({
+    page,
+    limit,
+    search: searchTerm || undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+    category: categoryFilter !== 'all' ? categoryFilter : undefined,
+    startDate: dateRange?.from?.toISOString(),
+    endDate: dateRange?.to?.toISOString(),
+  })
   const { data: statsData } = useGetExpenseStatsQuery()
   const [createExpense, { isLoading: isCreating }] = useCreateExpenseMutation()
   const [updateExpense, { isLoading: isUpdating }] = useUpdateExpenseMutation()
@@ -43,7 +75,26 @@ const Expenses: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false)
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
+
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null)
+
+  // Wrapper handlers that reset page when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPage(1)
+  }
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setPage(1)
+  }
+  const handleCategoryChange = (value: string) => {
+    setCategoryFilter(value)
+    setPage(1)
+  }
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range)
+    setPage(1)
+  }
 
   const expenses = expensesData?.payload?.data || []
   const stats = statsData?.payload
@@ -155,10 +206,27 @@ const Expenses: React.FC = () => {
         </ResponsiveContainer>
       </div>
 
-      <div className='flex justify-end'>
+      {/* Filters and Add Button */}
+      <div className='flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center'>
+        <FilterBar
+          searchValue={searchTerm}
+          onSearchChange={handleSearchChange}
+          searchPlaceholder='Search expenses...'
+          dateRange={dateRange}
+          onDateRangeChange={handleDateRangeChange}
+          statusValue={statusFilter}
+          onStatusChange={handleStatusChange}
+          statusOptions={STATUS_OPTIONS}
+          statusPlaceholder='All Status'
+          secondaryValue={categoryFilter}
+          onSecondaryChange={handleCategoryChange}
+          secondaryOptions={CATEGORY_OPTIONS}
+          secondaryPlaceholder='All Categories'
+          showSecondary={true}
+        />
         <button
           onClick={() => handleOpenModal()}
-          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center whitespace-nowrap'
         >
           <PlusIcon className='w-5 h-5 mr-2' /> Add New Expense
         </button>
