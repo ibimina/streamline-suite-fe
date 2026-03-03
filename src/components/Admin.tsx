@@ -28,7 +28,7 @@ const Admin: React.FC = () => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deletingUser, setDeletingUser] = useState<User | null>(null)
 
-  const users = usersData?.payload?.data || []
+  const users = usersData?.payload.data || []
 
   const handleOpenModal = (user: User | null = null) => {
     setEditingUser(user)
@@ -143,18 +143,16 @@ const Admin: React.FC = () => {
                   <td className='px-6 py-4'>
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                        user.status === 'active'
+                        user.isActive
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : user.status === 'suspended'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       }`}
                     >
-                      {user.status}
+                      {user.isActive ? 'Active' : 'In active'}
                     </span>
                   </td>
                   <td className='px-6 py-4'>
-                    {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
+                    {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <button

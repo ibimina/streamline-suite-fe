@@ -49,7 +49,6 @@ export const createStaffSchema = z.object({
     .max(100, 'Last name must be less than 100 characters')
     .trim(),
   email: z.string().min(1, 'Email is required').email('Please enter a valid email address').trim(),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
   phone: z.string().optional().or(z.literal('')),
   role: roleNameEnum.optional().default('Staff'),
   position: z
@@ -93,13 +92,7 @@ export const createStaffSchema = z.object({
  * Update Staff Form Schema
  * All fields optional except password which has separate validation
  */
-export const updateStaffSchema = createStaffSchema.omit({ password: true, email: true }).extend({
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .optional()
-    .or(z.literal('')),
-})
+export const updateStaffSchema = createStaffSchema.omit({ email: true })
 
 /**
  * Type inference for form data

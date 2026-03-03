@@ -20,11 +20,11 @@ function CreateQuotationContent() {
 
   const [showTemplateSelection, setShowTemplateSelection] = useState(!duplicateId)
   const [templateConfig, setTemplateConfig] = useState<{
-    template: Template
-    accentColor: AccentColor
+    templateName: Template
+    accentColor: AccentColor | string
     customTemplate?: CustomTemplate
   } | null>({
-    template: 'classic',
+    templateName: 'classic',
     accentColor: 'teal',
   })
 
@@ -61,8 +61,8 @@ function CreateQuotationContent() {
       const source = duplicateData.payload
       if (source.template || source.accentColor) {
         return {
-          template: (source.template as Template) || 'classic',
-          accentColor: (source.accentColor as AccentColor) || 'teal',
+          templateName: (source.template as Template) || 'classic',
+          accentColor: (source.accentColor as AccentColor | string) || 'teal',
         }
       }
     }
@@ -71,10 +71,10 @@ function CreateQuotationContent() {
 
   const handleTemplateSelected = (
     template: Template,
-    accentColor: AccentColor,
+    accentColor: AccentColor | string,
     customTemplate?: CustomTemplate
   ) => {
-    setTemplateConfig({ template, accentColor, customTemplate })
+    setTemplateConfig({ templateName: template, accentColor, customTemplate })
     setShowTemplateSelection(false)
   }
 
@@ -135,10 +135,10 @@ function CreateQuotationContent() {
             )}
             Selected template:{' '}
             <span className='font-medium'>
-              {effectiveTemplateConfig?.template === 'custom' &&
+              {effectiveTemplateConfig?.templateName === 'custom' &&
               effectiveTemplateConfig.customTemplate
                 ? effectiveTemplateConfig.customTemplate.name
-                : effectiveTemplateConfig?.template || 'Classic'}
+                : effectiveTemplateConfig?.templateName || 'Classic'}
             </span>
           </p>
         </div>

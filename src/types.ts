@@ -28,18 +28,12 @@ export interface TemplatePlaceholder {
 }
 
 export interface CustomTemplate {
-  id: string
+  id?: string
   name: string
   description?: string
   thumbnailUrl?: string
-  templateFile: File | string // PDF file or base64
-  placeholders: TemplatePlaceholder[]
-  dimensions: {
-    width: number
-    height: number
-  }
-  createdAt: string
-  updatedAt: string
+  imageUrl?: string
+  templateFile?: File | string // Image file or base64
 }
 
 export interface TemplateMapping {
@@ -73,7 +67,17 @@ export interface TemplateMapping {
   notes?: string
   watermark?: string
 }
-export type AccentColor = 'teal' | 'blue' | 'crimson' | 'slate'
+export type AccentColor =
+  | 'teal'
+  | 'blue'
+  | 'crimson'
+  | 'slate'
+  | 'purple'
+  | 'emerald'
+  | 'orange'
+  | 'pink'
+  | 'indigo'
+  | 'amber'
 
 export interface LineItem {
   id: string
@@ -132,14 +136,20 @@ export interface TaxReport {
 }
 
 export const EXPENSE_CATEGORIES = [
-  'Rent',
-  'Utilities',
-  'Salaries',
-  'Marketing',
-  'Supplies',
-  'Travel',
-  'Delivery',
-  'Other',
+  'rent',
+  'utilities',
+  'salaries',
+  'marketing',
+  'supplies',
+  'travel',
+  'delivery',
+  'equipment',
+  'maintenance',
+  'insurance',
+  'taxes',
+  'professional_services',
+  'software',
+  'other',
 ] as const
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number]
 

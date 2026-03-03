@@ -14,9 +14,9 @@ interface ProductQueryParams {
 
 // Response types
 interface ProductResponse {
-  payload: {
-    product: Product
-  }
+  payload: Product
+  message: string
+  status: number
 }
 
 interface ProductsResponse {

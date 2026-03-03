@@ -18,6 +18,8 @@ import {
   QuotationFormData,
   QuotationItemFormData,
 } from '@/schemas/quotation.schema'
+import { DEFAULT_QUOTATION_TERMS } from '@/contants'
+import { useCurrency } from '@/hooks/useCurrency'
 import { Template, AccentColor, CustomTemplate } from '@/types'
 import { useRouter } from 'next/navigation'
 import { Quotation } from '@/types/quotation.type'
@@ -103,19 +105,12 @@ const CheckCircleIcon = ({ className }: { className?: string }) => (
 interface QuotationFormProps {
   quotation?: Quotation
   templateConfig?: {
-    template: Template
-    accentColor: AccentColor
+    templateName: Template
+    accentColor: AccentColor | string
     customTemplate?: CustomTemplate
   }
   isDuplicate?: boolean
 }
-
-const defaultTerms = `
-1. This quotation is valid for 30 days from the date of issue.
-2. Payment terms: Net 30 days.
-3. All prices are exclusive of VAT unless otherwise stated.
-4. Acceptance of this quotation constitutes agreement to our terms and conditions.
-`
 
 // Move defaultItem outside the component to avoid useEffect dependency issues
 const defaultItem: QuotationItemFormData = {
@@ -171,6 +166,7 @@ export default function QuotationForm({
     }
   }, [])
   const router = useRouter()
+  const { formatCurrency } = useCurrency()
 
   // Fetch customers and products from API
   const { data: customersData } = useGetCustomersQuery()
@@ -212,9 +208,9 @@ export default function QuotationForm({
       issuedDate: defaultDates.issuedDate,
       validUntil: defaultDates.validUntil,
       notes: '',
-      terms: defaultTerms,
+      terms: DEFAULT_QUOTATION_TERMS,
       whtRate: 5,
-      template: templateConfig?.template,
+      templateName: templateConfig?.templateName,
       accentColor: templateConfig?.accentColor,
     },
   })
@@ -246,14 +242,27 @@ export default function QuotationForm({
         status: normalizeStatus(quotation.status),
         issuedDate: formatDate(quotation.issuedDate) || defaultDates.issuedDate,
         validUntil: formatDate(quotation.validUntil) || defaultDates.validUntil,
+
         notes: quotation.notes || '',
-        terms: quotation.terms || defaultTerms,
+        terms: quotation.terms || DEFAULT_QUOTATION_TERMS,
         whtRate: quotation.whtRate ?? 5,
-        template: templateConfig?.template || quotation.template,
+        templateName: templateConfig?.templateName || quotation.templateName,
+        template: quotation?.template?._id || undefined,
         accentColor: templateConfig?.accentColor || quotation.accentColor,
       })
     }
   }, [quotation, customers, reset, templateConfig, defaultDates])
+
+  // Update template fields when templateConfig changes (for new quotations)
+  useEffect(() => {
+    if (templateConfig?.templateName) {
+      setValue('templateName', templateConfig.templateName)
+      setValue('template', templateConfig.templateName)
+    }
+    if (templateConfig?.accentColor) {
+      setValue('accentColor', templateConfig.accentColor)
+    }
+  }, [templateConfig, setValue])
 
   // useFieldArray for dynamic line items
   const { fields, append, remove } = useFieldArray({
@@ -392,7 +401,7 @@ export default function QuotationForm({
 
   const onSubmit = async (data: QuotationFormData) => {
     // Prepare data for backend
-    const quotationData: QuotationFormData = {
+    const quotationData: any = {
       customer: data.customer,
       items: data.items.map(item => ({
         product: item.product,
@@ -407,7 +416,9 @@ export default function QuotationForm({
       validUntil: data.validUntil,
       notes: data.notes,
       terms: data.terms,
-      template: data.template,
+      templateName: data.templateName,
+      // Use new custom template if selected, otherwise preserve existing or use form value
+      template: templateConfig?.customTemplate?.id || data.template || undefined,
       accentColor: data.accentColor,
       whtRate: data.whtRate,
       issuedDate: data.issuedDate || defaultDates.issuedDate,
@@ -636,15 +647,15 @@ export default function QuotationForm({
               </div>
               <div>
                 <label
-                  htmlFor='template'
+                  htmlFor='templateName'
                   className='block text-sm font-medium text-secondary-foreground mb-2'
                 >
                   Template
                 </label>
                 <input
                   type='text'
-                  id='template'
-                  {...register('template')}
+                  id='templateName'
+                  {...register('templateName')}
                   placeholder='e.g., Professional, Modern'
                   className='w-full px-4 py-3 border border-border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500  '
                 />
@@ -744,7 +755,7 @@ export default function QuotationForm({
                               <option value=''>Select Product (Optional)</option>
                               {products.map(product => (
                                 <option key={product._id} value={product._id}>
-                                  {product.name} - ₦{product.sellingPrice.toLocaleString()}
+                                  {product.name} - {formatCurrency(product.sellingPrice)}
                                 </option>
                               ))}
                             </select>
@@ -851,10 +862,7 @@ export default function QuotationForm({
                       </td>
                       <td className='px-3 py-4 text-right'>
                         <span className='text-sm font-semibold text-foreground'>
-                          ₦
-                          {calculatedItem?.lineTotal?.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                          }) || '0.00'}
+                          {formatCurrency(calculatedItem?.lineTotal)}
                         </span>
                       </td>
                       <td className='px-3 py-4 text-right'>
@@ -865,11 +873,7 @@ export default function QuotationForm({
                               : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
                           }`}
                         >
-                          ₦
-                          {calculatedItem?.lineProfit?.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }) || '0.00'}
+                          {formatCurrency(calculatedItem?.lineProfit)}
                         </span>
                       </td>
                       <td className='px-3 py-4 text-center'>
@@ -916,11 +920,7 @@ export default function QuotationForm({
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Subtotal</span>
                     <span className='font-semibold text-foreground text-lg'>
-                      ₦
-                      {calculatedValues.subtotal.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(calculatedValues.subtotal)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
@@ -929,22 +929,14 @@ export default function QuotationForm({
                       VAT ({calculatedValues.vatRate.toFixed(1)}%)
                     </span>
                     <span className='font-medium text-blue-600 dark:text-blue-400'>
-                      +₦
-                      {calculatedValues.totalVat.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      +{formatCurrency(calculatedValues.totalVat)}
                     </span>
                   </div>
                   <div className='border-t border-border pt-4'>
                     <div className='flex justify-between items-center'>
                       <span className='text-foreground font-semibold text-lg'>Grand Total</span>
                       <span className='font-bold text-2xl text-foreground'>
-                        ₦
-                        {calculatedValues.grandTotal.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {formatCurrency(calculatedValues.grandTotal)}
                       </span>
                     </div>
                   </div>
@@ -978,32 +970,20 @@ export default function QuotationForm({
                       <span className='text-muted-foreground'>%</span>
                     </span>
                     <span className='font-medium text-red-600 dark:text-red-400 flex items-center gap-1'>
-                      <span className='w-2 h-2 rounded-full bg-red-500'></span>
-                      -₦
-                      {calculatedValues.totalWht.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      <span className='w-2 h-2 rounded-full bg-red-500'></span>-
+                      {formatCurrency(calculatedValues.totalWht)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Net Receivable</span>
                     <span className='font-semibold text-foreground'>
-                      ₦
-                      {calculatedValues.netReceivableTotal.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(calculatedValues.netReceivableTotal)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Total Cost</span>
                     <span className='font-medium text-secondary-foreground'>
-                      ₦
-                      {calculatedValues.totalCost.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(calculatedValues.totalCost)}
                     </span>
                   </div>
                   <div className='border-t border-border pt-4'>
@@ -1018,11 +998,7 @@ export default function QuotationForm({
                             : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
                         }`}
                       >
-                        ₦
-                        {calculatedValues.totalProfit.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {formatCurrency(calculatedValues.totalProfit)}
                       </span>
                     </div>
                   </div>

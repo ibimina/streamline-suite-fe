@@ -123,6 +123,7 @@ export const expenseApi = baseApi.injectEndpoints({
         { type: 'Expense', id: 'LIST' },
         { type: 'Expense', id: 'STATS' },
         { type: 'Dashboard', id: 'STATS' },
+        { type: 'Product', id: 'LIST' },
       ],
     }),
 

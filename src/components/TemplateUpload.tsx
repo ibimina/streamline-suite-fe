@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
-import { CustomTemplate, TemplatePlaceholder } from '../types'
-import { addCustomTemplate } from '../store/slices/companySlice'
-import { useAppDispatch } from '@/store/hooks'
+import Image from 'next/image'
+import { CustomTemplate } from '../types'
+import { useUploadTemplateMutation } from '@/store/api'
+import { toast } from 'react-toastify'
 
 interface TemplateUploadProps {
   onClose: () => void
@@ -9,14 +10,13 @@ interface TemplateUploadProps {
 }
 
 export default function TemplateUpload({ onClose, onTemplateUploaded }: TemplateUploadProps) {
-  const dispatch = useAppDispatch()
+  const [uploadTemplate, { isLoading: isUploading }] = useUploadTemplateMutation()
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>('')
-  const [placeholders, setPlaceholders] = useState<TemplatePlaceholder[]>([])
-  const [currentStep, setCurrentStep] = useState<'upload' | 'placeholders' | 'preview'>('upload')
+  const [currentStep, setCurrentStep] = useState<'upload' | 'preview'>('upload')
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -35,7 +35,7 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      toast.warning('Please select an image file (PNG, JPG, etc.)')
       return
     }
 
@@ -43,191 +43,55 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
     setIsProcessing(true)
 
     try {
-      // Create preview URL for the PDF
       const url = URL.createObjectURL(file)
       setPreviewUrl(url)
-
-      // For now, we'll set some default placeholders
-      // In a real implementation, you'd use PDF parsing libraries
-      const defaultPlaceholders: TemplatePlaceholder[] = [
-        {
-          id: 'documentTitle',
-          type: 'text',
-          x: 450,
-          y: 160, // Moved down from 30 to avoid letterhead
-          fontSize: 24,
-          fontWeight: 'bold',
-          align: 'right',
-        },
-        {
-          id: 'companyName',
-          type: 'text',
-          x: 50,
-          y: 50,
-          fontSize: 18,
-          fontWeight: 'bold',
-          align: 'left',
-        },
-        {
-          id: 'companyAddress',
-          type: 'text',
-          x: 50,
-          y: 80,
-          fontSize: 10,
-          align: 'left',
-        },
-        {
-          id: 'documentNumber',
-          type: 'text',
-          x: 550,
-          y: 180, // Moved down to align with title
-          fontSize: 12,
-          align: 'right',
-        },
-        {
-          id: 'documentDate',
-          type: 'date',
-          x: 550,
-          y: 155, // Moved down to align with document number
-          fontSize: 10,
-          align: 'right',
-          format: 'MM/DD/YYYY',
-        },
-        {
-          id: 'customerName',
-          type: 'text',
-          x: 50,
-          y: 200, // Moved down to give more space
-          fontSize: 12,
-          fontWeight: 'bold',
-        },
-        {
-          id: 'customerAddress',
-          type: 'text',
-          x: 50,
-          y: 220, // Moved down accordingly
-          fontSize: 10,
-          maxLines: 3,
-        },
-        {
-          id: 'itemsTable',
-          type: 'table',
-          x: 50,
-          y: 260, // Moved down to give space for customer info
-          width: 550,
-          height: 200,
-        },
-        {
-          id: 'subtotal',
-          type: 'text',
-          x: 550,
-          y: 470, // Moved down accordingly
-          fontSize: 10,
-          align: 'right',
-        },
-        {
-          id: 'vat',
-          type: 'text',
-          x: 550,
-          y: 490, // Moved down accordingly
-          fontSize: 10,
-          align: 'right',
-        },
-        {
-          id: 'total',
-          type: 'text',
-          x: 550,
-          y: 510, // Moved down accordingly
-          fontSize: 14,
-          fontWeight: 'bold',
-          align: 'right',
-        },
-        {
-          id: 'terms',
-          type: 'text',
-          x: 50,
-          y: 550, // Moved down accordingly
-          fontSize: 10,
-          maxLines: 10,
-          width: 500,
-        },
-      ]
-
-      setPlaceholders(defaultPlaceholders)
-      setCurrentStep('placeholders')
     } catch (error) {
-      console.error('Error processing file:', error)
-      alert('Error processing the PDF file')
+      toast.error('Error processing the image file')
     } finally {
       setIsProcessing(false)
     }
   }
 
-  const updatePlaceholder = (id: string, updates: Partial<TemplatePlaceholder>) => {
-    setPlaceholders(prev =>
-      prev.map(placeholder =>
-        placeholder.id === id ? { ...placeholder, ...updates } : placeholder
-      )
-    )
-  }
-
-  const addCustomPlaceholder = () => {
-    const newPlaceholder: TemplatePlaceholder = {
-      id: `custom_${Date.now()}`,
-      type: 'text',
-      x: 100,
-      y: 100,
-      fontSize: 10,
-      align: 'left',
-    }
-    setPlaceholders(prev => [...prev, newPlaceholder])
-  }
-
-  const removePlaceholder = (id: string) => {
-    setPlaceholders(prev => prev.filter(p => p.id !== id))
-  }
-
   const handleSaveTemplate = async () => {
     if (!selectedFile || !templateName.trim()) {
-      alert('Please provide a template name and select a file')
+      toast.warning('Please provide a template name and select a file')
       return
     }
 
     try {
-      // Convert file to base64 for serializable storage
+      // Convert file to base64 for API upload
       const base64File = await fileToBase64(selectedFile)
 
-      const customTemplate: CustomTemplate = {
-        id: `custom_${Date.now()}`,
+      // Call the backend API to upload template
+      const response = await uploadTemplate({
+        file: base64File,
+        imagePath: `templates/${templateName.trim().replace(/\s+/g, '-').toLowerCase()}`,
+        resourceType: 'image',
         name: templateName.trim(),
         description: templateDescription.trim(),
-        templateFile: base64File,
-        placeholders,
-        dimensions: {
-          width: 595, // A4 width in points
-          height: 842, // A4 height in points
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      }).unwrap()
+
+      // Create template object from API response
+      const customTemplate: CustomTemplate = {
+        id: response.payload.template._id,
+        name: response.payload.template.name,
+        description: response.payload.template.description || '',
+        imageUrl: response.payload.template.imageUrl,
       }
 
-      // Save to Redux store
-      dispatch(addCustomTemplate(customTemplate))
-
-      // Also call the callback for immediate UI update
+      // Notify parent component
       onTemplateUploaded(customTemplate)
       onClose()
     } catch (error) {
-      console.error('Error saving custom template:', error)
-      alert('Failed to save custom template. Please try again.')
+      toast.error('Failed to save custom template. Please try again.')
     }
   }
 
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
-      <div className='bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
+    <div className='fixed inset-0 bg-black/20 flex items-center justify-center z-50'>
+      <div className='bg-white dark:bg-card rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
         <div className='flex justify-between items-center mb-6'>
-          <h2 className='text-2xl font-bold'>Upload Custom Template</h2>
+          <h2 className='text-2xl font-bold'>Upload Letterhead Template</h2>
           <button
             onClick={onClose}
             className='text-muted-foreground hover:text-secondary-foreground text-2xl'
@@ -254,21 +118,6 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
           </div>
           <div className='flex-1 h-0.5 bg-muted mx-4'></div>
           <div
-            className={`flex items-center ${currentStep === 'placeholders' ? 'text-blue-600' : 'text-muted-foreground'}`}
-          >
-            <div
-              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
-                currentStep === 'placeholders'
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-border'
-              }`}
-            >
-              2
-            </div>
-            <span className='ml-2 font-medium'>Configure</span>
-          </div>
-          <div className='flex-1 h-0.5 bg-muted mx-4'></div>
-          <div
             className={`flex items-center ${currentStep === 'preview' ? 'text-blue-600' : 'text-muted-foreground'}`}
           >
             <div
@@ -278,257 +127,224 @@ export default function TemplateUpload({ onClose, onTemplateUploaded }: Template
                   : 'border-border'
               }`}
             >
-              3
+              2
             </div>
-            <span className='ml-2 font-medium'>Save</span>
+            <span className='ml-2 font-medium'>Preview & Save</span>
           </div>
         </div>
 
         {/* Step 1: Upload */}
         {currentStep === 'upload' && (
-          <div className='space-y-4'>
-            <div>
-              <label className='block text-sm font-medium mb-2'>Template Name *</label>
-              <input
-                type='text'
-                value={templateName}
-                onChange={e => setTemplateName(e.target.value)}
-                className='w-full border rounded-lg px-3 py-2'
-                placeholder='e.g., Corporate Letterhead'
-              />
-            </div>
-
-            <div>
-              <label className='block text-sm font-medium mb-2'>Description</label>
-              <textarea
-                value={templateDescription}
-                onChange={e => setTemplateDescription(e.target.value)}
-                className='w-full border rounded-lg px-3 py-2'
-                rows={3}
-                placeholder='Brief description of this template...'
-              />
-            </div>
-
-            <div>
-              <label className='block text-sm font-medium mb-2'>
-                Template File (PDF or Image) *
-              </label>
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className='border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-blue-400'
-              >
-                {selectedFile ? (
-                  <div>
-                    <p className='text-green-600 font-medium'>{selectedFile.name}</p>
-                    <p className='text-sm text-muted-foreground'>Click to change file</p>
-                  </div>
-                ) : (
-                  <div>
-                    <p className='text-muted-foreground'>Click to upload image template</p>
-                    <p className='text-sm text-muted-foreground'>image files only</p>
-                  </div>
-                )}
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            {/* Left: Form Fields */}
+            <div className='space-y-4'>
+              <div>
+                <label className='block text-sm font-medium mb-2'>Template Name *</label>
+                <input
+                  type='text'
+                  value={templateName}
+                  onChange={e => setTemplateName(e.target.value)}
+                  className='w-full border rounded-lg px-3 py-2'
+                  placeholder='e.g., Corporate Letterhead'
+                />
               </div>
-              <input
-                ref={fileInputRef}
-                type='file'
-                accept='image/*'
-                onChange={handleFileSelect}
-                className='hidden'
-              />
-            </div>
 
-            {isProcessing && (
-              <div className='text-center py-4'>
-                <div className='inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
-                <p className='mt-2 text-muted-foreground'>Processing template...</p>
+              <div>
+                <label className='block text-sm font-medium mb-2'>Description</label>
+                <textarea
+                  value={templateDescription}
+                  onChange={e => setTemplateDescription(e.target.value)}
+                  className='w-full border rounded-lg px-3 py-2'
+                  rows={3}
+                  placeholder='Brief description of this template...'
+                />
               </div>
-            )}
 
-            <div className='flex justify-end'>
-              <button
-                onClick={() => setCurrentStep('placeholders')}
-                disabled={!selectedFile || !templateName.trim()}
-                className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed'
-              >
-                Next: Configure Placeholders
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Configure Placeholders */}
-        {currentStep === 'placeholders' && (
-          <div className='space-y-4'>
-            <div className='flex justify-between items-center'>
-              <h3 className='text-lg font-medium'>Configure Content Placeholders</h3>
-              <button
-                onClick={addCustomPlaceholder}
-                className='bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm'
-              >
-                Add Custom Placeholder
-              </button>
-            </div>
-
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-              <div className='space-y-3'>
-                <h4 className='font-medium'>Placeholders</h4>
-                <div className='max-h-96 overflow-y-auto space-y-3'>
-                  {placeholders.map(placeholder => (
-                    <div key={placeholder.id} className='border rounded-lg p-4 bg-muted'>
-                      <div className='flex justify-between items-start mb-3'>
-                        <span className='font-medium text-sm'>{placeholder.id}</span>
-                        <button
-                          onClick={() => removePlaceholder(placeholder.id)}
-                          className='text-red-500 hover:text-red-700 text-sm'
-                        >
-                          Remove
-                        </button>
-                      </div>
-
-                      <div className='grid grid-cols-2 gap-3 text-sm'>
-                        <div>
-                          <label className='block text-xs font-medium mb-1'>Type</label>
-                          <select
-                            value={placeholder.type}
-                            onChange={e =>
-                              updatePlaceholder(placeholder.id, { type: e.target.value as any })
-                            }
-                            className='w-full border rounded px-2 py-1 text-xs'
-                          >
-                            <option value='text'>Text</option>
-                            <option value='image'>Image</option>
-                            <option value='table'>Table</option>
-                            <option value='currency'>Currency</option>
-                            <option value='date'>Date</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className='block text-xs font-medium mb-1'>Position X</label>
-                          <input
-                            type='number'
-                            value={placeholder.x}
-                            onChange={e =>
-                              updatePlaceholder(placeholder.id, { x: Number(e.target.value) })
-                            }
-                            className='w-full border rounded px-2 py-1 text-xs'
-                          />
-                        </div>
-
-                        <div>
-                          <label className='block text-xs font-medium mb-1'>Position Y</label>
-                          <input
-                            type='number'
-                            value={placeholder.y}
-                            onChange={e =>
-                              updatePlaceholder(placeholder.id, { y: Number(e.target.value) })
-                            }
-                            className='w-full border rounded px-2 py-1 text-xs'
-                          />
-                        </div>
-
-                        <div>
-                          <label className='block text-xs font-medium mb-1'>Font Size</label>
-                          <input
-                            type='number'
-                            value={placeholder.fontSize || 10}
-                            onChange={e =>
-                              updatePlaceholder(placeholder.id, {
-                                fontSize: Number(e.target.value),
-                              })
-                            }
-                            className='w-full border rounded px-2 py-1 text-xs'
-                          />
-                        </div>
-                      </div>
+              <div>
+                <label className='block text-sm font-medium mb-2'>Letterhead Image *</label>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className='border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors'
+                >
+                  {selectedFile ? (
+                    <div>
+                      <p className='text-green-600 font-medium'>{selectedFile.name}</p>
+                      <p className='text-sm text-muted-foreground'>Click to change file</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className='space-y-3'>
-                <h4 className='font-medium'>Template Preview</h4>
-                <div className='border rounded-lg p-4 bg-muted min-h-96'>
-                  {previewUrl ? (
-                    <iframe
-                      src={previewUrl}
-                      className='w-full h-96 border rounded'
-                      title='Template Preview'
-                    />
                   ) : (
-                    <div className='h-96 flex items-center justify-center text-muted-foreground'>
-                      PDF preview will appear here
+                    <div>
+                      <svg
+                        className='w-10 h-10 mx-auto mb-2 text-muted-foreground'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
+                        />
+                      </svg>
+                      <p className='text-muted-foreground'>Click to upload letterhead image</p>
+                      <p className='text-sm text-muted-foreground'>
+                        PNG, JPG (recommended: A4 size)
+                      </p>
                     </div>
                   )}
                 </div>
+                <input
+                  ref={fileInputRef}
+                  type='file'
+                  accept='image/*'
+                  onChange={handleFileSelect}
+                  className='hidden'
+                />
+              </div>
+
+              {isProcessing && (
+                <div className='text-center py-4'>
+                  <div className='inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600'></div>
+                  <p className='mt-2 text-muted-foreground'>Processing image...</p>
+                </div>
+              )}
+
+              <div className='bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3'>
+                <p className='text-sm text-blue-700 dark:text-blue-300'>
+                  💡 Your letterhead image will be used as a background for invoices and quotations.
+                  Invoice content will be placed automatically using standard positioning.
+                </p>
+              </div>
+
+              <div className='flex justify-end pt-2'>
+                <button
+                  onClick={() => setCurrentStep('preview')}
+                  disabled={!selectedFile || !templateName.trim()}
+                  className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed'
+                >
+                  Next: Preview
+                </button>
               </div>
             </div>
 
-            <div className='flex justify-between'>
-              <button
-                onClick={() => setCurrentStep('upload')}
-                className='border border-border text-secondary-foreground px-6 py-2 rounded-lg hover:bg-muted'
+            {/* Right: Preview */}
+            <div className='space-y-3'>
+              <h4 className='font-medium'>Template Preview</h4>
+              <div
+                className='border rounded-lg bg-muted overflow-hidden relative'
+                style={{ aspectRatio: '210/297' }}
               >
-                Back
-              </button>
-              <button
-                onClick={() => setCurrentStep('preview')}
-                className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700'
-              >
-                Next: Preview & Save
-              </button>
+                {previewUrl ? (
+                  <Image
+                    src={previewUrl}
+                    alt='Template Preview'
+                    className='w-full h-full object-contain'
+                    fill
+                    unoptimized
+                  />
+                ) : (
+                  <div className='h-full flex items-center justify-center text-muted-foreground'>
+                    <div className='text-center'>
+                      <svg
+                        className='w-12 h-12 mx-auto mb-2 text-muted-foreground/50'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={1.5}
+                          d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                        />
+                      </svg>
+                      <p>Preview will appear here</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Step 3: Preview & Save */}
+        {/* Step 2: Preview & Save */}
         {currentStep === 'preview' && (
           <div className='space-y-4'>
-            <h3 className='text-lg font-medium'>Review Template</h3>
-
-            <div className='bg-muted rounded-lg p-4'>
-              <h4 className='font-medium mb-2'>Template Details</h4>
-              <div className='grid grid-cols-2 gap-4 text-sm'>
-                <div>
-                  <span className='font-medium'>Name:</span> {templateName}
-                </div>
-                <div>
-                  <span className='font-medium'>File:</span> {selectedFile?.name}
-                </div>
-                <div className='col-span-2'>
-                  <span className='font-medium'>Description:</span>{' '}
-                  {templateDescription || 'No description'}
-                </div>
-                <div>
-                  <span className='font-medium'>Placeholders:</span> {placeholders.length}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* Left: Full Preview */}
+              <div className='space-y-3'>
+                <h4 className='font-medium'>Full Template Preview</h4>
+                <div
+                  className='border rounded-lg bg-white dark:bg-muted overflow-hidden shadow-sm relative'
+                  style={{ aspectRatio: '210/297' }}
+                >
+                  {previewUrl && (
+                    <Image
+                      src={previewUrl}
+                      alt='Template Preview'
+                      className='w-full h-full object-contain'
+                      fill
+                      unoptimized
+                    />
+                  )}
                 </div>
               </div>
-            </div>
 
-            <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
-              <h4 className='font-medium text-blue-800 mb-2'>How it works:</h4>
-              <ul className='text-sm text-blue-700 space-y-1'>
-                <li>• Your PDF template will be used as the base design</li>
-                <li>• Content will be dynamically placed at the configured positions</li>
-                <li>• You can modify placeholder positions anytime</li>
-                <li>• The template will appear in your template selection options</li>
-              </ul>
-            </div>
+              {/* Right: Details */}
+              <div className='space-y-4'>
+                <div className='bg-muted rounded-lg p-4'>
+                  <h4 className='font-medium mb-3'>Template Details</h4>
+                  <div className='space-y-3 text-sm'>
+                    <div>
+                      <span className='font-medium text-muted-foreground'>Name:</span>
+                      <p className='mt-1'>{templateName}</p>
+                    </div>
+                    <div>
+                      <span className='font-medium text-muted-foreground'>File:</span>
+                      <p className='mt-1'>{selectedFile?.name}</p>
+                    </div>
+                    <div>
+                      <span className='font-medium text-muted-foreground'>Description:</span>
+                      <p className='mt-1'>{templateDescription || 'No description'}</p>
+                    </div>
+                  </div>
+                </div>
 
-            <div className='flex justify-between'>
-              <button
-                onClick={() => setCurrentStep('placeholders')}
-                className='border border-border text-secondary-foreground px-6 py-2 rounded-lg hover:bg-muted'
-              >
-                Back
-              </button>
-              <button
-                onClick={handleSaveTemplate}
-                className='bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700'
-              >
-                Save Template
-              </button>
+                <div className='bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4'>
+                  <h4 className='font-medium text-blue-800 dark:text-blue-300 mb-2'>
+                    How it works:
+                  </h4>
+                  <ul className='text-sm text-blue-700 dark:text-blue-300 space-y-1'>
+                    <li>• Your letterhead will be used as the background</li>
+                    <li>• Invoice/quotation content is placed automatically</li>
+                    <li>• The template will appear in your template selection</li>
+                  </ul>
+                </div>
+
+                <div className='flex justify-between pt-4'>
+                  <button
+                    onClick={() => setCurrentStep('upload')}
+                    disabled={isUploading}
+                    className='border border-border text-secondary-foreground px-6 py-2 rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleSaveTemplate}
+                    disabled={isUploading}
+                    className='bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2'
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
+                        Uploading...
+                      </>
+                    ) : (
+                      'Save Template'
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

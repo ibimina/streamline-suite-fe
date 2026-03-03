@@ -136,14 +136,12 @@ const Staff: React.FC = () => {
                   </span>
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                      member.status === 'active'
+                      member.isActive
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : member.status === 'terminated'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     }`}
                   >
-                    {member.status}
+                    {member.isActive ? 'Active' : 'Deactivated'}
                   </span>
                 </div>
               </div>
@@ -253,7 +251,6 @@ const StaffModal: React.FC<{
         ? new Date(staffMember.hireDate).toISOString().split('T')[0]
         : '',
       address: staffMember?.address || '',
-      password: '',
     },
   })
 
@@ -366,17 +363,6 @@ const StaffModal: React.FC<{
               {errors.hireDate && <InputErrorWrapper message={errors.hireDate.message || ''} />}
             </div>
           </div>
-          {!isEditing && (
-            <div>
-              <input
-                type='password'
-                {...register('password')}
-                placeholder='Password (min 8 characters)'
-                className='p-2 w-full border rounded  '
-              />
-              {errors.password && <InputErrorWrapper message={errors.password.message || ''} />}
-            </div>
-          )}
           <div>
             <input
               type='text'

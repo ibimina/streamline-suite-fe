@@ -41,8 +41,11 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
   } = useForm<InventoryTransactionFormData>({
     resolver: zodResolver(inventoryTransactionSchema),
     defaultValues: {
-      product: transaction?.product || '',
-      transactionType: transaction?.transactionType || 'stock_in',
+      product:
+        typeof transaction?.product === 'object'
+          ? transaction.product._id
+          : transaction?.product || '',
+      status: transaction?.status || 'purchase',
       quantity: transaction?.quantity || 1,
       unitCost: transaction?.unitCost || 0,
       reference: transaction?.reference || '',
@@ -59,10 +62,22 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
   const quantity = watch('quantity') || 0
 
   const transactionTypes = [
-    { value: 'stock_in', label: 'Stock In', color: 'bg-green-100 text-green-800' },
-    { value: 'stock_out', label: 'Stock Out', color: 'bg-blue-100 text-blue-800' },
+    { value: 'purchase', label: 'Purchase', color: 'bg-green-100 text-green-800' },
+    { value: 'sale', label: 'Sale', color: 'bg-blue-100 text-blue-800' },
+    {
+      value: 'return_from_customer',
+      label: 'Return from Customer',
+      color: 'bg-teal-100 text-teal-800',
+    },
+    {
+      value: 'return_to_supplier',
+      label: 'Return to Supplier',
+      color: 'bg-orange-100 text-orange-800',
+    },
     { value: 'adjustment', label: 'Adjustment', color: 'bg-yellow-100 text-yellow-800' },
     { value: 'transfer', label: 'Transfer', color: 'bg-purple-100 text-purple-800' },
+    { value: 'production_in', label: 'Production In', color: 'bg-indigo-100 text-indigo-800' },
+    { value: 'production_out', label: 'Production Out', color: 'bg-rose-100 text-rose-800' },
   ]
 
   const onSubmit = async (data: InventoryTransactionFormData) => {
@@ -149,14 +164,14 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
             {/* Transaction Type */}
             <div>
               <label
-                htmlFor='transactionType'
+                htmlFor='status'
                 className='block text-sm font-medium text-secondary-foreground mb-1'
               >
                 Transaction Type *
               </label>
               <select
-                id='transactionType'
-                {...register('transactionType')}
+                id='status'
+                {...register('status')}
                 className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               >
                 {transactionTypes.map(type => (
@@ -165,8 +180,8 @@ const InventoryTransactionForm: React.FC<InventoryTransactionFormProps> = ({
                   </option>
                 ))}
               </select>
-              {errors.transactionType && (
-                <p className='text-red-500 text-sm mt-1'>{errors.transactionType.message}</p>
+              {errors.status && (
+                <p className='text-red-500 text-sm mt-1'>{errors.status.message}</p>
               )}
             </div>
 

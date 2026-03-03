@@ -20,7 +20,7 @@ export const userApi = baseApi.injectEndpoints({
         return `${PORTAL_BASE_PATH}/users${queryString ? `?${queryString}` : ''}`
       },
       providesTags: result =>
-        result
+        result?.payload?.data
           ? [
               ...result.payload.data.map(({ _id }) => ({
                 type: 'User' as const,

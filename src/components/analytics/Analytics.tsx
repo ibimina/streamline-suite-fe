@@ -17,9 +17,10 @@ import {
   Cell,
 } from 'recharts'
 import { CurrencyDollarIcon, PresentationChartLineIcon, UsersIcon } from '../Icons'
-import { useGetDashboardStatsQuery } from '@/store/api'
+import { useGetAnalyticsQuery } from '@/store/api'
 import { DateFilter } from '../ui/date-filter'
 import { useChartColors, useChartColorArray } from '@/hooks/useChartColors'
+import { useCurrency } from '@/hooks/useCurrency'
 
 const StatCard: React.FC<{
   title: string
@@ -51,82 +52,62 @@ const Analytics: React.FC = () => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const chartColors = useChartColors()
   const colorArray = useChartColorArray()
+  const { formatCurrency } = useCurrency()
 
-  // Pass date range to query when backend supports it
-  const { data, isLoading, isError, refetch } = useGetDashboardStatsQuery()
+  // Use the dedicated analytics API
+  const { data, isLoading, isError, refetch } = useGetAnalyticsQuery()
   const stats = data?.payload
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
-
+  const kpis = stats?.kpis
   const kpiData = useMemo(() => {
-    if (!stats) return []
-
-    const avgSaleValue =
-      stats.totalInvoicesYTD > 0 ? stats.totalRevenueYTD / stats.totalInvoicesYTD : 0
+    if (!kpis) return []
 
     return [
       {
         title: 'Total Revenue',
-        value: formatCurrency(stats.totalRevenueYTD),
-        change: `${stats.growth?.revenueGrowthPercent >= 0 ? '+' : ''}${(stats.growth?.revenueGrowthPercent || 0).toFixed(1)}% vs last period`,
+        value: formatCurrency(kpis.totalRevenue),
+        change: `${kpis.revenueChange >= 0 ? '+' : ''}${(kpis.revenueChange || 0).toFixed(1)}% vs last period`,
         icon: <CurrencyDollarIcon className='w-7 h-7 text-muted-foreground' />,
       },
       {
         title: 'Net Profit',
-        value: formatCurrency(stats.totalProfitYTD),
-        change: `${(stats.profitMargin || 0).toFixed(1)}% profit margin`,
+        value: formatCurrency(kpis.totalProfit),
+        change: `${kpis.profitChange >= 0 ? '+' : ''}${(kpis.profitChange || 0).toFixed(1)}% vs last period`,
         icon: <PresentationChartLineIcon className='w-7 h-7 text-muted-foreground' />,
       },
       {
         title: 'Avg. Sale Value',
-        value: formatCurrency(avgSaleValue),
-        change: `${stats.totalInvoicesYTD} invoices YTD`,
+        value: formatCurrency(kpis.averageSaleValue),
+        change: `${kpis.avgSaleChange >= 0 ? '+' : ''}${(kpis.avgSaleChange || 0).toFixed(1)}% vs last period`,
         icon: <UsersIcon className='w-7 h-7 text-muted-foreground' />,
       },
     ]
-  }, [stats])
+  }, [kpis, formatCurrency])
 
   // Prepare revenue/profit trend data
-  const salesTrend = stats?.salesTrend
+  const revenueProfitTrend = stats?.revenueProfitTrend
   const revenueProfitData = useMemo(() => {
-    if (!salesTrend) return []
-    return salesTrend.map(item => ({
-      name: item.period,
+    if (!revenueProfitTrend) return []
+    return revenueProfitTrend.map(item => ({
+      name: item.month,
       revenue: item.revenue,
       profit: item.profit,
     }))
-  }, [salesTrend])
+  }, [revenueProfitTrend])
 
-  const topProducts = stats?.topProducts
+  // Sales by service for bar chart
+  const salesByService = stats?.salesByService
   const salesByServiceData = useMemo(() => {
-    if (!topProducts) return []
-    return topProducts.slice(0, 5).map(product => ({
-      name: product.name,
-      sales: product.revenue,
-    }))
-  }, [topProducts])
+    if (!salesByService) return []
+    return salesByService
+  }, [salesByService])
 
+  // Top customers for pie chart
+  const topCustomers = stats?.topCustomers
   const topCustomersData = useMemo(() => {
-    if (!topProducts) return []
-    const total = topProducts.reduce((sum, p) => sum + p.revenue, 0)
-    const topItems = topProducts.slice(0, 3).map(p => ({
-      name: p.name,
-      value: p.revenue,
-    }))
-    const othersValue = total - topItems.reduce((sum, item) => sum + item.value, 0)
-    if (othersValue > 0) {
-      topItems.push({ name: 'Others', value: othersValue })
-    }
-    return topItems
-  }, [topProducts])
+    if (!topCustomers) return []
+    return topCustomers
+  }, [topCustomers])
 
   if (isError) {
     return (
@@ -228,7 +209,7 @@ const Analytics: React.FC = () => {
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         <div className='bg-card p-6 rounded-xl shadow-lg'>
-          <h3 className='text-lg font-semibold text-foreground mb-4'>Top Products by Revenue</h3>
+          <h3 className='text-lg font-semibold text-foreground mb-4'>Sales by Service</h3>
           {isLoading ? (
             <div className='h-75 flex items-center justify-center'>
               <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary' />
@@ -237,17 +218,11 @@ const Analytics: React.FC = () => {
             <ResponsiveContainer width='100%' height={300}>
               <BarChart
                 data={salesByServiceData}
-                layout='vertical'
-                margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
+                margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray='3 3' className='stroke-border' />
-                <XAxis type='number' className='fill-muted-foreground' />
-                <YAxis
-                  type='category'
-                  dataKey='name'
-                  className='fill-muted-foreground'
-                  width={100}
-                />
+                <XAxis dataKey='name' className='fill-muted-foreground' />
+                <YAxis className='fill-muted-foreground' />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--card))',
@@ -255,54 +230,42 @@ const Analytics: React.FC = () => {
                     borderRadius: '8px',
                   }}
                   itemStyle={{ color: 'hsl(var(--foreground))' }}
-                  cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
+                  cursor={{ fill: 'transparent' }}
                 />
                 <Legend wrapperStyle={{ color: 'hsl(var(--muted-foreground))' }} />
-                <Bar dataKey='sales' fill={chartColors.primary} name='Revenue' />
+                <Bar
+                  dataKey='sales'
+                  fill={chartColors.primary}
+                  name='Revenue'
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
             <div className='h-75 flex items-center justify-center text-muted-foreground'>
-              No product data available
+              No service data available
             </div>
           )}
         </div>
         <div className='bg-card p-6 rounded-xl shadow-lg flex flex-col items-center'>
-          <h3 className='text-lg font-semibold text-foreground mb-4 self-start'>
-            Revenue Distribution
-          </h3>
+          <h3 className='text-lg font-semibold text-foreground mb-4 self-start'>Top Customers</h3>
           {isLoading ? (
             <div className='h-75 flex items-center justify-center'>
               <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary' />
             </div>
           ) : topCustomersData.length > 0 ? (
-            <ResponsiveContainer width='100%' height={300}>
+            <ResponsiveContainer width='100%' height={350}>
               <PieChart>
                 <Pie
                   data={topCustomersData}
                   cx='50%'
-                  cy='50%'
-                  outerRadius={100}
+                  cy='45%'
+                  outerRadius={80}
                   fill='#8884d8'
                   dataKey='value'
                   nameKey='name'
-                  labelLine={false}
-                  label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-                    const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180))
-                    const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180))
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill='white'
-                        textAnchor={x > cx ? 'start' : 'end'}
-                        dominantBaseline='central'
-                      >
-                        {`${(percent * 100).toFixed(0)}%`}
-                      </text>
-                    )
-                  }}
+                  label={({ name, percent }) => `${name} (${((percent ?? 0) * 100).toFixed(0)}%)`}
+                  labelLine={true}
                 >
                   {topCustomersData.map((entry, index) => (
                     <Cell key={`cell-${entry.name}`} fill={colorArray[index % colorArray.length]} />

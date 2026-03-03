@@ -1,19 +1,6 @@
 'use client'
 import React from 'react'
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts'
-import {
   ArrowUpIcon,
   ClockIcon,
   CurrencyDollarIcon,
@@ -23,6 +10,7 @@ import {
 } from '../Icons'
 import { useAppSelector } from '@/store/hooks'
 import { useGetDashboardStatsQuery } from '@/store/api'
+import { useCurrency } from '@/hooks/useCurrency'
 import LoadingSpinner from '../shared/LoadingSpinner'
 
 const StatCard: React.FC<{
@@ -46,31 +34,10 @@ const StatCard: React.FC<{
   </div>
 )
 
-const COLORS = ['#2563eb', '#3B82F6', '#F97316', '#F59E0B', '#EF4444']
-
-// Helper function to format period labels
-const formatPeriodLabel = (period: string) => {
-  const [year, month] = period.split('-')
-  const monthNames = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ]
-  return `${monthNames[parseInt(month) - 1]} ${year}`
-}
-
 const Dashboard: React.FC = () => {
   const { user } = useAppSelector(state => state.authReducer)
   const { data, isLoading, error, refetch } = useGetDashboardStatsQuery()
+  const { formatCurrency } = useCurrency()
   const stats = data?.payload ?? null
 
   if (isLoading) {
@@ -116,7 +83,7 @@ const Dashboard: React.FC = () => {
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
         <StatCard
           title='Total Sales (YTD)'
-          value={stats ? `$${stats.totalRevenueYTD.toLocaleString()}` : '$0'}
+          value={stats ? formatCurrency(stats.totalRevenueYTD) : formatCurrency(0)}
           change={
             stats
               ? `${stats.growth.revenueGrowthPercent > 0 ? '+' : ''}${stats.growth.revenueGrowthPercent.toFixed(1)}% last month`
@@ -126,7 +93,7 @@ const Dashboard: React.FC = () => {
         />
         <StatCard
           title='Outstanding Invoices'
-          value={stats ? `$${stats.outstandingInvoices.total.toLocaleString()}` : '$0'}
+          value={stats ? formatCurrency(stats.outstandingInvoices.total) : formatCurrency(0)}
           change={
             stats
               ? `${stats.outstandingInvoices.count} pending${stats.outstandingInvoices.overdue > 0 ? `, ${stats.outstandingInvoices.overdue} overdue` : ''}`
@@ -137,99 +104,9 @@ const Dashboard: React.FC = () => {
         <StatCard
           title='Weekly Quotations'
           value={stats ? stats.weeklyQuotations.total.count.toString() : '0'}
-          change={
-            stats ? `$${stats.weeklyQuotations.total.value.toLocaleString()} value` : 'No data'
-          }
+          change={stats ? `${formatCurrency(stats.weeklyQuotations.total.value)} value` : 'No data'}
           icon={<ShoppingCartIcon className='w-7 h-7 text-muted-foreground' />}
         />
-      </div>
-
-      {/* Charts */}
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-        <div className='lg:col-span-2 bg-card p-6 rounded-xl shadow-lg'>
-          <h3 className='text-lg font-semibold text-foreground mb-4'>Sales Over Time</h3>
-          {!stats?.salesTrend || stats.salesTrend.length === 0 ? (
-            <p className='text-muted-foreground'>No sales trend data available.</p>
-          ) : (
-            <ResponsiveContainer width='100%' height={300}>
-              <LineChart
-                data={
-                  stats?.salesTrend?.map(item => ({
-                    name: formatPeriodLabel(item.period),
-                    sales: item.revenue,
-                    profit: item.profit,
-                  })) || []
-                }
-                margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray='3 3' stroke='#4B5563' />
-                <XAxis dataKey='name' stroke='#6B7280' />
-                <YAxis stroke='#6B7280' />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                  itemStyle={{ color: '#E5E7EB' }}
-                />
-                <Legend wrapperStyle={{ color: '#E5E7EB' }} />
-                <Line
-                  type='monotone'
-                  dataKey='sales'
-                  stroke='#2563eb'
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: '#2563eb' }}
-                  activeDot={{ r: 8, stroke: '#1d4ed8' }}
-                  name='Revenue'
-                />
-                <Line
-                  type='monotone'
-                  dataKey='profit'
-                  stroke='#3B82F6'
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: '#3B82F6' }}
-                  activeDot={{ r: 8, stroke: '#2563EB' }}
-                  name='Profit'
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div>
-        <div className='bg-card p-6 rounded-xl shadow-lg flex flex-col items-center'>
-          <h3 className='text-lg font-semibold text-foreground mb-4 self-start'>
-            Top Selling Items
-          </h3>
-          {!stats?.topProducts || stats.topProducts.length === 0 ? (
-            <p className='text-muted-foreground'>No top selling items data available.</p>
-          ) : (
-            <ResponsiveContainer width='100%' height={300}>
-              <PieChart>
-                <Pie
-                  data={
-                    stats?.topProducts?.slice(0, 5).map(product => ({
-                      name: product.name,
-                      value: product.revenue,
-                    })) || []
-                  }
-                  cx='50%'
-                  cy='50%'
-                  innerRadius={60}
-                  outerRadius={80}
-                  fill='#8884d8'
-                  paddingAngle={5}
-                  dataKey='value'
-                  nameKey='name'
-                >
-                  {(stats?.topProducts?.slice(0, 5) || []).map((entry, index) => (
-                    <Cell key={`cell-${index + 1}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                  itemStyle={{ color: '#E5E7EB' }}
-                />
-                <Legend wrapperStyle={{ color: '#9CA3AF' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
-        </div>
       </div>
 
       {/* Activities and Alerts */}

@@ -33,32 +33,161 @@ import {
   useDeleteInvoiceMutation,
   useUpdateInvoiceStatusMutation,
   useGetInvoiceStatsQuery,
+  useGetCustomersQuery,
 } from '@/store/api'
 import { Invoice, InvoiceStatus } from '@/types/invoice.type'
+import { useCurrency } from '@/hooks/useCurrency'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
-import { FileText, DollarSign, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
+import {
+  FileText,
+  DollarSign,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  TrendingUp,
+  Users,
+} from 'lucide-react'
 
 export const defaultTerms = `1. Payment is due within 30 days of the invoice date.
 2. Late payments are subject to a 1.5% monthly interest charge.
 3. Please make all checks payable to Your Company Name.`
 
-const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const baseClasses = 'px-2 py-1 text-xs font-semibold rounded-full inline-block capitalize'
-  const statusClasses: Record<string, string> = {
-    paid: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-    draft: 'bg-muted text-foreground  ',
-    overdue: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    cancelled: 'bg-muted text-foreground  ',
-    partially_paid: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+const StatusBadge: React.FC<{ status: string; interactive?: boolean; onClick?: () => void }> = ({
+  status,
+  interactive = false,
+  onClick,
+}) => {
+  const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {
+    draft: {
+      bg: 'bg-gray-100 dark:bg-gray-800',
+      text: 'text-gray-700 dark:text-gray-300',
+      dot: 'bg-gray-500',
+    },
+    sent: {
+      bg: 'bg-blue-100 dark:bg-blue-900/30',
+      text: 'text-blue-700 dark:text-blue-300',
+      dot: 'bg-blue-500',
+    },
+    paid: {
+      bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+      text: 'text-emerald-700 dark:text-emerald-300',
+      dot: 'bg-emerald-500',
+    },
+    partial: {
+      bg: 'bg-amber-100 dark:bg-amber-900/30',
+      text: 'text-amber-700 dark:text-amber-300',
+      dot: 'bg-amber-500',
+    },
+    partially_paid: {
+      bg: 'bg-amber-100 dark:bg-amber-900/30',
+      text: 'text-amber-700 dark:text-amber-300',
+      dot: 'bg-amber-500',
+    },
+    overdue: {
+      bg: 'bg-red-100 dark:bg-red-900/30',
+      text: 'text-red-700 dark:text-red-300',
+      dot: 'bg-red-500',
+    },
+    cancelled: {
+      bg: 'bg-gray-100 dark:bg-gray-800',
+      text: 'text-gray-500 dark:text-gray-400',
+      dot: 'bg-gray-400',
+    },
   }
+
+  const config = statusConfig[status.toLowerCase()] || statusConfig.draft
+
   return (
-    <span
-      className={`${baseClasses} ${statusClasses[status.toLowerCase()] || statusClasses.draft}`}
+    <button
+      onClick={onClick}
+      disabled={!interactive}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text} ${
+        interactive ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'
+      }`}
     >
-      {status.replace('_', ' ')}
-    </span>
+      <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`}></span>
+      <span className='capitalize'>{status.replace('_', ' ')}</span>
+      {interactive && (
+        <svg className='w-3 h-3 ml-0.5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+          <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M19 9l-7 7-7-7' />
+        </svg>
+      )}
+    </button>
+  )
+}
+
+// Status Dropdown Component
+const StatusDropdown: React.FC<{
+  currentStatus: string
+  onStatusChange: (status: string) => void
+  isUpdating: boolean
+}> = ({ currentStatus, onStatusChange, isUpdating }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const statuses: { value: string; label: string; icon: string }[] = [
+    { value: 'Draft', label: 'Draft', icon: '📝' },
+    { value: 'Sent', label: 'Sent', icon: '📤' },
+    { value: 'Paid', label: 'Paid', icon: '✅' },
+    { value: 'Partially_paid', label: 'Partial', icon: '💰' },
+    { value: 'Overdue', label: 'Overdue', icon: '⏰' },
+    { value: 'Cancelled', label: 'Cancelled', icon: '❌' },
+  ]
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div className='relative' ref={dropdownRef}>
+      <StatusBadge
+        status={currentStatus}
+        interactive={!isUpdating}
+        onClick={() => setIsOpen(!isOpen)}
+      />
+      {isOpen && (
+        <div className='absolute z-30 mt-1 left-0 w-40 bg-card rounded-lg shadow-lg border border-border py-1'>
+          {statuses.map(({ value, label, icon }) => (
+            <button
+              key={value}
+              onClick={() => {
+                if (value.toLowerCase() !== currentStatus.toLowerCase()) {
+                  onStatusChange(value)
+                }
+                setIsOpen(false)
+              }}
+              disabled={isUpdating}
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2 transition-colors ${
+                value.toLowerCase() === currentStatus.toLowerCase() ? 'bg-muted font-medium' : ''
+              } ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <span>{icon}</span>
+              <span>{label}</span>
+              {value.toLowerCase() === currentStatus.toLowerCase() && (
+                <svg
+                  className='w-4 h-4 ml-auto text-primary'
+                  fill='currentColor'
+                  viewBox='0 0 20 20'
+                >
+                  <path
+                    fillRule='evenodd'
+                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -122,6 +251,10 @@ const Invoices = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const limit = 10
 
+  // Stats filter state
+  const [statsDateRange, setStatsDateRange] = useState<DateRange | undefined>()
+  const [statsCustomerId, setStatsCustomerId] = useState<string>('all')
+
   // RTK Query hooks
   const {
     data: invoicesData,
@@ -137,9 +270,23 @@ const Invoices = () => {
     endDate: dateRange?.to?.toISOString(),
   })
 
-  // Invoice stats
-  const { data: statsData, isLoading: isStatsLoading } = useGetInvoiceStatsQuery()
+  // Invoice stats with filters
+  const { data: statsData, isLoading: isStatsLoading } = useGetInvoiceStatsQuery({
+    startDate: statsDateRange?.from?.toISOString(),
+    endDate: statsDateRange?.to?.toISOString(),
+    customerId: statsCustomerId !== 'all' ? statsCustomerId : undefined,
+  })
   const stats = statsData?.payload
+
+  // Customers for stats filter dropdown
+  const { data: customersData } = useGetCustomersQuery()
+  const customerFilterOptions: FilterOption[] = useMemo(() => {
+    const customers = customersData?.payload?.customers || []
+    return customers.map(c => ({
+      value: c._id,
+      label: c.companyName || c.fullName,
+    }))
+  }, [customersData])
 
   const [deleteInvoice] = useDeleteInvoiceMutation()
   const [updateInvoiceStatus, { isLoading: isUpdatingStatus }] = useUpdateInvoiceStatusMutation()
@@ -153,14 +300,7 @@ const Invoices = () => {
   const invoices = invoicesData?.payload?.data || []
 
   // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+  const { formatCurrency } = useCurrency()
 
   // Prepare chart data
   const statusChartData = useMemo(() => {
@@ -245,13 +385,12 @@ const Invoices = () => {
     }
   }
 
-  const handleMarkAsPaid = async (invoice: Invoice) => {
+  const handleInvoiceStatusChange = async (invoiceId: string, newStatus: string) => {
     try {
       await updateInvoiceStatus({
-        id: invoice._id,
-        status: 'Paid',
+        id: invoiceId,
+        status: newStatus as InvoiceStatus,
       }).unwrap()
-      setActiveDropdown(null)
     } catch (error) {
       console.error('Failed to update invoice status:', error)
     }
@@ -313,8 +452,32 @@ const Invoices = () => {
         </button>
       </div>
 
+      {/* Stats Filter */}
+      <div className='bg-card p-4 rounded-xl shadow-sm border border-border'>
+        <div className='flex items-center gap-2 mb-3'>
+          <TrendingUp className='w-4 h-4 text-muted-foreground' />
+          <h3 className='text-sm font-medium text-muted-foreground'>Filter Statistics</h3>
+        </div>
+        <FilterBar
+          showSearch={false}
+          showStatus={false}
+          dateRange={statsDateRange}
+          onDateRangeChange={setStatsDateRange}
+          showDateRange={true}
+          secondaryValue={statsCustomerId}
+          onSecondaryChange={setStatsCustomerId}
+          secondaryOptions={customerFilterOptions}
+          secondaryPlaceholder='All Customers'
+          showSecondary={true}
+          onReset={() => {
+            setStatsDateRange(undefined)
+            setStatsCustomerId('all')
+          }}
+        />
+      </div>
+
       {/* Stats Cards */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
         <StatsCard
           title='Total Invoices'
           value={isStatsLoading ? '...' : (stats?.total ?? 0)}
@@ -347,11 +510,33 @@ const Invoices = () => {
           icon={<AlertTriangle className='w-6 h-6' />}
           color='red'
         />
+        <StatsCard
+          title='Gross Profit'
+          value={isStatsLoading ? '...' : formatCurrency(stats?.totalGrossProfit ?? 0)}
+          subtitle={
+            isStatsLoading
+              ? ''
+              : `${stats?.totalValue ? (((stats.totalGrossProfit ?? 0) / stats.totalValue) * 100).toFixed(1) : '0.0'}% margin`
+          }
+          icon={<TrendingUp className='w-6 h-6' />}
+          color='green'
+        />
+        <StatsCard
+          title='Net Profit'
+          value={isStatsLoading ? '...' : formatCurrency(stats?.totalNetProfit ?? 0)}
+          subtitle={
+            isStatsLoading
+              ? ''
+              : `${stats?.totalValue ? (((stats.totalNetProfit ?? 0) / stats.totalValue) * 100).toFixed(1) : '0.0'}% margin`
+          }
+          icon={<DollarSign className='w-6 h-6' />}
+          color='blue'
+        />
       </div>
 
       {/* Charts */}
       {!isStatsLoading && stats && stats.total > 0 && (
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6'>
           {/* Status Distribution Pie Chart */}
           <div className='bg-card p-6 rounded-xl shadow-lg border border-border'>
             <h3 className='text-lg font-semibold text-foreground mb-4'>
@@ -403,6 +588,42 @@ const Invoices = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
+          {/* Top Customers Card */}
+          {stats?.topCustomers && stats.topCustomers.length > 0 && (
+            <div className='bg-card p-6 rounded-xl shadow-lg border border-border'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Top Customers</h3>
+              <div className='space-y-3'>
+                {stats.topCustomers.slice(0, 5).map((customer, index) => (
+                  <div key={customer.customerId} className='flex items-center justify-between'>
+                    <div className='flex items-center gap-3'>
+                      <span className='w-7 h-7 flex items-center justify-center bg-primary/10 text-primary rounded-full text-sm font-semibold'>
+                        {index + 1}
+                      </span>
+                      <div>
+                        <p className='font-medium text-foreground text-sm'>
+                          {customer.companyName}
+                        </p>
+                        <p className='text-xs text-muted-foreground'>
+                          {customer.invoiceCount} invoices
+                        </p>
+                      </div>
+                    </div>
+                    <div className='text-right'>
+                      <p className='font-semibold text-foreground'>
+                        {formatCurrency(customer.totalRevenue)}
+                      </p>
+                      {customer.outstandingAmount > 0 && (
+                        <p className='text-xs text-amber-600'>
+                          {formatCurrency(customer.outstandingAmount)} due
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -428,6 +649,8 @@ const Invoices = () => {
               <th className='px-6 py-3'>Customer</th>
               <th className='px-6 py-3 hidden md:table-cell'>Due Date</th>
               <th className='px-6 py-3'>Total</th>
+              <th className='px-6 py-3 hidden lg:table-cell'>Gross Profit</th>
+              <th className='px-6 py-3 hidden lg:table-cell'>Net Profit</th>
               <th className='px-6 py-3'>Status</th>
               <th className='px-6 py-3 text-center'>Actions</th>
             </tr>
@@ -435,7 +658,7 @@ const Invoices = () => {
           <tbody>
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={6} className='px-6 py-12 text-center text-muted-foreground'>
+                <td colSpan={8} className='px-6 py-12 text-center text-muted-foreground'>
                   No invoices found. Create your first invoice to get started.
                 </td>
               </tr>
@@ -455,8 +678,40 @@ const Invoices = () => {
                   <td className='px-6 py-4 font-semibold'>
                     ${invoice.grandTotal?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
+                  <td className='px-6 py-4 hidden lg:table-cell'>
+                    <span
+                      className={
+                        invoice.totalGrossProfit && invoice.totalGrossProfit > 0
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      }
+                    >
+                      $
+                      {(invoice.totalGrossProfit ?? 0).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </td>
+                  <td className='px-6 py-4 hidden lg:table-cell'>
+                    <span
+                      className={
+                        invoice.totalNetProfit && invoice.totalNetProfit > 0
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      }
+                    >
+                      $
+                      {(invoice.totalNetProfit ?? 0).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </td>
                   <td className='px-6 py-4'>
-                    <StatusBadge status={invoice.status} />
+                    <StatusDropdown
+                      currentStatus={invoice.status}
+                      onStatusChange={status => handleInvoiceStatusChange(invoice._id, status)}
+                      isUpdating={isUpdatingStatus}
+                    />
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <div
@@ -472,49 +727,65 @@ const Invoices = () => {
                         <DotsVerticalIcon className='w-5 h-5' />
                       </button>
                       {activeDropdown === invoice._id && (
-                        <div className='origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card ring-1 ring-black ring-opacity-5 focus:outline-none z-10'>
-                          <div className='py-1'>
-                            <button
-                              onClick={() => openModal(setViewModalOpen, invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted '
-                            >
-                              <EyeIcon className='w-5 h-5 mr-3' />
-                              Preview Pdf
-                            </button>
-                            {invoice.status === 'Draft' && (
-                              <button
-                                onClick={() => route.push(`/invoices/edit/${invoice._id}`)}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted '
-                              >
-                                <PencilIcon className='w-5 h-5 mr-3' />
-                                Edit
-                              </button>
-                            )}
-                            {(invoice.status === 'Sent' || invoice.status === 'Overdue') && (
-                              <button
-                                onClick={() => handleMarkAsPaid(invoice)}
-                                disabled={isUpdatingStatus}
-                                className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted  disabled:opacity-50'
-                              >
-                                <CheckCircleIcon className='w-5 h-5 mr-3' />
-                                Mark as Paid
-                              </button>
-                            )}
-                            <button
-                              onClick={() => downloadPdf(invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-foreground hover:bg-muted '
-                            >
-                              <DownloadIcon className='w-5 h-5 mr-3' />
-                              Download PDF
-                            </button>
-                            <button
-                              onClick={() => handleDelete(invoice)}
-                              className='w-full text-left flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-muted '
-                            >
-                              <TrashIcon className='w-5 h-5 mr-3' />
-                              Delete
-                            </button>
+                        <div className='absolute right-0 top-full mt-1 w-52 bg-card rounded-lg shadow-lg border border-border py-1 z-20'>
+                          {/* View Section */}
+                          <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
+                            View
                           </div>
+                          <button
+                            onClick={() => openModal(setViewModalOpen, invoice)}
+                            className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted transition-colors'
+                          >
+                            <EyeIcon className='w-4 h-4' />
+                            Preview PDF
+                          </button>
+                          <button
+                            onClick={() => downloadPdf(invoice)}
+                            className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted transition-colors'
+                          >
+                            <DownloadIcon className='w-4 h-4' />
+                            Download PDF
+                          </button>
+                          <button
+                            onClick={() => {
+                              route.push(`/invoices/${invoice._id}`)
+                              setActiveDropdown(null)
+                            }}
+                            className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted transition-colors'
+                          >
+                            <EyeIcon className='w-4 h-4' />
+                            View Invoice
+                          </button>
+
+                          <hr className='my-1 border-border' />
+
+                          {/* Edit Section */}
+                          <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
+                            Edit
+                          </div>
+                          {invoice.status === 'Draft' && (
+                            <button
+                              onClick={() => {
+                                route.push(`/invoices/edit/${invoice._id}`)
+                                setActiveDropdown(null)
+                              }}
+                              className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted transition-colors'
+                            >
+                              <PencilIcon className='w-4 h-4' />
+                              Edit Invoice
+                            </button>
+                          )}
+
+                          <hr className='my-1 border-border' />
+
+                          {/* Danger Zone */}
+                          <button
+                            onClick={() => handleDelete(invoice)}
+                            className='w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors'
+                          >
+                            <TrashIcon className='w-4 h-4' />
+                            Delete
+                          </button>
                         </div>
                       )}
                     </div>

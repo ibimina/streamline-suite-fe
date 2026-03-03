@@ -1,7 +1,8 @@
 import { useAppSelector } from '@/store/hooks'
 import { Quotation } from '@/types/quotation.type'
 import { Invoice } from '@/types/invoice.type'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { CompanyDetails } from '@/types'
 
 const CustomTemplatePDFPreview: React.FC<{
   pdfData: Quotation | Invoice
@@ -11,7 +12,26 @@ const CustomTemplatePDFPreview: React.FC<{
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const companyDetails = useAppSelector(state => state.company.details)
+  const account = useAppSelector(state => state.authReducer.user?.account)
+
+  // Map account data to CompanyDetails format
+  const companyDetails = useMemo<CompanyDetails>(
+    () => ({
+      name: account?.name || '',
+      address: account?.address || '',
+      contact: [account?.phone, account?.email].filter(Boolean).join(' | '),
+      logoUrl: account?.logoUrl || '',
+      tagline: account?.tagline || '',
+    }),
+    [
+      account?.name,
+      account?.address,
+      account?.phone,
+      account?.email,
+      account?.logoUrl,
+      account?.tagline,
+    ]
+  )
 
   useEffect(() => {
     let currentPdfUrl: string | null = null
@@ -21,12 +41,8 @@ const CustomTemplatePDFPreview: React.FC<{
         setIsLoading(true)
         setError(null)
 
-        // Find the custom template
-        const customTemplate = companyDetails?.customTemplates?.find(
-          (t: any) => t.id === pdfData._id
-        )
-
-        if (!customTemplate) {
+        // Check if template exists on the document
+        if (!pdfData.template?.imageUrl) {
           setError('Custom template not found')
           return
         }
@@ -34,6 +50,13 @@ const CustomTemplatePDFPreview: React.FC<{
         // Import the custom template processor
         const { generateCustomTemplatePDFBlob } =
           await import('../../utils/customTemplateProcessor')
+
+        // Create a custom template object from the pdfData.template
+        const customTemplate = {
+          id: pdfData.template._id,
+          name: pdfData.templateName || 'Custom Template',
+          imageUrl: pdfData.template.imageUrl,
+        }
 
         // Generate PDF as blob instead of downloading
         const pdfBlob = await generateCustomTemplatePDFBlob(
@@ -107,7 +130,7 @@ const CustomTemplatePDFPreview: React.FC<{
       <div className='mb-4 text-center'>
         <h3 className='text-lg font-semibold mb-2'>Custom Template Preview</h3>
         <p className='text-sm text-muted-foreground'>
-          Showing preview of quotation with custom template
+          Showing preview of {documentType.toLowerCase()} with custom template
         </p>
       </div>
       {pdfUrl && (

@@ -19,7 +19,7 @@ const ProductDetails = () => {
   })
   const [deleteProduct] = useDeleteProductMutation()
 
-  const product = data?.payload?.product ?? null
+  const product = data?.payload ?? null
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const handleDelete = () => {

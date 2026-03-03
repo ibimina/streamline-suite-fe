@@ -24,17 +24,17 @@ function EditQuotationContent() {
 
   const [showTemplateModal, setShowTemplateModal] = useState(false)
   const [templateConfig, setTemplateConfig] = useState<{
-    template: Template
-    accentColor: AccentColor
+    templateName: Template
+    accentColor: AccentColor | string
     customTemplate?: CustomTemplate
   } | null>(null)
 
   const handleTemplateSelected = (
     template: Template,
-    accentColor: AccentColor,
+    accentColor: AccentColor | string,
     customTemplate?: CustomTemplate
   ) => {
-    setTemplateConfig({ template, accentColor, customTemplate })
+    setTemplateConfig({ templateName: template, accentColor, customTemplate })
     setShowTemplateModal(false)
   }
 
@@ -70,7 +70,7 @@ function EditQuotationContent() {
   }
 
   // Get current template info (from override or quotation)
-  const currentTemplate = templateConfig?.template || quotation?.template || 'classic'
+  const currentTemplate = templateConfig?.templateName || quotation?.template || 'classic'
   const currentAccentColor = templateConfig?.accentColor || quotation?.accentColor || 'teal'
 
   // Show template modal if user requested it

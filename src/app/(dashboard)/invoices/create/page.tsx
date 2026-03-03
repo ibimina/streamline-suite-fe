@@ -19,11 +19,11 @@ function CreateInvoiceContent() {
 
   const [showTemplateSelection, setShowTemplateSelection] = useState(!duplicateId)
   const [templateConfig, setTemplateConfig] = useState<{
-    template: Template
-    accentColor: AccentColor
+    templateName: Template
+    accentColor: AccentColor | string
     customTemplate?: CustomTemplate
   } | null>({
-    template: 'classic',
+    templateName: 'classic',
     accentColor: 'teal',
   })
   const [timestamp] = useState<number>(() => Date.now())
@@ -51,10 +51,10 @@ function CreateInvoiceContent() {
 
   const handleTemplateSelected = (
     template: Template,
-    accentColor: AccentColor,
+    accentColor: AccentColor | string,
     customTemplate?: CustomTemplate
   ) => {
-    setTemplateConfig({ template, accentColor, customTemplate })
+    setTemplateConfig({ templateName: template, accentColor, customTemplate })
     setShowTemplateSelection(false)
   }
 
@@ -113,9 +113,9 @@ function CreateInvoiceContent() {
             )}
             Selected template:{' '}
             <span className='font-medium'>
-              {templateConfig?.template === 'custom' && templateConfig.customTemplate
+              {templateConfig?.templateName === 'custom' && templateConfig.customTemplate
                 ? templateConfig.customTemplate.name
-                : templateConfig?.template || 'Classic'}
+                : templateConfig?.templateName || 'Classic'}
             </span>
           </p>
         </div>

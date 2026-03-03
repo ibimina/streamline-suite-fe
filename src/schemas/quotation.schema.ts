@@ -81,6 +81,8 @@ export const quotationSchema = z.object({
     .optional()
     .default(0),
   template: z.string().optional(),
+
+  templateName: z.string().optional(),
   accentColor: z.string().optional(),
 })
 

@@ -6,7 +6,6 @@ import { baseApi } from './api'
 import authSlice from './slices/auth/index'
 import dashboardSlice from './slices/dashboard/index'
 import uiSlice from './slices/uiSlice'
-import companySlice from './slices/companySlice'
 import customerSlice from './slices/customer/index'
 
 const persistConfig = {
@@ -32,7 +31,6 @@ const rootReducer = combineReducers({
   dashboardReducer: dashboardSlice,
   customerReducer: customerSlice,
   ui: uiSlice,
-  company: companySlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

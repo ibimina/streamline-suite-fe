@@ -3,6 +3,8 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Invoice } from '@/types/invoice.type'
 import { toast } from 'react-toastify'
+import { formatDate, getInvoiceStatusConfig } from '@/contants'
+import { useCurrency } from '@/hooks/useCurrency'
 
 const UserIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -98,38 +100,14 @@ interface InvoiceViewProps {
   onDownloadPdf?: (id: string) => void
 }
 
-const formatDate = (date: string | Date | undefined) => {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('en-NG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-const formatCurrency = (amount: number | undefined) => {
-  return `₦${(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
-
-const getStatusConfig = (status?: string) => {
-  const configs: Record<string, { color: string; icon: string; bg: string }> = {
-    draft: { color: 'text-secondary-foreground', icon: '📝', bg: 'bg-muted ' },
-    sent: { color: 'text-blue-700', icon: '📤', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-    paid: { color: 'text-green-700', icon: '✅', bg: 'bg-green-100 dark:bg-green-900/30' },
-    partial: { color: 'text-yellow-700', icon: '⏳', bg: 'bg-yellow-100 dark:bg-yellow-900/30' },
-    overdue: { color: 'text-red-700', icon: '⚠️', bg: 'bg-red-100 dark:bg-red-900/30' },
-    cancelled: { color: 'text-secondary-foreground', icon: '❌', bg: 'bg-muted ' },
-  }
-  return configs[status?.toLowerCase() || 'draft'] || configs.draft
-}
-
 export default function InvoiceView({
   invoice,
   onSendEmail,
   onDownloadPdf,
 }: Readonly<InvoiceViewProps>) {
   const router = useRouter()
-  const statusConfig = getStatusConfig(invoice.status)
+  const { formatCurrency } = useCurrency()
+  const statusConfig = getInvoiceStatusConfig(invoice.status)
 
   const calculations = React.useMemo(() => {
     const whtRate = invoice.whtRate ?? 0

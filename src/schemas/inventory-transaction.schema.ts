@@ -2,9 +2,19 @@ import { z } from 'zod'
 
 /**
  * Transaction Type Enum
- * Matches backend transaction types
+ * Matches backend InventoryTransactionStatus values
  */
-export const transactionTypeEnum = z.enum(['stock_in', 'stock_out', 'adjustment', 'transfer'])
+export const transactionTypeEnum = z.enum([
+  'purchase',
+  'sale',
+  'return_from_customer',
+  'return_to_supplier',
+  'adjustment',
+  'transfer',
+  'production_in',
+  'production_out',
+  'completed',
+])
 
 /**
  * Inventory Transaction Form Schema
@@ -12,7 +22,7 @@ export const transactionTypeEnum = z.enum(['stock_in', 'stock_out', 'adjustment'
  */
 export const inventoryTransactionSchema = z.object({
   product: z.string().min(1, 'Product is required'),
-  transactionType: transactionTypeEnum,
+  status: transactionTypeEnum,
   quantity: z.number().min(1, 'Quantity must be at least 1').int('Quantity must be a whole number'),
   unitCost: z.number().min(0, 'Unit cost cannot be negative'),
   reference: z

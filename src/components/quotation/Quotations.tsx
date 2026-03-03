@@ -14,6 +14,7 @@ import {
   useConvertQuotationToInvoiceMutation,
 } from '@/store/api'
 import { Quotation, QuotationStatus } from '@/types/quotation.type'
+import { useCurrency } from '@/hooks/useCurrency'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
 import { Paginator } from '../ui/pagination'
@@ -357,13 +358,7 @@ const Quotations = () => {
     setActiveDropdown(null)
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(amount)
-  }
+  const { formatCurrency } = useCurrency()
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {

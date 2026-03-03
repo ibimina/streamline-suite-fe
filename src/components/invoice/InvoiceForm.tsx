@@ -18,6 +18,8 @@ import { invoiceSchema, InvoiceFormData, InvoiceItemFormData } from '@/schemas/i
 import { Template, AccentColor, CustomTemplate } from '@/types'
 import { useRouter } from 'next/navigation'
 import { Invoice } from '@/types/invoice.type'
+import { DEFAULT_INVOICE_TERMS } from '@/contants'
+import { useCurrency } from '@/hooks/useCurrency'
 import { Quotation } from '@/types/quotation.type'
 
 // Icon components
@@ -112,19 +114,12 @@ const LinkIcon = ({ className }: { className?: string }) => (
 interface InvoiceFormProps {
   invoice?: Invoice
   templateConfig?: {
-    template: Template
-    accentColor: AccentColor
+    templateName: Template
+    accentColor: AccentColor | string
     customTemplate?: CustomTemplate
   }
   isDuplicate?: boolean
 }
-
-const defaultTerms = `
-1. Payment is due within 30 days from the invoice date.
-2. Late payments may incur additional charges.
-3. All prices are exclusive of VAT unless otherwise stated.
-4. Please include the invoice number as payment reference.
-`
 
 const defaultItem: InvoiceItemFormData = {
   description: '',
@@ -168,6 +163,7 @@ export default function InvoiceForm({
   }, [])
 
   const router = useRouter()
+  const { formatCurrency } = useCurrency()
 
   const { data: customersData } = useGetCustomersQuery()
   const { data: productsData } = useGetProductsQuery()
@@ -220,9 +216,10 @@ export default function InvoiceForm({
       dueDate: defaultDates.dueDate,
       poNumber: '',
       notes: '',
-      terms: defaultTerms,
+      terms: DEFAULT_INVOICE_TERMS,
       whtRate: 5,
-      template: templateConfig?.template,
+      template: templateConfig?.templateName,
+
       accentColor: templateConfig?.accentColor,
     },
   })
@@ -252,13 +249,25 @@ export default function InvoiceForm({
         dueDate: formatDate(invoice.dueDate) || defaultDates.dueDate,
         poNumber: invoice.poNumber || '',
         notes: invoice.notes || '',
-        terms: invoice.terms || defaultTerms,
+        terms: invoice.terms || DEFAULT_INVOICE_TERMS,
         whtRate: invoice.whtRate ?? 0,
-        template: templateConfig?.template || invoice.template,
+        templateName: templateConfig?.templateName || invoice.templateName,
+        template: invoice?.template?._id,
         accentColor: templateConfig?.accentColor || invoice.accentColor,
       })
     }
   }, [invoice, customers, reset, templateConfig, defaultDates])
+
+  // Update template fields when templateConfig changes (for new invoices)
+  useEffect(() => {
+    if (templateConfig?.templateName) {
+      setValue('templateName', templateConfig.templateName)
+      setValue('template', templateConfig.templateName)
+    }
+    if (templateConfig?.accentColor) {
+      setValue('accentColor', templateConfig.accentColor)
+    }
+  }, [templateConfig, setValue])
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -370,7 +379,9 @@ export default function InvoiceForm({
     setValue('whtRate', quotation.whtRate || 0)
     if (quotation.notes) setValue('notes', quotation.notes)
     if (quotation.terms) setValue('terms', quotation.terms)
-    if (quotation.template) setValue('template', quotation.template)
+    if (quotation.templateName) setValue('templateName', quotation.templateName)
+    if (quotation.template) setValue('template', quotation.template._id)
+
     if (quotation.accentColor) setValue('accentColor', quotation.accentColor)
 
     toast.success(`Linked to quotation ${quotation.uniqueId}`)
@@ -416,6 +427,7 @@ export default function InvoiceForm({
       notes: data.notes || undefined,
       terms: data.terms || undefined,
       template: data.template || undefined,
+      templateId: templateConfig?.customTemplate?.id || undefined,
       accentColor: data.accentColor || undefined,
       whtRate: data.whtRate || 0,
       issuedDate: data.issuedDate || defaultDates.issuedDate,
@@ -588,7 +600,7 @@ export default function InvoiceForm({
                           <span className='text-sm text-blue-800 dark:text-blue-200'>
                             Linked to: <strong>{selectedQuotation.uniqueId}</strong>
                             <span className='ml-2 text-blue-600 dark:text-blue-400'>
-                              (₦{(selectedQuotation.grandTotal || 0).toLocaleString()})
+                              ({formatCurrency(selectedQuotation.grandTotal || 0)})
                             </span>
                           </span>
                         </div>
@@ -640,7 +652,7 @@ export default function InvoiceForm({
                               </div>
                               <div className='text-right'>
                                 <div className='font-medium text-foreground'>
-                                  ₦{(quotation.grandTotal || 0).toLocaleString()}
+                                  {formatCurrency(quotation.grandTotal || 0)}
                                 </div>
                                 <div className='text-xs text-muted-foreground capitalize'>
                                   {quotation.status}
@@ -845,7 +857,7 @@ export default function InvoiceForm({
                               <option value=''>Select Product (Optional)</option>
                               {products.map(product => (
                                 <option key={product._id} value={product._id}>
-                                  {product.name} - ₦{product.sellingPrice.toLocaleString()}
+                                  {product.name} - {formatCurrency(product.sellingPrice)}
                                 </option>
                               ))}
                             </select>
@@ -936,21 +948,14 @@ export default function InvoiceForm({
                       </td>
                       <td className='px-3 py-4 text-right'>
                         <span className='text-sm font-semibold text-foreground'>
-                          ₦
-                          {calculatedItem?.lineTotal?.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                          }) || '0.00'}
+                          {formatCurrency(calculatedItem?.lineTotal)}
                         </span>
                       </td>
                       <td className='px-3 py-4 text-right'>
                         <span
                           className={`text-sm font-bold px-2 py-1 rounded-md ${(calculatedItem?.lineProfit || 0) >= 0 ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30' : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30'}`}
                         >
-                          ₦
-                          {calculatedItem?.lineProfit?.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }) || '0.00'}
+                          {formatCurrency(calculatedItem?.lineProfit)}
                         </span>
                       </td>
                       <td className='px-3 py-4 text-center'>
@@ -997,11 +1002,7 @@ export default function InvoiceForm({
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Subtotal</span>
                     <span className='font-semibold text-foreground text-lg'>
-                      ₦
-                      {calculatedValues.subtotal.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(calculatedValues.subtotal)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
@@ -1010,22 +1011,14 @@ export default function InvoiceForm({
                       VAT ({calculatedValues.vatRate.toFixed(1)}%)
                     </span>
                     <span className='font-medium text-blue-600 dark:text-blue-400'>
-                      +₦
-                      {calculatedValues.totalVat.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      +{formatCurrency(calculatedValues.totalVat)}
                     </span>
                   </div>
                   <div className='border-t border-border pt-4'>
                     <div className='flex justify-between items-center'>
                       <span className='text-foreground font-semibold text-lg'>Grand Total</span>
                       <span className='font-bold text-2xl text-foreground'>
-                        ₦
-                        {calculatedValues.grandTotal.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {formatCurrency(calculatedValues.grandTotal)}
                       </span>
                     </div>
                   </div>
@@ -1059,32 +1052,20 @@ export default function InvoiceForm({
                       <span className='text-muted-foreground'>%</span>
                     </span>
                     <span className='font-medium text-red-600 dark:text-red-400 flex items-center gap-1'>
-                      <span className='w-2 h-2 rounded-full bg-red-500'></span>
-                      -₦
-                      {calculatedValues.totalWht.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      <span className='w-2 h-2 rounded-full bg-red-500'></span>-
+                      {formatCurrency(calculatedValues.totalWht)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Net Receivable</span>
                     <span className='font-semibold text-foreground'>
-                      ₦
-                      {calculatedValues.netReceivableTotal.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(calculatedValues.netReceivableTotal)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center'>
                     <span className='text-muted-foreground'>Total Cost</span>
                     <span className='font-medium text-secondary-foreground'>
-                      ₦
-                      {calculatedValues.totalCost.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(calculatedValues.totalCost)}
                     </span>
                   </div>
                   <div className='border-t border-border pt-4'>
@@ -1095,11 +1076,7 @@ export default function InvoiceForm({
                       <span
                         className={`font-bold text-2xl px-4 py-1 rounded-lg ${calculatedValues.totalProfit >= 0 ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/30' : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/30'}`}
                       >
-                        ₦
-                        {calculatedValues.totalProfit.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        {formatCurrency(calculatedValues.totalProfit)}
                       </span>
                     </div>
                   </div>

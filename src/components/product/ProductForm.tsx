@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetHeader } from '../ui/sheet'
@@ -59,10 +59,47 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
     },
   })
   const alternativeSuppliers = useWatch({ control, name: 'alternativeSuppliers' }) || []
+  const watchedType = useWatch({ control, name: 'type' })
+  const watchedSupplier = useWatch({ control, name: 'supplier' })
   const [createProduct] = useCreateProductMutation()
   const [updateProduct] = useUpdateProductMutation()
   const { data } = useGetSuppliersQuery()
   const suppliers = data?.payload?.suppliers || []
+
+  // Reset form values when product prop changes (e.g. opening edit for a different product)
+  useEffect(() => {
+    if (open) {
+      reset({
+        sku: product?.sku || '',
+        barcode: product?.barcode || '',
+        name: product?.name || '',
+        description: product?.description || '',
+        type: product?.type || 'product',
+        trackInventory: product?.trackInventory || false,
+        trackSerialNumber: product?.trackSerialNumber || false,
+        trackExpiryDate: product?.trackExpiryDate || false,
+        expiryDate: product?.expiryDate || '',
+        costPrice: product?.costPrice || 0,
+        sellingPrice: product?.sellingPrice || 0,
+        wholesalePrice: product?.wholesalePrice || 0,
+        unit: product?.unit || '',
+        lowStockAlert: product?.lowStockAlert || 0,
+        currentStock: product?.currentStock || 0,
+        category: product?.category || '',
+        brand: product?.brand || '',
+        supplier:
+          typeof product?.supplier === 'object' ? product.supplier._id : product?.supplier || '',
+        alternativeSuppliers:
+          product?.alternativeSuppliers?.map(supplier =>
+            typeof supplier === 'object' ? supplier._id : supplier
+          ) || [],
+        images: product?.images || [],
+        salesTaxRate: product?.salesTaxRate || 0,
+        purchaseTaxRate: product?.purchaseTaxRate || 0,
+        isActive: product?.isActive !== undefined ? product.isActive : true,
+      })
+    }
+  }, [product, open, reset])
   const onSubmit = async (data: ProductFormData) => {
     try {
       if (product?._id) {
@@ -130,10 +167,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
             <label className='block text-sm font-medium text-secondary-foreground mb-1'>
               Product Type <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
-            <Select
-              // value={watch('type')}
-              onValueChange={value => setValue('type', value as any)}
-            >
+            <Select value={watchedType} onValueChange={value => setValue('type', value as any)}>
               <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Select type' />
               </SelectTrigger>
@@ -328,7 +362,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
                   Primary Supplier <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <Select
-                  // value={watch('supplierId') || undefined}
+                  value={watchedSupplier || undefined}
                   onValueChange={value => setValue('supplier', value === 'none' ? '' : value)}
                 >
                   <SelectTrigger className='w-full'>

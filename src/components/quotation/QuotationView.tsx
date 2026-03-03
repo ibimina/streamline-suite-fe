@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { Quotation } from '@/types/quotation.type'
 import { toast } from 'react-toastify'
 import { useConvertQuotationToInvoiceMutation } from '@/store/api/quotationApi'
+import { formatDate, getQuotationStatusConfig } from '@/contants'
+import { useCurrency } from '@/hooks/useCurrency'
 
 // Icon components
 const UserIcon = ({ className }: { className?: string }) => (
@@ -112,32 +114,6 @@ interface QuotationViewProps {
   onDownloadPdf?: (id: string) => void
 }
 
-const formatDate = (date: string | Date | undefined) => {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('en-NG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-const formatCurrency = (amount: number | undefined) => {
-  return `₦${(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
-
-const getStatusConfig = (status?: string) => {
-  const configs: Record<string, { color: string; icon: string; bg: string }> = {
-    draft: { color: 'text-secondary-foreground', icon: '📝', bg: 'bg-muted ' },
-    sent: { color: 'text-blue-700', icon: '📤', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-    viewed: { color: 'text-purple-700', icon: '👁️', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-    accepted: { color: 'text-green-700', icon: '✅', bg: 'bg-green-100 dark:bg-green-900/30' },
-    rejected: { color: 'text-red-700', icon: '❌', bg: 'bg-red-100 dark:bg-red-900/30' },
-    expired: { color: 'text-orange-700', icon: '⏰', bg: 'bg-orange-100 dark:bg-orange-900/30' },
-    converted: { color: 'text-primary', icon: '🔄', bg: 'bg-primary-light dark:bg-primary/20/30' },
-  }
-  return configs[status?.toLowerCase() || 'draft'] || configs.draft
-}
-
 export default function QuotationView({
   quotation,
   onConvertToInvoice,
@@ -145,7 +121,8 @@ export default function QuotationView({
   onDownloadPdf,
 }: Readonly<QuotationViewProps>) {
   const router = useRouter()
-  const statusConfig = getStatusConfig(quotation.status)
+  const { formatCurrency } = useCurrency()
+  const statusConfig = getQuotationStatusConfig(quotation.status)
   const [convertToInvoice, { isLoading: isConverting }] = useConvertQuotationToInvoiceMutation()
 
   // Calculate totals from items

@@ -21,10 +21,14 @@ import { Paginator } from '../ui/pagination'
 
 // Transaction type filter options
 const TYPE_OPTIONS: FilterOption[] = [
-  { value: 'stock_in', label: 'Stock In' },
-  { value: 'stock_out', label: 'Stock Out' },
+  { value: 'purchase', label: 'Purchase' },
+  { value: 'sale', label: 'Sale' },
+  { value: 'return_from_customer', label: 'Return from Customer' },
+  { value: 'return_to_supplier', label: 'Return to Supplier' },
   { value: 'adjustment', label: 'Adjustment' },
   { value: 'transfer', label: 'Transfer' },
+  { value: 'production_in', label: 'Production In' },
+  { value: 'production_out', label: 'Production Out' },
 ]
 
 const InventoryTransactions = () => {
@@ -41,7 +45,7 @@ const InventoryTransactions = () => {
     page,
     limit,
     search: searchTerm || undefined,
-    transactionType: statusFilter !== 'all' ? statusFilter : undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
     startDate: dateRange?.from?.toISOString(),
     endDate: dateRange?.to?.toISOString(),
   })
@@ -81,7 +85,7 @@ const InventoryTransactions = () => {
         // Create new transaction
         const createData: CreateInventoryTransactionData = {
           product: transactionData.product,
-          transactionType: transactionData.transactionType || 'stock_in',
+          status: transactionData.status || 'purchase',
           quantity: transactionData.quantity,
           unitCost: transactionData.unitCost,
           reference: transactionData.reference,
@@ -127,25 +131,60 @@ const InventoryTransactions = () => {
     }
   }
   const getStatusConfig = (status: string) => {
-    const configs: Record<string, { icon: any; color: string }> = {
-      stock_in: {
+    const configs: Record<string, { icon: any; color: string; label: string }> = {
+      purchase: {
         icon: ArrowDownIcon,
         color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        label: 'Purchase',
       },
-      stock_out: {
+      sale: {
         icon: ArrowUpIcon,
         color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+        label: 'Sale',
+      },
+      return_from_customer: {
+        icon: ArrowDownIcon,
+        color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
+        label: 'Return (Customer)',
+      },
+      return_to_supplier: {
+        icon: ArrowUpIcon,
+        color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+        label: 'Return (Supplier)',
       },
       adjustment: {
         icon: PencilIcon,
         color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        label: 'Adjustment',
       },
       transfer: {
         icon: ArrowUpIcon,
         color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+        label: 'Transfer',
+      },
+      production_in: {
+        icon: ArrowDownIcon,
+        color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+        label: 'Production In',
+      },
+      production_out: {
+        icon: ArrowUpIcon,
+        color: 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200',
+        label: 'Production Out',
+      },
+      completed: {
+        icon: PencilIcon,
+        color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+        label: 'Completed',
       },
     }
-    return configs[status as keyof typeof configs] || configs.PURCHASE
+    return (
+      configs[status] || {
+        icon: PencilIcon,
+        color: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+        label: status || 'Unknown',
+      }
+    )
   }
 
   return (
@@ -229,7 +268,7 @@ const InventoryTransactions = () => {
                   </tr>
                 ) : (
                   transactions.map(transaction => {
-                    const statusConfig = getStatusConfig(transaction.transactionType)
+                    const statusConfig = getStatusConfig(transaction.status)
                     const IconComponent = statusConfig.icon
 
                     return (
@@ -247,7 +286,10 @@ const InventoryTransactions = () => {
                         <td className='px-6 py-4'>
                           <div>
                             <div className='text-sm font-medium text-foreground'>
-                              {transaction.productName || transaction.product}
+                              {transaction.productName ||
+                                (typeof transaction.product === 'object'
+                                  ? transaction.product?.name
+                                  : transaction.product)}
                             </div>
                             {transaction.notes && (
                               <div className='text-sm text-muted-foreground max-w-xs truncate'>
@@ -261,7 +303,7 @@ const InventoryTransactions = () => {
                             className={`inline-flex items-center px-2 py-1 text-xs rounded-full capitalize ${statusConfig.color}`}
                           >
                             <IconComponent className='w-3 h-3 mr-1' />
-                            {transaction.transactionType.replace('_', ' ')}
+                            {statusConfig.label}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
