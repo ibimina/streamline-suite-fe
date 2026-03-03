@@ -70,7 +70,8 @@ function EditQuotationContent() {
   }
 
   // Get current template info (from override or quotation)
-  const currentTemplate = templateConfig?.templateName || quotation?.template || 'classic'
+  const currentTemplate =
+    templateConfig?.templateName || (quotation?.templateName as Template) || 'classic'
   const currentAccentColor = templateConfig?.accentColor || quotation?.accentColor || 'teal'
 
   // Show template modal if user requested it

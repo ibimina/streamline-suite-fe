@@ -61,7 +61,7 @@ function CreateQuotationContent() {
       const source = duplicateData.payload
       if (source.template || source.accentColor) {
         return {
-          templateName: (source.template as Template) || 'classic',
+          templateName: (source.templateName as Template) || 'classic',
           accentColor: (source.accentColor as AccentColor | string) || 'teal',
         }
       }

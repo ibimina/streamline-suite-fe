@@ -26,6 +26,7 @@ export interface InventoryTransaction {
   warehouse?: string
   warehouseName?: string
   runningBalance?: number
+  runningStock?: number
   averageCost?: number
   serialNumbers?: string[]
   expiryDate?: string
@@ -97,5 +98,6 @@ export interface CreateInventoryTransactionData {
 }
 
 export interface UpdateInventoryTransactionData {
+  status?: string
   notes?: string
 }
