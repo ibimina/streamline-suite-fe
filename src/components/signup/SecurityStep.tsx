@@ -47,7 +47,7 @@ const PasswordStrengthMeter: React.FC<{ password: string }> = ({ password }) => 
             <div
               key={id}
               className={`h-2 flex-1 rounded-full transition-colors ${
-                strength > i ? strengthLevels[strength].color : 'bg-gray-200 dark:bg-gray-600'
+                strength > i ? strengthLevels[strength].color : 'bg-muted'
               }`}
               role='presentation'
             />
@@ -58,22 +58,24 @@ const PasswordStrengthMeter: React.FC<{ password: string }> = ({ password }) => 
         Password strength: {strengthLevels[strength].label}
       </p>
 
-      <div className='mt-2 text-xs text-gray-600 dark:text-gray-400'>
+      <div className='mt-2 text-xs text-muted-foreground'>
         <p>Password must contain:</p>
         <ul className='list-disc list-inside space-y-1 mt-1'>
-          <li className={password.length >= 8 ? 'text-green-600' : 'text-gray-400'}>
+          <li className={password.length >= 8 ? 'text-green-600' : 'text-muted-foreground'}>
             At least 8 characters
           </li>
-          <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-400'}>
+          <li className={/[A-Z]/.test(password) ? 'text-green-600' : 'text-muted-foreground'}>
             One uppercase letter
           </li>
-          <li className={/[a-z]/.test(password) ? 'text-green-600' : 'text-gray-400'}>
+          <li className={/[a-z]/.test(password) ? 'text-green-600' : 'text-muted-foreground'}>
             One lowercase letter
           </li>
-          <li className={/[0-9]/.test(password) ? 'text-green-600' : 'text-gray-400'}>
+          <li className={/[0-9]/.test(password) ? 'text-green-600' : 'text-muted-foreground'}>
             One number
           </li>
-          <li className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : 'text-gray-400'}>
+          <li
+            className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : 'text-muted-foreground'}
+          >
             One special character
           </li>
         </ul>
@@ -101,8 +103,8 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
   return (
     <div className='space-y-6'>
       <div className='text-center mb-8'>
-        <h2 className='text-2xl font-bold text-gray-900 dark:text-white'>Security & Terms</h2>
-        <p className='text-sm text-gray-600 dark:text-gray-400 mt-2'>
+        <h2 className='text-2xl font-bold text-foreground'>Security & Terms</h2>
+        <p className='text-sm text-muted-foreground mt-2'>
           Set up your password and agree to our terms
         </p>
       </div>
@@ -110,7 +112,7 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='password'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Password *
         </label>
@@ -119,14 +121,14 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
             {...register('password')}
             type={isPasswordVisible ? 'text' : 'password'}
             id='password'
-            className='w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+            className='w-full px-3 py-2 pr-10 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
             placeholder='Create a strong password'
             autoComplete='new-password'
           />
           <button
             type='button'
             onClick={togglePasswordVisibility}
-            className='absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            className='absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-secondary-foreground dark:hover:text-muted-foreground'
             aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
           >
             {isPasswordVisible ? (
@@ -143,7 +145,7 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
       <div>
         <label
           htmlFor='confirmPassword'
-          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+          className='block text-sm font-medium text-secondary-foreground mb-2'
         >
           Confirm Password *
         </label>
@@ -152,14 +154,14 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
             {...register('confirmPassword')}
             type={isConfirmPasswordVisible ? 'text' : 'password'}
             id='confirmPassword'
-            className='w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+            className='w-full px-3 py-2 pr-10 border border-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-card text-foreground'
             placeholder='Confirm your password'
             autoComplete='new-password'
           />
           <button
             type='button'
             onClick={toggleConfirmPasswordVisibility}
-            className='absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+            className='absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-secondary-foreground dark:hover:text-muted-foreground'
             aria-label={isConfirmPasswordVisible ? 'Hide password' : 'Show password'}
           >
             {isConfirmPasswordVisible ? (
@@ -186,15 +188,15 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
               {...register('agreeToTerms')}
               id='agreeToTerms'
               type='checkbox'
-              className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+              className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
             />
           </div>
           <div className='ml-3 text-sm'>
-            <label htmlFor='agreeToTerms' className='text-gray-700 dark:text-gray-300'>
+            <label htmlFor='agreeToTerms' className='text-secondary-foreground'>
               I agree to the{' '}
               <a
                 href='/terms'
-                className='text-teal-600 hover:text-teal-500 underline'
+                className='text-primary hover:text-primary underline'
                 target='_blank'
                 rel='noopener noreferrer'
               >
@@ -214,15 +216,15 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formMethods }) => {
               {...register('agreeToPrivacy')}
               id='agreeToPrivacy'
               type='checkbox'
-              className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+              className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
             />
           </div>
           <div className='ml-3 text-sm'>
-            <label htmlFor='agreeToPrivacy' className='text-gray-700 dark:text-gray-300'>
+            <label htmlFor='agreeToPrivacy' className='text-secondary-foreground'>
               I agree to the{' '}
               <a
                 href='/privacy'
-                className='text-teal-600 hover:text-teal-500 underline'
+                className='text-primary hover:text-primary underline'
                 target='_blank'
                 rel='noopener noreferrer'
               >

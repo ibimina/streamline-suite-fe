@@ -1,52 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Register custom colors with Tailwind v4 */
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-light: var(--destructive-light);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-light: var(--success-light);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-light: var(--warning-light);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-light: var(--info-light);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --shadow-card: var(--shadow-sm);
+  --shadow-dropdown: var(--shadow-md);
+  --shadow-modal: var(--shadow-lg);
+
+  --font-sans:
+    'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #3b82f6;
+  /* Base */
+  --background: #fafafa;
+  --foreground: #0f172a;
+
+  /* Primary - Professional Blue (Trust & Security) */
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
+  --primary-hover: #1d4ed8;
+  --primary-light: #dbeafe;
+
+  /* Secondary - Slate */
   --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
+  --secondary-foreground: #475569;
+
+  /* Muted - For subtle elements */
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+
+  /* Accent - For highlights */
+  --accent: #eff6ff;
+  --accent-foreground: #1e40af;
+
+  /* Cards & Popovers */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Destructive */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --destructive-light: #fee2e2;
+
+  /* Forms */
+  --input: #e2e8f0;
   --border: #e2e8f0;
-  --ring: #3b82f6;
+  --ring: #2563eb;
+
+  /* Semantic Colors */
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --success-light: #dcfce7;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --warning-light: #fef3c7;
+  --info: #0891b2;
+  --info-foreground: #ffffff;
+  --info-light: #cffafe;
+
+  /* Financial-specific */
+  --money-positive: #16a34a;
+  --money-negative: #dc2626;
+  --money-neutral: #64748b;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+
+  /* Border Radius */
+  --radius: 0.5rem;
 }
 
 :root.dark {
+  /* Base */
   --background: #0a0a0a;
-  --foreground: #ededed;
+  --foreground: #f1f5f9;
+
+  /* Primary */
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
+  --primary-hover: #2563eb;
+  --primary-light: #1e3a5f;
+
+  /* Secondary */
   --secondary: #1e293b;
-  --secondary-foreground: #f1f5f9;
+  --secondary-foreground: #cbd5e1;
+
+  /* Muted */
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+
+  /* Accent */
+  --accent: #1e3a5f;
+  --accent-foreground: #93c5fd;
+
+  /* Cards & Popovers */
+  --card: #0f172a;
+  --card-foreground: #f1f5f9;
+  --popover: #0f172a;
+  --popover-foreground: #f1f5f9;
+
+  /* Destructive */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --destructive-light: #450a0a;
+
+  /* Forms */
+  --input: #374151;
   --border: #374151;
   --ring: #3b82f6;
+
+  /* Semantic Colors */
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --success-light: #14532d;
+  --warning: #f59e0b;
+  --warning-foreground: #000000;
+  --warning-light: #451a03;
+  --info: #22d3ee;
+  --info-foreground: #000000;
+  --info-light: #164e63;
+
+  /* Financial-specific */
+  --money-positive: #22c55e;
+  --money-negative: #ef4444;
+  --money-neutral: #94a3b8;
+
+  /* Shadows - darker for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
+    /* Base */
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #f1f5f9;
+
+    /* Primary */
     --primary: #3b82f6;
     --primary-foreground: #ffffff;
+    --primary-hover: #2563eb;
+    --primary-light: #1e3a5f;
+
+    /* Secondary */
     --secondary: #1e293b;
-    --secondary-foreground: #f1f5f9;
+    --secondary-foreground: #cbd5e1;
+
+    /* Muted */
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+
+    /* Accent */
+    --accent: #1e3a5f;
+    --accent-foreground: #93c5fd;
+
+    /* Cards & Popovers */
+    --card: #0f172a;
+    --card-foreground: #f1f5f9;
+    --popover: #0f172a;
+    --popover-foreground: #f1f5f9;
+
+    /* Destructive */
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --destructive-light: #450a0a;
+
+    /* Forms */
+    --input: #374151;
     --border: #374151;
     --ring: #3b82f6;
+
+    /* Semantic Colors */
+    --success: #22c55e;
+    --success-foreground: #ffffff;
+    --success-light: #14532d;
+    --warning: #f59e0b;
+    --warning-foreground: #000000;
+    --warning-light: #451a03;
+    --info: #22d3ee;
+    --info-foreground: #000000;
+    --info-light: #164e63;
+
+    /* Financial-specific */
+    --money-positive: #22c55e;
+    --money-negative: #ef4444;
+    --money-neutral: #94a3b8;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
   }
 }
 
-/* Ensure body uses the CSS variables */
+/* Base body styles */
 body {
   background-color: var(--background);
   color: var(--foreground);
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+
+/* Transitions */
+.transition-base {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+.transition-slow {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Focus ring utility */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--ring);
+}
+
+/* Hover lift effect for cards */
+.hover-lift {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Financial text colors */
+.text-money-positive {
+  color: var(--money-positive);
+}
+.text-money-negative {
+  color: var(--money-negative);
+}
+.text-money-neutral {
+  color: var(--money-neutral);
+}
+
+/* Status badge backgrounds */
+.bg-status-success {
+  background-color: var(--success-light);
+  color: var(--success);
+}
+.bg-status-warning {
+  background-color: var(--warning-light);
+  color: var(--warning);
+}
+.bg-status-error {
+  background-color: var(--destructive-light);
+  color: var(--destructive);
+}
+.bg-status-info {
+  background-color: var(--info-light);
+  color: var(--info);
+}
+
+/* Skeleton loading animation */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.animate-skeleton {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Form shake animation for errors */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }

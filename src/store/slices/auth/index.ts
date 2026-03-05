@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { LocalStorageManager } from '@/utils/localStorage'
-import { AuthState, LoginPayload, User } from './type'
+import { Account, AuthState, LoginPayload, User } from './type'
 import { isTokenExpired } from '@/utils/jwt'
 import { authApi } from '@/store/api'
+import { accountApi } from '@/store/api/accountApi'
 
 // Initialize state from localStorage if available
 const getInitialState = (): AuthState => {
@@ -102,6 +103,15 @@ const authSlice = createSlice({
       state.error = null
       state.isLoading = false
     },
+
+    // Update account in state (for local updates after API call)
+    updateAccountInState: (state, action: PayloadAction<Partial<Account>>) => {
+      if (state.user) {
+        state.user.account = { ...state.user.account, ...action.payload }
+        // Update localStorage
+        LocalStorageManager.setUserSession(state.user)
+      }
+    },
   },
   extraReducers: builder => {
     // RTK Query matchers - sync local state with API responses
@@ -192,6 +202,17 @@ const authSlice = createSlice({
       state.error =
         (action.payload as any)?.data?.message ?? action.error?.message ?? 'Token refresh failed'
     })
+
+    // Update Account - sync account data in state
+    builder.addMatcher(
+      accountApi.endpoints.updateAccount.matchFulfilled,
+      (state, action: PayloadAction<{ payload: Account }>) => {
+        if (state.user) {
+          state.user.account = action.payload.payload
+          LocalStorageManager.setUserSession(state.user)
+        }
+      }
+    )
   },
 })
 
@@ -202,6 +223,7 @@ export const {
   getTokenInfo,
   resetAuth,
   refreshTokenSuccess,
+  updateAccountInState,
 } = authSlice.actions
 
 export default authSlice.reducer

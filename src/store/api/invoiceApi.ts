@@ -3,6 +3,7 @@ import {
   Invoice,
   InvoiceFormData,
   InvoiceQueryParams,
+  InvoiceStatsQueryParams,
   InvoicesResponse,
   InvoiceStatsResponse,
   InvoiceStatus,
@@ -54,8 +55,20 @@ export const invoiceApi = baseApi.injectEndpoints({
     }),
 
     // Get invoice statistics
-    getInvoiceStats: builder.query<InvoiceStatsResponse, void>({
-      query: () => `${PORTAL_BASE_PATH}/invoices/stats`,
+    getInvoiceStats: builder.query<InvoiceStatsResponse, InvoiceStatsQueryParams | void>({
+      query: (params = {}) => {
+        const queryParams = new URLSearchParams()
+        if (params && typeof params === 'object') {
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+              queryParams.append(key, String(value))
+            }
+          })
+        }
+        const queryString = queryParams.toString()
+        const baseUrl = `${PORTAL_BASE_PATH}/invoices/stats`
+        return queryString ? `${baseUrl}?${queryString}` : baseUrl
+      },
       providesTags: [{ type: 'Invoice', id: 'STATS' }],
     }),
 

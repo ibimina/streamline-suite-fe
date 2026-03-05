@@ -20,6 +20,8 @@ import {
 } from '@/schemas/staff.schema'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { Paginator } from '../ui/pagination'
 
 const Staff: React.FC = () => {
   const [page, setPage] = useState(1)
@@ -88,7 +90,7 @@ const Staff: React.FC = () => {
         <p className='text-red-500 mb-4'>Failed to load staff</p>
         <button
           onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+          className='bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary'
         >
           Retry
         </button>
@@ -99,32 +101,27 @@ const Staff: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Staff Management</h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
-          Manage all your employee and staff records.
-        </p>
+        <h1 className='text-3xl font-bold text-foreground'>Staff Management</h1>
+        <p className='text-muted-foreground mt-1'>Manage all your employee and staff records.</p>
       </div>
       <div className='flex justify-end'>
         <button
           onClick={() => handleOpenModal()}
-          className='bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors'
         >
           Add New Staff
         </button>
       </div>
       {staff.length === 0 ? (
-        <div className='text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg'>
-          <p className='text-gray-500 dark:text-gray-400'>
+        <div className='text-center py-12 bg-card rounded-xl shadow-lg'>
+          <p className='text-muted-foreground'>
             No staff members found. Add your first staff member to get started.
           </p>
         </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {staff.map(member => (
-            <div
-              key={member._id}
-              className='bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col'
-            >
+            <div key={member._id} className='bg-card rounded-xl shadow-lg p-6 flex flex-col'>
               <div className='flex justify-between items-start'>
                 <Image
                   src={member.avatarUrl || `https://i.pravatar.cc/150?u=${member._id}`}
@@ -134,28 +131,26 @@ const Staff: React.FC = () => {
                   className='w-16 h-16 rounded-full'
                 />
                 <div className='flex flex-col items-end gap-1'>
-                  <span className='px-2 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200'>
+                  <span className='px-2 py-1 text-xs font-semibold rounded-full bg-primary-light text-primary dark:bg-primary/20 dark:text-primary-foreground'>
                     {member.role}
                   </span>
                   <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                      member.status === 'active'
+                      member.isActive
                         ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : member.status === 'terminated'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     }`}
                   >
-                    {member.status}
+                    {member.isActive ? 'Active' : 'Deactivated'}
                   </span>
                 </div>
               </div>
               <div className='mt-4'>
-                <h3 className='text-lg font-bold text-gray-900 dark:text-white'>
+                <h3 className='text-lg font-bold text-foreground'>
                   {member.firstName} {member.lastName}
                 </h3>
-                <p className='text-sm text-gray-500 dark:text-gray-400'>{member.position}</p>
-                <div className='text-sm text-gray-500 dark:text-gray-400 mt-2 space-y-1'>
+                <p className='text-sm text-muted-foreground'>{member.position}</p>
+                <div className='text-sm text-muted-foreground mt-2 space-y-1'>
                   <p className='flex items-center'>
                     <MailIcon className='w-4 h-4 mr-2' /> {member.email}
                   </p>
@@ -169,18 +164,18 @@ const Staff: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className='mt-auto pt-4 border-t dark:border-gray-700 flex justify-end space-x-2'>
+              <div className='mt-auto pt-4 border-t border-border flex justify-end space-x-2'>
                 <button
                   onClick={() => handleOpenModal(member)}
-                  className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                  className='p-2 rounded-full hover:bg-muted '
                   title='Edit'
                   disabled={isUpdating}
                 >
-                  <PencilIcon className='w-5 h-5 text-gray-500' />
+                  <PencilIcon className='w-5 h-5 text-muted-foreground' />
                 </button>
                 <button
                   onClick={() => openDeleteModal(member)}
-                  className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                  className='p-2 rounded-full hover:bg-muted '
                   title='Delete'
                   disabled={isDeleting}
                 >
@@ -194,27 +189,16 @@ const Staff: React.FC = () => {
 
       {/* Pagination */}
       {staffData?.payload?.total && staffData.payload.total > limit && (
-        <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-          <p className='text-sm text-gray-500'>
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
+          <p className='text-sm text-muted-foreground'>
             Showing {(page - 1) * limit + 1} to {Math.min(page * limit, staffData.payload.total)} of{' '}
             {staffData.payload.total} staff members
           </p>
-          <div className='flex gap-2'>
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage(p => p + 1)}
-              disabled={page * limit >= staffData.payload.total}
-              className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
-            >
-              Next
-            </button>
-          </div>
+          <Paginator
+            currentPage={page}
+            totalPages={Math.ceil(staffData.payload.total / limit)}
+            onPageChange={setPage}
+          />
         </div>
       )}
 
@@ -232,6 +216,7 @@ const Staff: React.FC = () => {
           onConfirm={handleDelete}
           onCancel={() => setDeleteModalOpen(false)}
           isLoading={isDeleting}
+          open={isDeleteModalOpen}
         />
       )}
     </div>
@@ -266,7 +251,6 @@ const StaffModal: React.FC<{
         ? new Date(staffMember.hireDate).toISOString().split('T')[0]
         : '',
       address: staffMember?.address || '',
-      password: '',
     },
   })
 
@@ -276,7 +260,7 @@ const StaffModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto'>
+      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-2xl font-bold'>{staffMember ? 'Edit' : 'Add New'} Staff Member</h2>
           <button onClick={onClose}>
@@ -290,7 +274,7 @@ const StaffModal: React.FC<{
                 type='text'
                 {...register('firstName')}
                 placeholder='First Name'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.firstName && <InputErrorWrapper message={errors.firstName.message || ''} />}
             </div>
@@ -299,7 +283,7 @@ const StaffModal: React.FC<{
                 type='text'
                 {...register('lastName')}
                 placeholder='Last Name'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.lastName && <InputErrorWrapper message={errors.lastName.message || ''} />}
             </div>
@@ -309,7 +293,7 @@ const StaffModal: React.FC<{
                 {...register('email')}
                 placeholder='Email'
                 disabled={isEditing}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50'
+                className='p-2 w-full border rounded   disabled:opacity-50'
               />
               {errors.email && <InputErrorWrapper message={errors.email.message || ''} />}
             </div>
@@ -318,15 +302,12 @@ const StaffModal: React.FC<{
                 type='tel'
                 {...register('phone')}
                 placeholder='Phone'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.phone && <InputErrorWrapper message={errors.phone.message || ''} />}
             </div>
             <div>
-              <select
-                {...register('role')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-              >
+              <select {...register('role')} className='p-2 w-full border rounded  '>
                 {STAFF_ROLES.map(role => (
                   <option key={role} value={role}>
                     {role}
@@ -340,7 +321,7 @@ const StaffModal: React.FC<{
                 type='text'
                 {...register('position')}
                 placeholder='Position/Job Title'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.position && <InputErrorWrapper message={errors.position.message || ''} />}
             </div>
@@ -349,15 +330,12 @@ const StaffModal: React.FC<{
                 type='text'
                 {...register('department')}
                 placeholder='Department'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.department && <InputErrorWrapper message={errors.department.message || ''} />}
             </div>
             <div>
-              <select
-                {...register('employmentType')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-              >
+              <select {...register('employmentType')} className='p-2 w-full border rounded  '>
                 <option value='full-time'>Full Time</option>
                 <option value='part-time'>Part Time</option>
                 <option value='contract'>Contract</option>
@@ -372,7 +350,7 @@ const StaffModal: React.FC<{
                 type='number'
                 {...register('salary', { valueAsNumber: true })}
                 placeholder='Salary'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.salary && <InputErrorWrapper message={errors.salary.message || ''} />}
             </div>
@@ -380,28 +358,17 @@ const StaffModal: React.FC<{
               <input
                 type='date'
                 {...register('hireDate')}
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='p-2 w-full border rounded  '
               />
               {errors.hireDate && <InputErrorWrapper message={errors.hireDate.message || ''} />}
             </div>
           </div>
-          {!isEditing && (
-            <div>
-              <input
-                type='password'
-                {...register('password')}
-                placeholder='Password (min 8 characters)'
-                className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
-              />
-              {errors.password && <InputErrorWrapper message={errors.password.message || ''} />}
-            </div>
-          )}
           <div>
             <input
               type='text'
               {...register('address')}
               placeholder='Address'
-              className='p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='p-2 w-full border rounded  '
             />
             {errors.address && <InputErrorWrapper message={errors.address.message || ''} />}
           </div>
@@ -409,14 +376,14 @@ const StaffModal: React.FC<{
             <button
               type='button'
               onClick={onClose}
-              className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
+              className='mr-2 px-4 py-2 rounded bg-muted'
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600 disabled:opacity-50'
+              className='px-4 py-2 rounded bg-primary text-white hover:bg-primary disabled:opacity-50'
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save'}
@@ -427,36 +394,5 @@ const StaffModal: React.FC<{
     </div>
   )
 }
-
-const DeleteConfirmationModal: React.FC<{
-  onConfirm: () => void
-  onCancel: () => void
-  isLoading?: boolean
-}> = ({ onConfirm, onCancel, isLoading }) => (
-  <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-    <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm'>
-      <h3 className='text-lg font-bold mb-2'>Confirm Deletion</h3>
-      <p className='text-gray-600 dark:text-gray-400 mb-4'>
-        Are you sure? This action cannot be undone.
-      </p>
-      <div className='flex justify-end'>
-        <button
-          onClick={onCancel}
-          className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
-          disabled={isLoading}
-        >
-          Cancel
-        </button>
-        <button
-          onClick={onConfirm}
-          className='px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50'
-          disabled={isLoading}
-        >
-          {isLoading ? 'Deleting...' : 'Delete'}
-        </button>
-      </div>
-    </div>
-  </div>
-)
 
 export default Staff

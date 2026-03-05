@@ -34,6 +34,19 @@ export const paymentMethodEnum = z.enum([
 ])
 
 /**
+ * Expense Item Schema
+ * For product line items on stock purchase expenses
+ */
+export const expenseItemSchema = z.object({
+  product: z.string().optional().or(z.literal('')),
+  description: z.string().min(1, 'Item description is required').max(200).trim(),
+  quantity: z.number().min(1, 'Quantity must be at least 1'),
+  unitCost: z.number().min(0, 'Unit cost must be 0 or greater'),
+})
+
+export type ExpenseItemFormData = z.infer<typeof expenseItemSchema>
+
+/**
  * Expense Form Schema
  * For creating/updating expenses
  */
@@ -89,6 +102,7 @@ export const expenseSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
   isRecurring: z.boolean().optional().default(false),
   recurringFrequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
+  items: z.array(expenseItemSchema).optional().default([]),
 })
 
 /**

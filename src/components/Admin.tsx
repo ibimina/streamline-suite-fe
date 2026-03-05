@@ -8,6 +8,8 @@ import {
   useDeleteUserMutation,
 } from '@/store/api'
 import { User, UserFormData, UserRole } from '@/types/user.type'
+import DeleteConfirmationModal from './shared/DeleteConfirmationModal'
+import { Paginator } from './ui/pagination'
 
 type RoleOption = { value: UserRole; label: string }
 
@@ -26,7 +28,7 @@ const Admin: React.FC = () => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deletingUser, setDeletingUser] = useState<User | null>(null)
 
-  const users = usersData?.payload?.data || []
+  const users = usersData?.payload.data || []
 
   const handleOpenModal = (user: User | null = null) => {
     setEditingUser(user)
@@ -71,7 +73,7 @@ const Admin: React.FC = () => {
   if (isLoading) {
     return (
       <div className='flex justify-center items-center h-64'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500'></div>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
       </div>
     )
   }
@@ -82,7 +84,7 @@ const Admin: React.FC = () => {
         <p className='text-red-500 mb-4'>Failed to load users</p>
         <button
           onClick={() => refetch()}
-          className='bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600'
+          className='bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary'
         >
           Retry
         </button>
@@ -93,24 +95,22 @@ const Admin: React.FC = () => {
   return (
     <div className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
-          Admin Panel: User Management
-        </h1>
-        <p className='text-gray-500 dark:text-gray-400 mt-1'>
+        <h1 className='text-3xl font-bold text-foreground'>Admin Panel: User Management</h1>
+        <p className='text-muted-foreground mt-1'>
           Add, edit, and manage user roles and permissions.
         </p>
       </div>
       <div className='flex justify-end'>
         <button
           onClick={() => handleOpenModal()}
-          className='bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-teal-600 transition-colors'
+          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors'
         >
           Add New User
         </button>
       </div>
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg overflow-x-auto'>
+      <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
         <table className='w-full text-sm text-left'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <thead className='text-xs text-secondary-foreground uppercase bg-muted dark:text-muted-foreground'>
             <tr>
               <th className='px-6 py-3'>User</th>
               <th className='px-6 py-3'>Role</th>
@@ -122,55 +122,50 @@ const Admin: React.FC = () => {
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={5} className='px-6 py-12 text-center text-gray-500'>
+                <td colSpan={5} className='px-6 py-12 text-center text-muted-foreground'>
                   No users found. Add your first user to get started.
                 </td>
               </tr>
             ) : (
               users.map(user => (
-                <tr
-                  key={user._id}
-                  className='border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
-                >
+                <tr key={user._id} className='border-b border-border hover:bg-muted '>
                   <td className='px-6 py-4'>
-                    <div className='font-medium text-gray-900 dark:text-white'>
+                    <div className='font-medium text-foreground'>
                       {user.firstName} {user.lastName}
                     </div>
-                    <div className='text-xs text-gray-500 dark:text-gray-400'>{user.email}</div>
+                    <div className='text-xs text-muted-foreground'>{user.email}</div>
                   </td>
                   <td className='px-6 py-4'>
-                    <span className='px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200 capitalize'>
+                    <span className='px-2 py-1 text-xs font-semibold rounded-full bg-muted text-foreground   capitalize'>
                       {user.role.replace('_', ' ')}
                     </span>
                   </td>
                   <td className='px-6 py-4'>
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                        user.status === 'active'
+                        user.isActive
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : user.status === 'suspended'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                       }`}
                     >
-                      {user.status}
+                      {user.isActive ? 'Active' : 'In active'}
                     </span>
                   </td>
                   <td className='px-6 py-4'>
-                    {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
+                    {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
                   </td>
                   <td className='px-6 py-4 text-center'>
                     <button
                       onClick={() => handleOpenModal(user)}
-                      className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                      className='p-2 rounded-full hover:bg-muted '
                       title='Edit User'
                       disabled={isUpdating}
                     >
-                      <PencilIcon className='w-5 h-5 text-gray-500' />
+                      <PencilIcon className='w-5 h-5 text-muted-foreground' />
                     </button>
                     <button
                       onClick={() => openDeleteModal(user)}
-                      className='p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700'
+                      className='p-2 rounded-full hover:bg-muted '
                       title='Delete User'
                       disabled={isDeleting}
                     >
@@ -185,27 +180,16 @@ const Admin: React.FC = () => {
 
         {/* Pagination */}
         {usersData?.payload?.total && usersData.payload.total > limit && (
-          <div className='flex justify-between items-center mt-4 pt-4 border-t dark:border-gray-700'>
-            <p className='text-sm text-gray-500'>
+          <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
+            <p className='text-sm text-muted-foreground'>
               Showing {(page - 1) * limit + 1} to {Math.min(page * limit, usersData.payload.total)}{' '}
               of {usersData.payload.total} users
             </p>
-            <div className='flex gap-2'>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage(p => p + 1)}
-                disabled={page * limit >= usersData.payload.total}
-                className='px-3 py-1 rounded border dark:border-gray-600 disabled:opacity-50'
-              >
-                Next
-              </button>
-            </div>
+            <Paginator
+              currentPage={page}
+              totalPages={Math.ceil(usersData.payload.total / limit)}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>
@@ -222,6 +206,7 @@ const Admin: React.FC = () => {
           onConfirm={confirmDelete}
           onCancel={() => setDeleteModalOpen(false)}
           isLoading={isDeleting}
+          open={isDeleteModalOpen}
         />
       )}
     </div>
@@ -268,7 +253,7 @@ const UserModal: React.FC<{
 
   return (
     <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg'>
+      <div className='bg-card rounded-lg shadow-xl p-6 w-full max-w-lg'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-2xl font-bold'>{user ? 'Edit' : 'Add New'} User</h2>
           <button onClick={onClose}>
@@ -278,7 +263,7 @@ const UserModal: React.FC<{
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
+              <label className='block text-sm font-medium text-secondary-foreground'>
                 First Name
               </label>
               <input
@@ -288,11 +273,11 @@ const UserModal: React.FC<{
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className='mt-1 p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='mt-1 p-2 w-full border rounded  '
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
+              <label className='block text-sm font-medium text-secondary-foreground'>
                 Last Name
               </label>
               <input
@@ -302,15 +287,13 @@ const UserModal: React.FC<{
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className='mt-1 p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='mt-1 p-2 w-full border rounded  '
               />
             </div>
           </div>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
-                Email
-              </label>
+              <label className='block text-sm font-medium text-secondary-foreground'>Email</label>
               <input
                 type='email'
                 name='email'
@@ -318,32 +301,28 @@ const UserModal: React.FC<{
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className='mt-1 p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='mt-1 p-2 w-full border rounded  '
               />
             </div>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
-                Phone
-              </label>
+              <label className='block text-sm font-medium text-secondary-foreground'>Phone</label>
               <input
                 type='tel'
                 name='phone'
                 placeholder='Phone'
                 value={formData.phone}
                 onChange={handleChange}
-                className='mt-1 p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+                className='mt-1 p-2 w-full border rounded  '
               />
             </div>
           </div>
           <div>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
-              Role
-            </label>
+            <label className='block text-sm font-medium text-secondary-foreground'>Role</label>
             <select
               name='role'
               value={formData.role}
               onChange={handleChange}
-              className='mt-1 p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='mt-1 p-2 w-full border rounded  '
             >
               {roleOptions.map(role => (
                 <option key={role.value} value={role.value}>
@@ -353,9 +332,7 @@ const UserModal: React.FC<{
             </select>
           </div>
           <div>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
-              Password
-            </label>
+            <label className='block text-sm font-medium text-secondary-foreground'>Password</label>
             <input
               type='password'
               name='password'
@@ -363,60 +340,27 @@ const UserModal: React.FC<{
               value={formData.password}
               onChange={handleChange}
               required={!user}
-              className='mt-1 p-2 w-full border rounded dark:bg-gray-700 dark:border-gray-600'
+              className='mt-1 p-2 w-full border rounded  '
             />
           </div>
           <div className='flex justify-end pt-4'>
             <button
               type='button'
               onClick={onClose}
-              className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
+              className='mr-2 px-4 py-2 rounded bg-muted'
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 rounded bg-teal-500 text-white hover:bg-teal-600 disabled:opacity-50'
+              className='px-4 py-2 rounded bg-primary text-white hover:bg-primary disabled:opacity-50'
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save User'}
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  )
-}
-
-const DeleteConfirmationModal: React.FC<{
-  onConfirm: () => void
-  onCancel: () => void
-  isLoading?: boolean
-}> = ({ onConfirm, onCancel, isLoading }) => {
-  return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm'>
-        <h3 className='text-lg font-bold mb-2'>Confirm Deletion</h3>
-        <p className='text-gray-600 dark:text-gray-400 mb-4'>
-          Are you sure you want to delete this user? This action cannot be undone.
-        </p>
-        <div className='flex justify-end'>
-          <button
-            onClick={onCancel}
-            className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className='px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50'
-            disabled={isLoading}
-          >
-            {isLoading ? 'Deleting...' : 'Delete'}
-          </button>
-        </div>
       </div>
     </div>
   )

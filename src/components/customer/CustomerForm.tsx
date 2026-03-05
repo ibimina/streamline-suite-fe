@@ -109,9 +109,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
         if (!isOpen) onCancel()
       }}
     >
-      <SheetContent className='bg-white overflow-y-auto w-full lg:max-w-3xl dark:bg-gray-800'>
+      <SheetContent className='bg-white overflow-y-auto w-full lg:max-w-3xl '>
         <SheetHeader className='flex justify-end'>
-          <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-6'>
+          <h2 className='text-2xl font-bold text-foreground mb-6'>
             {customer?.id ? 'Edit Customer' : 'Add New Customer'}
           </h2>
         </SheetHeader>
@@ -119,13 +119,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Full Name */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
                 Full Name <span className='text-red-500 text-sm'>*</span>
               </label>
               <input
                 type='text'
                 {...register('fullName')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Customer full name'
               />
               {errors.fullName && <InputErrorWrapper message={errors.fullName.message || ''} />}
@@ -135,15 +135,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
             <div>
               <label
                 htmlFor='companyName'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
-                Company Name <span className='text-xs text-gray-400'>(optional)</span>
+                Company Name <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 id='companyName'
                 type='text'
                 {...register('companyName')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Company legal name'
               />
             </div>
@@ -151,15 +151,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
             <div>
               <label
                 htmlFor='email'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
-                Email <span className='text-xs text-gray-400'>(optional)</span>
+                Email <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 id='email'
                 type='email'
                 {...register('email')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='customer@example.com'
               />
               {errors.email && <InputErrorWrapper message={errors.email.message || ''} />}
@@ -169,15 +169,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
             <div>
               <label
                 htmlFor='phone'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
-                Phone <span className='text-xs text-gray-400'>(optional)</span>
+                Phone <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 id='phone'
                 type='tel'
                 {...register('phone')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='+1 (555) 123-4567'
               />
             </div>
@@ -186,15 +186,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
             <div>
               <label
                 htmlFor='address'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
-                Address <span className='text-xs text-gray-400'>(optional)</span>
+                Address <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 id='address'
                 type='text'
                 {...register('address')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Primary address'
               />
             </div>
@@ -203,16 +203,16 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
             <div>
               <label
                 htmlFor='currency'
-                className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                className='block text-sm font-medium text-secondary-foreground mb-1'
               >
-                Currency <span className='text-xs text-gray-400'>(optional)</span>
+                Currency <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 id='currency'
                 type='text'
                 maxLength={3}
                 {...register('currency')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='USD'
               />
               {errors.currency && <InputErrorWrapper message={errors.currency.message || ''} />}
@@ -221,14 +221,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
 
           {/* Billing Address Section */}
           <div className='mt-6'>
-            <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-4'>
-              Billing Address <span className='text-sm text-gray-400'>(optional)</span>
+            <h3 className='text-lg font-medium text-foreground mb-4'>
+              Billing Address <span className='text-sm text-muted-foreground'>(optional)</span>
             </h3>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               <div>
                 <label
                   htmlFor='billingAddress.street'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
                   Street
                 </label>
@@ -236,14 +236,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   type='text'
                   id='billingAddress.street'
                   {...register('billingAddress.street')}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='123 Main St'
                 />
               </div>
               <div>
                 <label
                   htmlFor='billingAddress.city'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
                   City
                 </label>
@@ -251,14 +251,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   id='billingAddress.city'
                   type='text'
                   {...register('billingAddress.city')}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='San Francisco'
                 />
               </div>
               <div>
                 <label
                   htmlFor='billingAddress.state'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
                   State
                 </label>
@@ -266,14 +266,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   id='billingAddress.state'
                   type='text'
                   {...register('billingAddress.state')}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='CA'
                 />
               </div>
               <div>
                 <label
                   htmlFor='billingAddress.postalCode'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
                   Postal Code
                 </label>
@@ -281,14 +281,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   id='billingAddress.postalCode'
                   type='text'
                   {...register('billingAddress.postalCode')}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='94105'
                 />
               </div>
               <div>
                 <label
                   htmlFor='billingAddress.country'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
                   Country
                 </label>
@@ -296,7 +296,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   id='billingAddress.country'
                   type='text'
                   {...register('billingAddress.country')}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='USA'
                 />
               </div>
@@ -305,8 +305,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
 
           {/* Contacts Section */}
           <div className='mt-6'>
-            <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-4'>
-              Contact Persons <span className='text-sm text-gray-400'>(optional)</span>
+            <h3 className='text-lg font-medium text-foreground mb-4'>
+              Contact Persons <span className='text-sm text-muted-foreground'>(optional)</span>
             </h3>
 
             {/* Existing Contacts */}
@@ -315,25 +315,25 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                 {fields.map((contact, index) => (
                   <div
                     key={contact.email}
-                    className='flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md'
+                    className='flex items-center justify-between p-3 bg-muted rounded-md'
                   >
                     <div className='flex-1'>
                       <div className='flex items-center gap-2'>
-                        <span className='font-medium text-gray-900 dark:text-white'>
-                          {contact.name}
-                        </span>
+                        <span className='font-medium text-foreground'>{contact.name}</span>
                         {contact.primary && (
                           <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
                             Primary
                           </span>
                         )}
                       </div>
-                      <div className='text-sm text-gray-500 dark:text-gray-400'>
+                      <div className='text-sm text-muted-foreground'>
                         {contact.email && <span>{contact.email}</span>}
                         {contact.email && contact.phone && <span> • </span>}
                         {contact.phone && <span>{contact.phone}</span>}
                         {contact.role && (
-                          <span className='ml-2 text-xs text-gray-400'>({contact.role})</span>
+                          <span className='ml-2 text-xs text-muted-foreground'>
+                            ({contact.role})
+                          </span>
                         )}
                       </div>
                     </div>
@@ -350,11 +350,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
             )}
 
             {/* Add New Contact */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 border border-border rounded-md'>
               <div>
                 <label
                   htmlFor='contact.name'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
                   Name <span className='text-red-500 text-sm'>*</span>
                 </label>
@@ -362,36 +362,36 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   type='text'
                   value={newContact.name}
                   onChange={e => setNewContact({ ...newContact, name: e.target.value })}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='Contact name'
                 />
               </div>
               <div>
                 <label
                   htmlFor='contact.email'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
-                  Email <span className='text-xs text-gray-400'>(optional)</span>
+                  Email <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <input
                   type='email'
                   value={newContact.email}
                   onChange={e => setNewContact({ ...newContact, email: e.target.value })}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='contact@example.com'
                 />
               </div>
               <div>
                 <label
                   htmlFor='contact.phone'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
-                  Phone <span className='text-xs text-gray-400'>(optional)</span>
+                  Phone <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <input
                   type='tel'
                   id='contact.phone'
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='+1 (555) 123-4567'
                   value={newContact.phone}
                   onChange={e => setNewContact({ ...newContact, phone: e.target.value })}
@@ -400,15 +400,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
               <div>
                 <label
                   htmlFor='contact.role'
-                  className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+                  className='block text-sm font-medium text-secondary-foreground mb-1'
                 >
-                  Role <span className='text-xs text-gray-400'>(optional)</span>
+                  Role <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <input
                   type='text'
                   value={newContact.role}
                   onChange={e => setNewContact({ ...newContact, role: e.target.value })}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='Purchasing Manager'
                 />
               </div>
@@ -418,9 +418,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                     type='checkbox'
                     checked={newContact.primary}
                     onChange={e => setNewContact({ ...newContact, primary: e.target.checked })}
-                    className='mr-2 h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+                    className='mr-2 h-4 w-4 text-primary focus:ring-primary border-border rounded'
                   />
-                  <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                  <span className='text-sm font-medium text-secondary-foreground'>
                     Primary Contact
                   </span>
                 </label>
@@ -436,7 +436,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                     append(newContact)
                     setNewContact({ name: '', email: '', phone: '', role: '', primary: false })
                   }}
-                  className='w-full px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+                  className='w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
                 >
                   Add Contact
                 </button>
@@ -446,11 +446,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
           {/* Status and Language Section */}
           <div className='mt-6 grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
                 Status
               </label>
               <Select onValueChange={() => {}}>
-                <SelectTrigger className='border-gray-300 shadow-none h-[41.6px] rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'>
+                <SelectTrigger className='border-border shadow-none h-[41.6px] rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '>
                   <SelectValue></SelectValue>
                 </SelectTrigger>
                 <SelectContent className='w-full z-50 bg-white'>
@@ -462,13 +462,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
 
             {/* Language */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Language <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Language <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='text'
                 {...register('language')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='en'
               />
             </div>
@@ -476,12 +476,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
 
           {/* Notes Section */}
           <div className='mt-6'>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Notes <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              Notes <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <textarea
               {...register('notes')}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               placeholder='Additional notes about this customer...'
               rows={3}
               maxLength={2000}
@@ -490,14 +490,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
 
           {/* Tags */}
           <div className='mt-6'>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Tags <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              Tags <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <div className='flex flex-wrap gap-2 mb-2'>
               {tags?.map((tag, index) => (
                 <span
                   key={tag}
-                  className='inline-flex items-center px-3 py-1 rounded-full text-sm bg-teal-100 text-teal-800 dark:bg-teal-800 dark:text-teal-100'
+                  className='inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-light text-primary dark:bg-primary/30 dark:text-primary-foreground/80'
                 >
                   {tag}
                   <button
@@ -507,7 +507,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                       updatedTags.splice(index, 1)
                       setValue('tags', updatedTags)
                     }}
-                    className='ml-2 text-teal-600 hover:text-teal-800 dark:text-teal-300 dark:hover:text-teal-100'
+                    className='ml-2 text-primary hover:text-primary dark:text-primary dark:hover:text-primary-foreground/80'
                   >
                     ×
                   </button>
@@ -519,7 +519,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                 type='text'
                 value={newTag}
                 onChange={e => setNewTag(e.target.value)}
-                className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Add a tag'
               />
               <button
@@ -530,7 +530,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
                   setValue('tags', updatedTags)
                   setNewTag('')
                 }}
-                className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+                className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
               >
                 Add
               </button>
@@ -543,14 +543,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onCancel, open })
               type='button'
               onClick={onCancel}
               disabled={isSubmitting}
-              className='px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='px-4 py-2 border border-border text-secondary-foreground rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary   '
             >
               Cancel
             </button>
             <button
               type='submit'
               disabled={isSubmitting}
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isSubmitting ? 'Saving...' : customer?.id ? 'Update Customer' : 'Create Customer'}
             </button>

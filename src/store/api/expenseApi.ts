@@ -78,11 +78,41 @@ export const expenseApi = baseApi.injectEndpoints({
       { payload: Expense; message: string; status: number },
       ExpenseFormData
     >({
-      query: data => ({
-        url: `${PORTAL_BASE_PATH}/expenses`,
-        method: 'POST',
-        body: data,
-      }),
+      query: data => {
+        // If there's a receipt file, use FormData
+        if (data.receipt) {
+          const formData = new FormData()
+          formData.append('receipt', data.receipt)
+
+          // Append all other fields
+          Object.entries(data).forEach(([key, value]) => {
+            if (key === 'receipt') return // Skip the file, already added
+            if (value === undefined || value === null) return
+
+            if (key === 'items' && Array.isArray(value)) {
+              formData.append(key, JSON.stringify(value))
+            } else if (typeof value === 'object') {
+              formData.append(key, JSON.stringify(value))
+            } else {
+              formData.append(key, String(value))
+            }
+          })
+
+          return {
+            url: `${PORTAL_BASE_PATH}/expenses`,
+            method: 'POST',
+            body: formData,
+            formData: true,
+          }
+        }
+
+        // No file, use regular JSON body
+        return {
+          url: `${PORTAL_BASE_PATH}/expenses`,
+          method: 'POST',
+          body: data,
+        }
+      },
       invalidatesTags: [
         { type: 'Expense', id: 'LIST' },
         { type: 'Expense', id: 'STATS' },
@@ -95,11 +125,41 @@ export const expenseApi = baseApi.injectEndpoints({
       { payload: Expense; message: string; status: number },
       { expenseId: string; data: Partial<ExpenseFormData> }
     >({
-      query: ({ expenseId, data }) => ({
-        url: `${PORTAL_BASE_PATH}/expenses/${expenseId}`,
-        method: 'PATCH',
-        body: data,
-      }),
+      query: ({ expenseId, data }) => {
+        // If there's a receipt file, use FormData
+        if (data.receipt) {
+          const formData = new FormData()
+          formData.append('receipt', data.receipt)
+
+          // Append all other fields
+          Object.entries(data).forEach(([key, value]) => {
+            if (key === 'receipt') return // Skip the file, already added
+            if (value === undefined || value === null) return
+
+            if (key === 'items' && Array.isArray(value)) {
+              formData.append(key, JSON.stringify(value))
+            } else if (typeof value === 'object') {
+              formData.append(key, JSON.stringify(value))
+            } else {
+              formData.append(key, String(value))
+            }
+          })
+
+          return {
+            url: `${PORTAL_BASE_PATH}/expenses/${expenseId}`,
+            method: 'PATCH',
+            body: formData,
+            formData: true,
+          }
+        }
+
+        // No file, use regular JSON body
+        return {
+          url: `${PORTAL_BASE_PATH}/expenses/${expenseId}`,
+          method: 'PATCH',
+          body: data,
+        }
+      },
       invalidatesTags: (result, error, { expenseId }) => [
         { type: 'Expense', id: expenseId },
         { type: 'Expense', id: 'LIST' },
@@ -123,6 +183,7 @@ export const expenseApi = baseApi.injectEndpoints({
         { type: 'Expense', id: 'LIST' },
         { type: 'Expense', id: 'STATS' },
         { type: 'Dashboard', id: 'STATS' },
+        { type: 'Product', id: 'LIST' },
       ],
     }),
 

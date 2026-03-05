@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { Quotation } from '@/types/quotation.type'
 import { toast } from 'react-toastify'
 import { useConvertQuotationToInvoiceMutation } from '@/store/api/quotationApi'
+import { formatDate, getQuotationStatusConfig } from '@/contants'
+import { useCurrency } from '@/hooks/useCurrency'
 
 // Icon components
 const UserIcon = ({ className }: { className?: string }) => (
@@ -108,44 +110,17 @@ const ArrowLeftIcon = ({ className }: { className?: string }) => (
 interface QuotationViewProps {
   quotation: Quotation
   onConvertToInvoice?: (id: string) => void
-  onSendEmail?: (id: string) => void
   onDownloadPdf?: (id: string) => void
-}
-
-const formatDate = (date: string | Date | undefined) => {
-  if (!date) return 'N/A'
-  return new Date(date).toLocaleDateString('en-NG', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-const formatCurrency = (amount: number | undefined) => {
-  return `₦${(amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-}
-
-const getStatusConfig = (status?: string) => {
-  const configs: Record<string, { color: string; icon: string; bg: string }> = {
-    draft: { color: 'text-gray-700', icon: '📝', bg: 'bg-gray-100 dark:bg-gray-700' },
-    sent: { color: 'text-blue-700', icon: '📤', bg: 'bg-blue-100 dark:bg-blue-900/30' },
-    viewed: { color: 'text-purple-700', icon: '👁️', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-    accepted: { color: 'text-green-700', icon: '✅', bg: 'bg-green-100 dark:bg-green-900/30' },
-    rejected: { color: 'text-red-700', icon: '❌', bg: 'bg-red-100 dark:bg-red-900/30' },
-    expired: { color: 'text-orange-700', icon: '⏰', bg: 'bg-orange-100 dark:bg-orange-900/30' },
-    converted: { color: 'text-teal-700', icon: '🔄', bg: 'bg-teal-100 dark:bg-teal-900/30' },
-  }
-  return configs[status?.toLowerCase() || 'draft'] || configs.draft
 }
 
 export default function QuotationView({
   quotation,
   onConvertToInvoice,
-  onSendEmail,
   onDownloadPdf,
 }: Readonly<QuotationViewProps>) {
   const router = useRouter()
-  const statusConfig = getStatusConfig(quotation.status)
+  const { formatCurrency } = useCurrency()
+  const statusConfig = getQuotationStatusConfig(quotation.status)
   const [convertToInvoice, { isLoading: isConverting }] = useConvertQuotationToInvoiceMutation()
 
   // Calculate totals from items
@@ -212,14 +187,6 @@ export default function QuotationView({
     }
   }
 
-  const handleSendEmail = () => {
-    if (onSendEmail) {
-      onSendEmail(quotation._id)
-    } else {
-      toast.info('Send email functionality coming soon')
-    }
-  }
-
   const handleDownloadPdf = () => {
     if (onDownloadPdf) {
       onDownloadPdf(quotation._id)
@@ -231,18 +198,18 @@ export default function QuotationView({
   return (
     <div className='max-w-6xl mx-auto space-y-6'>
       {/* Header with Actions */}
-      <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6'>
+      <div className='bg-card rounded-xl shadow-sm border border-border p-6'>
         <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4'>
           <div className='flex items-center gap-4'>
             <button
               onClick={() => router.back()}
-              className='p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors'
+              className='p-2 hover:bg-muted  rounded-lg transition-colors'
             >
-              <ArrowLeftIcon className='h-5 w-5 text-gray-600 dark:text-gray-400' />
+              <ArrowLeftIcon className='h-5 w-5 text-muted-foreground' />
             </button>
             <div>
               <div className='flex items-center gap-3'>
-                <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
+                <h1 className='text-2xl font-bold text-foreground'>
                   {quotation.uniqueId || 'Quotation'}
                 </h1>
                 <span
@@ -251,7 +218,7 @@ export default function QuotationView({
                   {statusConfig.icon} {quotation.status || 'Draft'}
                 </span>
               </div>
-              <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+              <p className='text-sm text-muted-foreground mt-1'>
                 Created on {formatDate(quotation.createdAt)}
               </p>
             </div>
@@ -261,24 +228,17 @@ export default function QuotationView({
           <div className='flex flex-wrap gap-2'>
             <button
               onClick={handlePrint}
-              className='px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 text-sm font-medium'
+              className='px-4 py-2 bg-muted  text-secondary-foreground rounded-lg hover:bg-muted  transition-colors flex items-center gap-2 text-sm font-medium'
             >
               <PrinterIcon className='h-4 w-4' />
               Print
             </button>
             <button
               onClick={handleDownloadPdf}
-              className='px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 text-sm font-medium'
+              className='px-4 py-2 bg-muted  text-secondary-foreground rounded-lg hover:bg-muted  transition-colors flex items-center gap-2 text-sm font-medium'
             >
               <DownloadIcon className='h-4 w-4' />
               PDF
-            </button>
-            <button
-              onClick={handleSendEmail}
-              className='px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-2 text-sm font-medium'
-            >
-              <MailIcon className='h-4 w-4' />
-              Send
             </button>
             <button
               onClick={handleEdit}
@@ -291,7 +251,7 @@ export default function QuotationView({
               <button
                 onClick={handleConvertToInvoice}
                 disabled={isConverting}
-                className='px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors flex items-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed'
+                className='px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors flex items-center gap-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed'
               >
                 <ArrowRightIcon className='h-4 w-4' />
                 {isConverting ? 'Converting...' : 'Convert to Invoice'}
@@ -306,7 +266,7 @@ export default function QuotationView({
         {/* Customer & Dates Column */}
         <div className='space-y-6'>
           {/* Customer Card */}
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
             <div className='bg-linear-to-r from-blue-500 to-blue-600 px-5 py-3'>
               <div className='flex items-center gap-2'>
                 <UserIcon className='h-5 w-5 text-white' />
@@ -321,29 +281,27 @@ export default function QuotationView({
                     .toUpperCase() || '?'}
                 </div>
                 <div className='min-w-0'>
-                  <p className='font-semibold text-gray-900 dark:text-white truncate'>
+                  <p className='font-semibold text-foreground truncate'>
                     {quotation.customer?.companyName ||
                       quotation.customer?.fullName ||
                       'Unknown Customer'}
                   </p>
-                  <p className='text-sm text-gray-500 dark:text-gray-400 truncate'>
+                  <p className='text-sm text-muted-foreground truncate'>
                     {quotation.customer?.email || 'No email'}
                   </p>
                   {quotation.customer?.phone && (
-                    <p className='text-sm text-gray-500 dark:text-gray-400'>
-                      📞 {quotation.customer.phone}
-                    </p>
+                    <p className='text-sm text-muted-foreground'>📞 {quotation.customer.phone}</p>
                   )}
                   {quotation.customer?.billingAddress && (
                     <>
-                      <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                      <p className='text-sm text-muted-foreground mt-1'>
                         📍 {quotation.customer.billingAddress.street}
                       </p>
-                      <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                      <p className='text-sm text-muted-foreground mt-1'>
                         {quotation.customer.billingAddress.city},{' '}
                         {quotation.customer.billingAddress.state}
                       </p>
-                      <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                      <p className='text-sm text-muted-foreground mt-1'>
                         📍 {quotation.customer.billingAddress.country}
                       </p>
                     </>
@@ -354,7 +312,7 @@ export default function QuotationView({
           </div>
 
           {/* Dates Card */}
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
             <div className='bg-linear-to-r from-purple-500 to-purple-600 px-5 py-3'>
               <div className='flex items-center gap-2'>
                 <CalendarIcon className='h-5 w-5 text-white' />
@@ -363,20 +321,16 @@ export default function QuotationView({
             </div>
             <div className='p-5 space-y-4'>
               <div>
-                <p className='text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
+                <p className='text-xs text-muted-foreground uppercase tracking-wider'>
                   Issued Date
                 </p>
-                <p className='font-medium text-gray-900 dark:text-white'>
-                  {formatDate(quotation.issuedDate)}
-                </p>
+                <p className='font-medium text-foreground'>{formatDate(quotation.issuedDate)}</p>
               </div>
               <div>
-                <p className='text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
+                <p className='text-xs text-muted-foreground uppercase tracking-wider'>
                   Valid Until
                 </p>
-                <p className='font-medium text-gray-900 dark:text-white'>
-                  {formatDate(quotation.validUntil)}
-                </p>
+                <p className='font-medium text-foreground'>{formatDate(quotation.validUntil)}</p>
               </div>
               {quotation.validUntil && new Date(quotation.validUntil) < new Date() && (
                 <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3'>
@@ -391,8 +345,8 @@ export default function QuotationView({
 
         {/* Line Items Column */}
         <div className='lg:col-span-2'>
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
-            <div className='bg-linear-to-r from-teal-500 to-teal-600 px-5 py-3'>
+          <div className='bg-card rounded-xl shadow-sm border border-border overflow-hidden'>
+            <div className='bg-linear-to-r from-primary to-primary-hover px-5 py-3'>
               <div className='flex items-center gap-2'>
                 <DocumentIcon className='h-5 w-5 text-white' />
                 <h3 className='text-sm font-semibold text-white'>
@@ -402,26 +356,26 @@ export default function QuotationView({
             </div>
             <div className='overflow-x-auto'>
               <table className='w-full'>
-                <thead className='bg-gray-50 dark:bg-gray-700/50'>
+                <thead className='bg-muted/50'>
                   <tr>
-                    <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase'>
+                    <th className='px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase'>
                       Description
                     </th>
-                    <th className='px-3 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase'>
+                    <th className='px-3 py-3 text-center text-xs font-semibold text-muted-foreground uppercase'>
                       Qty
                     </th>
-                    <th className='px-3 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase'>
+                    <th className='px-3 py-3 text-right text-xs font-semibold text-muted-foreground uppercase'>
                       Unit Price
                     </th>
-                    <th className='px-3 py-3 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase'>
+                    <th className='px-3 py-3 text-center text-xs font-semibold text-muted-foreground uppercase'>
                       VAT %
                     </th>
-                    <th className='px-3 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase'>
+                    <th className='px-3 py-3 text-right text-xs font-semibold text-muted-foreground uppercase'>
                       Total
                     </th>
                   </tr>
                 </thead>
-                <tbody className='divide-y divide-gray-100 dark:divide-gray-700'>
+                <tbody className='divide-y divide-border'>
                   {quotation.items?.map(item => {
                     const lineSubtotal = (item.quantity || 0) * (item.unitPrice || 0)
                     const discountAmount = lineSubtotal * ((item.discountPercent || 0) / 100)
@@ -432,16 +386,12 @@ export default function QuotationView({
                           item._id ||
                           `item-${item.product?._id}-${item.description}-${item.quantity}`
                         }
-                        className='hover:bg-gray-50 dark:hover:bg-gray-750'
+                        className='hover:bg-muted '
                       >
                         <td className='px-4 py-4'>
-                          <p className='font-medium text-gray-900 dark:text-white'>
-                            {item.product?.name}
-                          </p>
+                          <p className='font-medium text-foreground'>{item.product?.name}</p>
                           {item.description && (
-                            <p className='text-sm text-gray-500 dark:text-gray-400'>
-                              {item.description}
-                            </p>
+                            <p className='text-sm text-muted-foreground'>{item.description}</p>
                           )}
                           {(item.discountPercent ?? 0) > 0 && (
                             <span className='text-xs text-green-600 dark:text-green-400'>
@@ -449,16 +399,16 @@ export default function QuotationView({
                             </span>
                           )}
                         </td>
-                        <td className='px-3 py-4 text-center text-gray-700 dark:text-gray-300'>
+                        <td className='px-3 py-4 text-center text-secondary-foreground'>
                           {item.quantity}
                         </td>
-                        <td className='px-3 py-4 text-right text-gray-700 dark:text-gray-300'>
+                        <td className='px-3 py-4 text-right text-secondary-foreground'>
                           {formatCurrency(item.unitPrice)}
                         </td>
-                        <td className='px-3 py-4 text-center text-gray-700 dark:text-gray-300'>
+                        <td className='px-3 py-4 text-center text-secondary-foreground'>
                           {item.vatRate ?? 0}%
                         </td>
-                        <td className='px-3 py-4 text-right font-semibold text-gray-900 dark:text-white'>
+                        <td className='px-3 py-4 text-right font-semibold text-foreground'>
                           {formatCurrency(lineTotal)}
                         </td>
                       </tr>
@@ -469,32 +419,32 @@ export default function QuotationView({
             </div>
 
             {/* Summary */}
-            <div className='border-t border-gray-200 dark:border-gray-700 p-5 bg-gray-50 dark:bg-gray-700/30'>
+            <div className='border-t border-border p-5 bg-muted/30'>
               <div className='max-w-xs ml-auto space-y-2'>
                 <div className='flex justify-between text-sm'>
-                  <span className='text-gray-600 dark:text-gray-400'>Subtotal</span>
-                  <span className='font-medium text-gray-900 dark:text-white'>
+                  <span className='text-muted-foreground'>Subtotal</span>
+                  <span className='font-medium text-foreground'>
                     {formatCurrency(calculations.subtotal)}
                   </span>
                 </div>
                 {calculations.totalDiscount > 0 && (
                   <div className='flex justify-between text-sm'>
-                    <span className='text-gray-600 dark:text-gray-400'>Discount</span>
+                    <span className='text-muted-foreground'>Discount</span>
                     <span className='font-medium text-green-600 dark:text-green-400'>
                       -{formatCurrency(calculations.totalDiscount)}
                     </span>
                   </div>
                 )}
                 <div className='flex justify-between text-sm'>
-                  <span className='text-gray-600 dark:text-gray-400'>VAT</span>
-                  <span className='font-medium text-gray-900 dark:text-white'>
+                  <span className='text-muted-foreground'>VAT</span>
+                  <span className='font-medium text-foreground'>
                     +{formatCurrency(calculations.totalVat)}
                   </span>
                 </div>
-                <div className='border-t border-gray-200 dark:border-gray-600 pt-2'>
+                <div className='border-t border-border pt-2'>
                   <div className='flex justify-between'>
-                    <span className='font-semibold text-gray-900 dark:text-white'>Grand Total</span>
-                    <span className='font-bold text-xl text-gray-900 dark:text-white'>
+                    <span className='font-semibold text-foreground'>Grand Total</span>
+                    <span className='font-bold text-xl text-foreground'>
                       {formatCurrency(calculations.grossTotal)}
                     </span>
                   </div>
@@ -502,16 +452,14 @@ export default function QuotationView({
                 {(quotation.whtRate ?? 0) > 0 && (
                   <>
                     <div className='flex justify-between text-sm'>
-                      <span className='text-gray-600 dark:text-gray-400'>
-                        WHT ({quotation.whtRate}%)
-                      </span>
+                      <span className='text-muted-foreground'>WHT ({quotation.whtRate}%)</span>
                       <span className='font-medium text-red-600 dark:text-red-400'>
                         -{formatCurrency(calculations.totalWht)}
                       </span>
                     </div>
                     <div className='flex justify-between text-sm'>
-                      <span className='text-gray-600 dark:text-gray-400'>Net Receivable</span>
-                      <span className='font-semibold text-gray-900 dark:text-white'>
+                      <span className='text-muted-foreground'>Net Receivable</span>
+                      <span className='font-semibold text-foreground'>
                         {formatCurrency(calculations.netReceivable)}
                       </span>
                     </div>
@@ -527,21 +475,15 @@ export default function QuotationView({
       {(quotation.notes || quotation.terms) && (
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {quotation.notes && (
-            <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5'>
-              <h4 className='text-sm font-semibold text-gray-900 dark:text-white mb-3'>📝 Notes</h4>
-              <p className='text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap'>
-                {quotation.notes}
-              </p>
+            <div className='bg-card rounded-xl shadow-sm border border-border p-5'>
+              <h4 className='text-sm font-semibold text-foreground mb-3'>📝 Notes</h4>
+              <p className='text-sm text-muted-foreground whitespace-pre-wrap'>{quotation.notes}</p>
             </div>
           )}
           {quotation.terms && (
-            <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5'>
-              <h4 className='text-sm font-semibold text-gray-900 dark:text-white mb-3'>
-                📋 Terms & Conditions
-              </h4>
-              <p className='text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap'>
-                {quotation.terms}
-              </p>
+            <div className='bg-card rounded-xl shadow-sm border border-border p-5'>
+              <h4 className='text-sm font-semibold text-foreground mb-3'>📋 Terms & Conditions</h4>
+              <p className='text-sm text-muted-foreground whitespace-pre-wrap'>{quotation.terms}</p>
             </div>
           )}
         </div>

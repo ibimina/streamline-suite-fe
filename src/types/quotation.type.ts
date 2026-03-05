@@ -64,7 +64,11 @@ export interface Quotation {
   // Additional fields
   notes?: string
   terms?: string
-  template?: string
+  template?: {
+    _id: string
+    imageUrl: string
+  }
+  templateName?: string
   accentColor?: string
   createdBy?: string | UserRef
   createdAt: string

@@ -7,21 +7,50 @@ import { useDeleteCustomerMutation, useGetCustomersQuery } from '@/store/api'
 import { Customer } from '@/interface/customer.interface'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+import { Paginator } from '../ui/pagination'
 
 const Customers = () => {
   const { data, isLoading: loading } = useGetCustomersQuery()
 
   const [deleteCustomer] = useDeleteCustomerMutation()
 
-  const customers = data?.payload?.customers ?? []
+  const allCustomers = data?.payload?.customers ?? []
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'suspended'>(
     'all'
   )
+  const [page, setPage] = useState(1)
+  const limit = 10
   const [showForm, setShowForm] = useState(false)
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null)
+
+  // Filter customers based on search and status
+  const filteredCustomers = allCustomers.filter(customer => {
+    const matchesSearch =
+      searchTerm === '' ||
+      customer.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || customer.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  // Paginate filtered results
+  const totalCustomers = filteredCustomers.length
+  const customers = filteredCustomers.slice((page - 1) * limit, page * limit)
+
+  // Reset page when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setPage(1)
+  }
+
+  const handleStatusChange = (value: 'all' | 'active' | 'inactive' | 'suspended') => {
+    setStatusFilter(value)
+    setPage(1)
+  }
   const handleEditCustomer = (customer: Customer) => {
     setEditingCustomer(customer)
     setShowForm(true)
@@ -46,10 +75,10 @@ const Customers = () => {
     <div className='space-y-6'>
       {/* Header */}
       <div className='flex justify-between items-center'>
-        <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>Customers</h1>
+        <h1 className='text-3xl font-bold text-foreground'>Customers</h1>
         <button
           onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
         >
           <PlusIcon className='w-5 h-5' />
           <span>Add Customer</span>
@@ -57,29 +86,29 @@ const Customers = () => {
       </div>
 
       {/* Filters and Search */}
-      <div className='bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm'>
+      <div className='bg-card p-4 rounded-lg shadow-sm'>
         <div className='flex flex-col md:flex-row gap-4'>
           {/* Search */}
           <div className='flex-1 relative'>
-            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
+            <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Search customers...'
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              onChange={e => handleSearchChange(e.target.value)}
+              className='w-full pl-10 pr-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             />
           </div>
 
           {/* Status Filter */}
           <div className='flex items-center space-x-2'>
-            <FilterIcon className='w-5 h-5 text-gray-400' />
+            <FilterIcon className='w-5 h-5 text-muted-foreground' />
             <select
               value={statusFilter}
               onChange={e =>
-                setStatusFilter(e.target.value as 'all' | 'active' | 'inactive' | 'suspended')
+                handleStatusChange(e.target.value as 'all' | 'active' | 'inactive' | 'suspended')
               }
-              className='px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
             >
               <option value='all'>All Status</option>
               <option value='active'>Active</option>
@@ -91,41 +120,41 @@ const Customers = () => {
       </div>
 
       {/* Customers Table */}
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden'>
+      <div className='bg-card rounded-lg shadow-sm overflow-hidden'>
         {loading ? (
           <LoadingSpinner />
         ) : (
           <div className='overflow-x-auto'>
-            <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
-              <thead className='bg-gray-50 dark:bg-gray-700'>
+            <table className='min-w-full divide-y divide-border'>
+              <thead className='bg-muted'>
                 <tr>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Customer
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Contact
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Currency
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Status
                   </th>
-                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider'>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
+              <tbody className='bg-card divide-y divide-border'>
                 {customers.map(customer => (
-                  <tr key={customer._id} className='hover:bg-gray-50 dark:hover:bg-gray-700'>
+                  <tr key={customer._id} className='hover:bg-muted '>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div>
-                        <div className='text-sm font-medium text-gray-900 dark:text-white'>
+                        <div className='text-sm font-medium text-foreground'>
                           {customer.fullName}
                         </div>
                         {customer.companyName && (
-                          <div className='text-sm text-gray-500 dark:text-gray-400'>
+                          <div className='text-sm text-muted-foreground'>
                             {customer.companyName}
                           </div>
                         )}
@@ -133,7 +162,7 @@ const Customers = () => {
                           {customer.tags?.map(tag => (
                             <span
                               key={tag}
-                              className='inline-flex px-2 py-1 text-xs rounded-full bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200'
+                              className='inline-flex px-2 py-1 text-xs rounded-full bg-primary-light text-primary dark:bg-primary/20 dark:text-primary-foreground'
                             >
                               {tag}
                             </span>
@@ -142,15 +171,13 @@ const Customers = () => {
                       </div>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <div className='text-sm text-gray-900 dark:text-white'>{customer.email}</div>
-                      <div className='text-sm text-gray-500 dark:text-gray-400'>
-                        {customer.phone}
-                      </div>
-                      <div className='text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate'>
+                      <div className='text-sm text-foreground'>{customer.email}</div>
+                      <div className='text-sm text-muted-foreground'>{customer.phone}</div>
+                      <div className='text-sm text-muted-foreground max-w-xs truncate'>
                         {customer.address}
                       </div>
                     </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white'>
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-foreground'>
                       {customer.currency || 'USD'}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
@@ -200,7 +227,7 @@ const Customers = () => {
 
                         <button
                           onClick={() => handleEditCustomer(customer)}
-                          className='text-teal-600 hover:text-teal-900 dark:text-teal-400 dark:hover:text-teal-300'
+                          className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
                           title='Edit Customer'
                         >
                           <PencilIcon className='w-4 h-4' />
@@ -221,7 +248,7 @@ const Customers = () => {
 
             {customers.length === 0 && (
               <div className='text-center py-8'>
-                <p className='text-gray-500 dark:text-gray-400'>No customers found</p>
+                <p className='text-muted-foreground'>No customers found</p>
               </div>
             )}
           </div>
@@ -243,7 +270,23 @@ const Customers = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteCustomer}
+          open={showDeleteModal}
         />
+      )}
+
+      {/* Pagination */}
+      {totalCustomers > limit && (
+        <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-4 pt-4 border-t border-border'>
+          <p className='text-sm text-muted-foreground'>
+            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalCustomers)} of{' '}
+            {totalCustomers} customers
+          </p>
+          <Paginator
+            currentPage={page}
+            totalPages={Math.ceil(totalCustomers / limit)}
+            onPageChange={setPage}
+          />
+        </div>
       )}
     </div>
   )

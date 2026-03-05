@@ -1,16 +1,17 @@
 import { jsPDF } from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import { CustomTemplate, TemplateMapping, Quotation, Invoice, CompanyDetails } from '../types'
 import {
-  CustomTemplate,
-  TemplatePlaceholder,
-  TemplateMapping,
-  Quotation,
-  Invoice,
-  CompanyDetails,
-} from '../types'
-import { QuotationLineItem } from '../types/quotation.type'
-import { InvoiceLineItem } from '../types/invoice.type'
-import { title } from 'process'
+  createPDFContext,
+  loadBackgroundImage,
+  addBackgroundImage,
+  renderCustomerSection,
+  renderItemsTable,
+  renderTotals,
+  renderTerms,
+  renderClosing,
+  checkPageBreak,
+  PDFContext,
+} from './pdfUtils'
 
 export class CustomTemplateProcessor {
   private doc: jsPDF
@@ -21,7 +22,6 @@ export class CustomTemplateProcessor {
     this.template = template
     this.doc = new jsPDF({
       unit: 'pt',
-      format: [template.dimensions.width, template.dimensions.height],
     })
   }
 
@@ -36,11 +36,6 @@ export class CustomTemplateProcessor {
 
       // Create mapping data
       this.mapping = this.createMapping(quotationOrInvoice, companyDetails, documentType)
-
-      // Process each placeholder
-      for (const placeholder of this.template.placeholders) {
-        await this.processPlaceholder(placeholder, quotationOrInvoice)
-      }
     } catch (error) {
       console.error('Error generating custom template PDF:', error)
       throw error
@@ -69,15 +64,6 @@ export class CustomTemplateProcessor {
         ) {
           format = 'JPEG'
         }
-
-        this.doc.addImage(
-          base64,
-          format,
-          0,
-          0,
-          this.template.dimensions.width,
-          this.template.dimensions.height
-        )
       } else if (typeof this.template.templateFile === 'string') {
         // Check if it's a PDF data URL
         if (this.template.templateFile.startsWith('data:application/pdf')) {
@@ -95,154 +81,11 @@ export class CustomTemplateProcessor {
         ) {
           format = 'JPEG'
         }
-
-        this.doc.addImage(
-          this.template.templateFile,
-          format,
-          0,
-          0,
-          this.template.dimensions.width,
-          this.template.dimensions.height
-        )
       }
     } catch (error) {
       console.warn('Could not load base template as background:', error)
       // Continue without background - just use placeholders
     }
-  }
-
-  private async processPlaceholder(
-    placeholder: TemplatePlaceholder,
-    document: Quotation | Invoice
-  ): Promise<void> {
-    const content = this.getContentForPlaceholder(placeholder.id, document)
-
-    if (!content && placeholder.type !== 'table') return
-
-    // Set text properties
-    if (placeholder.fontSize) this.doc.setFontSize(placeholder.fontSize)
-    if (placeholder.fontColor) this.doc.setTextColor(placeholder.fontColor)
-    if (placeholder.fontWeight) this.doc.setFont('helvetica', placeholder.fontWeight)
-
-    switch (placeholder.type) {
-      case 'text':
-        this.addText(placeholder, content as string)
-        break
-      case 'currency':
-        this.addCurrency(placeholder, content as number)
-        break
-      case 'date':
-        this.addDate(placeholder, content as string)
-        break
-      case 'image':
-        await this.addImage(placeholder, content as string)
-        break
-      case 'table':
-        this.addTable(placeholder, document)
-        break
-    }
-  }
-
-  private addText(placeholder: TemplatePlaceholder, text: string): void {
-    if (!text) return
-
-    const options: any = {}
-    if (placeholder.align) options.align = placeholder.align
-    if (placeholder.maxLines) {
-      const splitText = this.doc.splitTextToSize(text, placeholder.width || 200)
-      const linesToShow = splitText.slice(0, placeholder.maxLines)
-      this.doc.text(linesToShow, placeholder.x, placeholder.y, options)
-    } else {
-      this.doc.text(text, placeholder.x, placeholder.y, options)
-    }
-  }
-
-  private addCurrency(placeholder: TemplatePlaceholder, amount: number): void {
-    const formatted = `$${amount.toFixed(2)}`
-
-    this.addText(placeholder, formatted)
-  }
-
-  private addDate(placeholder: TemplatePlaceholder, dateString: string): void {
-    let formatted = dateString
-    if (placeholder.format) {
-      const date = new Date(dateString)
-      formatted = this.formatDate(date, placeholder.format)
-    }
-    this.addText(placeholder, formatted)
-  }
-
-  private async addImage(placeholder: TemplatePlaceholder, imageUrl: string): Promise<void> {
-    try {
-      if (imageUrl && imageUrl.startsWith('http')) {
-        this.doc.addImage(
-          imageUrl,
-          'PNG',
-          placeholder.x,
-          placeholder.y,
-          placeholder.width || 50,
-          placeholder.height || 30
-        )
-      }
-    } catch (error) {
-      console.warn('Could not load image for placeholder:', placeholder.id, error)
-      // Add fallback text
-      this.doc.setFontSize(8)
-      this.doc.text('[Image]', placeholder.x, placeholder.y)
-    }
-  }
-
-  private addTable(placeholder: TemplatePlaceholder, document: Quotation | Invoice): void {
-    const tableBody = document.items.map(
-      (item: QuotationLineItem | InvoiceLineItem, index: number) => [
-        (index + 1).toString(), // Add item number
-        item.description,
-        item.quantity.toString(),
-        `$${item.unitPrice.toFixed(2)}`,
-        `$${(item.quantity * item.unitPrice).toFixed(2)}`,
-      ]
-    )
-
-    autoTable(this.doc, {
-      startY: placeholder.y,
-      head: [['S/N', 'Description', 'Qty', 'Unit Price', 'Amount']],
-      body: tableBody,
-      theme: 'striped',
-      headStyles: {
-        fillColor: '#f8f9fa',
-        textColor: '#333333',
-        fontSize: 10,
-        fontStyle: 'bold',
-        halign: 'center',
-        lineWidth: 0.1,
-        lineColor: '#dddddd',
-      },
-      bodyStyles: {
-        fontSize: 9,
-        cellPadding: 4,
-        lineWidth: 0.1,
-        lineColor: '#dddddd',
-      },
-      columnStyles: {
-        0: { halign: 'center', cellWidth: 30 }, // S/N
-        1: { halign: 'left', cellWidth: 200 }, // Description
-        2: { halign: 'center', cellWidth: 40 }, // Qty
-        3: { halign: 'right', cellWidth: 60 }, // Unit Price
-        4: { halign: 'right', cellWidth: 70 }, // Amount
-      },
-      alternateRowStyles: {
-        fillColor: '#f8f9fa',
-      },
-      margin: {
-        left: placeholder.x,
-        right: placeholder.x + (placeholder.width || 400),
-      },
-      tableWidth: placeholder.width || 400,
-      styles: {
-        lineColor: '#dddddd',
-        lineWidth: 0.1,
-      },
-    })
   }
 
   private createMapping(
@@ -272,70 +115,6 @@ export class CustomTemplateProcessor {
       terms: document.terms || '',
       notes: '',
       watermark: companyDetails.name,
-    }
-  }
-
-  private getContentForPlaceholder(
-    placeholderId: string,
-    document: Quotation | Invoice
-  ): string | number | undefined {
-    const mapping = this.mapping
-
-    switch (placeholderId) {
-      //   case 'companyName':
-      //     return mapping.companyName
-      //   case 'companyAddress':
-      //     return mapping.companyAddress
-      //   case 'companyContact':
-      //     return mapping.companyContact
-      //   case 'companyLogo':
-      //     return mapping.companyLogo
-      //   case 'companyTagline':
-      //     return mapping.companyTagline
-      case 'documentType':
-        return mapping.documentType
-      case 'documentNumber':
-        return mapping.documentNumber
-      case 'documentDate':
-        return mapping.documentDate
-      case 'customerName':
-        return mapping.customerName
-      case 'customerAddress':
-        return mapping.customerAddress
-      case 'subtotal':
-        return `Subtotal: $${document.subtotal.toFixed(2)}`
-      case 'vat':
-        const vatRate = document.vatRate || 7.5 // Default rate
-        return `VAT (${vatRate}%): $${(document.totalVat || 0).toFixed(2)}`
-      case 'total':
-        return `Total: $${document.grandTotal.toFixed(2)}`
-      case 'terms':
-        return mapping.terms
-      case 'notes':
-        return mapping.notes
-      default:
-        // Handle custom placeholders
-        if (placeholderId.startsWith('custom_')) {
-          return `[${placeholderId}]` // Placeholder for custom content
-        }
-        return undefined
-    }
-  }
-
-  private formatDate(date: Date, format: string): string {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-
-    switch (format) {
-      case 'MM/DD/YYYY':
-        return `${month}/${day}/${year}`
-      case 'DD/MM/YYYY':
-        return `${day}/${month}/${year}`
-      case 'YYYY-MM-DD':
-        return `${year}-${month}-${day}`
-      default:
-        return date.toLocaleDateString()
     }
   }
 
@@ -380,160 +159,60 @@ export const generateCustomTemplate = async (
   title: string
 ) => {
   const doc = new jsPDF()
-  const pageWidth = doc.internal.pageSize.getWidth()
-  const pageHeight = doc.internal.pageSize.getHeight()
+  const ctx = createPDFContext(doc)
 
-  // Try to add background image if it's an image file (not PDF)
-  try {
-    if (template.templateFile && typeof template.templateFile === 'string') {
-      // Only add image background if it's not a PDF
-      if (!template.templateFile.startsWith('data:application/pdf')) {
-        let format = 'PNG'
-        if (
-          template.templateFile.includes('data:image/jpeg') ||
-          template.templateFile.includes('data:image/jpg')
-        ) {
-          format = 'JPEG'
-        }
-
-        doc.addImage(template.templateFile, format, 0, 0, pageWidth, pageHeight)
-      }
-    }
-  } catch (error) {
-    console.warn('Could not load custom template background:', error)
+  // Load and set background image
+  ctx.backgroundImage = await loadBackgroundImage(
+    template.imageUrl,
+    template.templateFile as string
+  )
+  if (ctx.backgroundImage) {
+    addBackgroundImage(ctx)
   }
 
-  // Company and Client Details
-  doc.setFontSize(10)
-  doc.setTextColor(100)
+  let currentY = 75
 
-  const companyX = 15
-  const clientX = pageWidth - 15
-  const detailsY = 75
-  const startX = 15
-
-  const customerName = typeof document.customer === 'object' ? document.customer.companyName : ''
-  const customerAddress =
-    typeof document.customer === 'object' && document.customer.billingAddress
-      ? `${document.customer.billingAddress.street}, ${document.customer.billingAddress.city}`
-      : ''
-
-  doc.setFont('helvetica', 'bold')
-  // doc.text('BILL TO:', clientX, detailsY,)
-  doc.setFont('helvetica', 'normal')
-  doc.text(`${document.issuedDate}`, companyX, detailsY)
-  doc.text(customerName, companyX, detailsY + 5)
-  doc.text(customerAddress, companyX, detailsY + 10)
-
+  // ========== DOCUMENT NUMBER (top right) ==========
   doc.setFontSize(12)
-  doc.text(`${documentType} #: ${document._id || ''}`, clientX, detailsY, { align: 'right' })
-  // doc.text(`Date: ${document.date}`, startX, detailsY + 32)
+  doc.setTextColor(100)
+  doc.text(`${documentType} #: ${document.uniqueId || ''}`, ctx.pageWidth - ctx.margin, 75, {
+    align: 'right',
+  })
 
-  // Centered document type title
+  // ========== CUSTOMER SECTION ==========
+  currentY = renderCustomerSection(ctx, document, currentY)
+
+  // ========== CENTERED TITLE ==========
+  currentY = checkPageBreak(ctx, 15, currentY)
   doc.setFontSize(12)
   doc.setTextColor('#333333')
   doc.setFont('helvetica', 'bold')
-  const centerX = pageWidth / 2
 
-  // Draw an underline for the centered document title
+  const centerX = ctx.pageWidth / 2
+  doc.text(title, centerX, currentY, { align: 'center' })
+
+  // Draw underline
   try {
     const textWidth = doc.getTextWidth(title)
-    const underlineY = detailsY + 30 // a few points below the text baseline
     doc.setLineWidth(0.8)
     doc.setDrawColor('#333333')
-    doc.line(centerX - textWidth / 2, underlineY, centerX + textWidth / 2, underlineY)
+    doc.line(centerX - textWidth / 2, currentY + 2, centerX + textWidth / 2, currentY + 2)
   } catch (err) {
-    console.warn('Could not draw underline for title:', err)
+    console.warn('Could not draw underline:', err)
   }
-  doc.text(title, centerX, detailsY + 28, { align: 'center' })
+  currentY += 15
 
-  if (documentType === 'QUOTATION') {
-    const tableBody = document.items.map(
-      (item: QuotationLineItem | InvoiceLineItem, index: number) => [
-        index + 1,
-        item.description,
-        item.quantity,
-        `$${item.unitPrice.toFixed(2)}`,
-        `$${(item.quantity * item.unitPrice).toFixed(2)}`,
-      ]
-    )
+  // ========== ITEMS TABLE ==========
+  currentY = renderItemsTable(ctx, document, currentY, documentType)
 
-    autoTable(doc, {
-      startY: 110,
-      head: [['#', 'Description', 'Quantity', 'Unit Price', 'Total']],
-      body: tableBody,
-      theme: 'striped',
-      headStyles: {
-        fillColor: '#4a5568',
-        textColor: '#ffffff',
-        fontSize: 10,
-        fontStyle: 'bold',
-      },
-      bodyStyles: {
-        fontSize: 9,
-      },
-      margin: { left: startX, right: 15 },
-    })
-  } else {
-    const tableColumn = ['#', 'Description', 'Quantity', 'SKU', 'Unit Price', 'Total']
-    const tableRows = document.items.map(
-      (item: QuotationLineItem | InvoiceLineItem, index: number) => [
-        index + 1,
-        item.description ?? '',
-        item.quantity ?? 0,
-        item.sku ?? '',
-        `$${(item.unitPrice ?? 0).toFixed(2)}`,
-        `$${((item.quantity ?? 0) * (item.unitPrice ?? 0)).toFixed(2)}`,
-      ]
-    ) as (string | number)[][]
+  // ========== TOTALS ==========
+  currentY = renderTotals(ctx, document, currentY)
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 110,
-      theme: document.template === 'minimalist' ? 'grid' : 'striped',
-      headStyles: {
-        fillColor: '#4a5568',
-        textColor: '#ffffff',
-        fontSize: 10,
-        fontStyle: 'bold',
-      },
-      bodyStyles: {
-        fontSize: 9,
-      },
-      margin: { left: startX, right: 15 },
-    })
-  }
+  // ========== TERMS ==========
+  currentY = renderTerms(ctx, document.terms, currentY)
 
-  // Totals
-  const finalY = (doc as any).lastAutoTable.finalY + 10
-  const totalX = pageWidth - 15
-  doc.setFontSize(10)
-  doc.text('Subtotal:', totalX - 30, finalY, { align: 'right' })
-  doc.text(`$${document.subtotal.toFixed(2)}`, totalX, finalY, { align: 'right' })
-  const vatRateValue = document.vatRate || 7.5
-
-  doc.text(`VAT (${vatRateValue}%):`, totalX - 30, finalY + 7, { align: 'right' })
-  doc.text(`$${(document.totalVat || 0).toFixed(2)}`, totalX, finalY + 7, { align: 'right' })
-  doc.setFontSize(12)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Total:', totalX - 30, finalY + 14, { align: 'right' })
-  doc.text(`$${document.grandTotal.toFixed(2)}`, totalX, finalY + 14, { align: 'right' })
-
-  // Terms
-  doc.setFontSize(8)
-  doc.setTextColor(150)
-  doc.text('Terms & Conditions', startX, finalY + 30)
-  doc.setFont('helvetica', 'normal')
-  doc.text(document.terms || '', startX, finalY + 35, { maxWidth: pageWidth - startX - 15 })
-
-  // Closing greetings.
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.setTextColor(150)
-  doc.text('Thank you', startX, finalY + 48)
-  doc.text('Yours faithfully', startX, finalY + 52)
-  doc.text(companyDetails.name, startX, finalY + 56)
+  // ========== CLOSING ==========
+  renderClosing(ctx, companyDetails.name, currentY)
 
   return doc
 }
@@ -566,28 +245,8 @@ export const validateCustomTemplate = (
     errors.push('Template file is required')
   }
 
-  if (template.placeholders.length === 0) {
-    errors.push('At least one placeholder is required')
-  }
-
   // Check for required placeholders
   const requiredPlaceholders = ['companyName', 'documentNumber', 'customerName', 'total']
-  const existingIds = template.placeholders.map(p => p.id)
-  const missingRequired = requiredPlaceholders.filter(id => !existingIds.includes(id))
-
-  if (missingRequired.length > 0) {
-    errors.push(`Missing required placeholders: ${missingRequired.join(', ')}`)
-  }
-
-  // Validate placeholder positions
-  template.placeholders.forEach(placeholder => {
-    if (placeholder.x < 0 || placeholder.y < 0) {
-      errors.push(`Invalid position for placeholder ${placeholder.id}`)
-    }
-    if (placeholder.fontSize && placeholder.fontSize < 6) {
-      errors.push(`Font size too small for placeholder ${placeholder.id}`)
-    }
-  })
 
   return {
     valid: errors.length === 0,
@@ -595,16 +254,5 @@ export const validateCustomTemplate = (
   }
 }
 
-export const addCompanyLogo = (
-  doc: jsPDF,
-  companyDetails: any,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-) => {
-  // Try to add logo first
-  if (companyDetails.logoUrl && companyDetails.logoUrl.startsWith('http')) {
-    doc.addImage(companyDetails.logoUrl, 'PNG', x, y, width, height)
-  }
-}
+// Re-export addCompanyLogo for backward compatibility
+export { addCompanyLogo } from './pdfUtils'

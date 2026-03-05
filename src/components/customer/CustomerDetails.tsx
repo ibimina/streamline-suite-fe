@@ -41,7 +41,7 @@ const CustomerDetails = () => {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <div className='min-h-screen bg-muted '>
         <LoadingSpinner />
       </div>
     )
@@ -49,12 +49,12 @@ const CustomerDetails = () => {
 
   if (!customer) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      <div className='min-h-screen bg-muted '>
         {/* Header */}
-        <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+        <div className='bg-card border-b border-border px-6 py-4'>
           <Link
             href={'/customers'}
-            className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+            className='text-muted-foreground mb-2 hover:text-muted-foreground dark:hover:text-muted-foreground flex items-center'
           >
             <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
@@ -73,12 +73,12 @@ const CustomerDetails = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+    <div className='min-h-screen bg-muted '>
       {/* Header */}
-      <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+      <div className='bg-card border-b border-border px-6 py-4'>
         <Link
           href={'/customers'}
-          className='text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-300 flex items-center'
+          className='text-muted-foreground mb-2 hover:text-muted-foreground dark:hover:text-muted-foreground flex items-center'
         >
           <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path
@@ -93,13 +93,9 @@ const CustomerDetails = () => {
         <div className='flex items-center justify-between max-w-7xl mx-auto'>
           <div className='flex items-center space-x-4'>
             <div>
-              <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
-                {customer.fullName}
-              </h1>
+              <h1 className='text-2xl font-bold text-foreground'>{customer.fullName}</h1>
               {customer.companyName && (
-                <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
-                  {customer.companyName}
-                </p>
+                <p className='text-sm text-muted-foreground mt-1'>{customer.companyName}</p>
               )}
             </div>
           </div>
@@ -109,7 +105,7 @@ const CustomerDetails = () => {
                 customer?.status === 'active'
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                   : customer.status === 'inactive'
-                    ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                    ? 'bg-muted text-foreground  '
                     : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
               }`}
             >
@@ -119,7 +115,7 @@ const CustomerDetails = () => {
             </span>
             <button
               onClick={() => setShowForm(true)}
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500'
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
             >
               Edit Customer
             </button>
@@ -131,33 +127,27 @@ const CustomerDetails = () => {
       <div className='max-w-7xl mx-auto px-6 py-8'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {/* Basic Information */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Basic Information
-            </h3>
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Basic Information</h3>
             <div className='space-y-3'>
               <div>
-                <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                  Full Name
-                </label>
-                <p className='text-gray-900 dark:text-white'>{customer.fullName}</p>
+                <label className='block text-sm font-medium text-muted-foreground'>Full Name</label>
+                <p className='text-foreground'>{customer.fullName}</p>
               </div>
               {customer.companyName && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Company Name
                   </label>
-                  <p className='text-gray-900 dark:text-white'>{customer.companyName}</p>
+                  <p className='text-foreground'>{customer.companyName}</p>
                 </div>
               )}
               {customer.email && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Email
-                  </label>
+                  <label className='block text-sm font-medium text-muted-foreground'>Email</label>
                   <a
                     href={`mailto:${customer.email}`}
-                    className='text-teal-600 hover:text-teal-800 dark:text-teal-400'
+                    className='text-primary hover:text-primary dark:text-primary'
                   >
                     {customer.email}
                   </a>
@@ -165,12 +155,10 @@ const CustomerDetails = () => {
               )}
               {customer.phone && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Phone
-                  </label>
+                  <label className='block text-sm font-medium text-muted-foreground'>Phone</label>
                   <a
                     href={`tel:${customer.phone}`}
-                    className='text-teal-600 hover:text-teal-800 dark:text-teal-400'
+                    className='text-primary hover:text-primary dark:text-primary'
                   >
                     {customer.phone}
                   </a>
@@ -178,34 +166,32 @@ const CustomerDetails = () => {
               )}
               {customer.currency && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Preferred Currency
                   </label>
-                  <p className='text-gray-900 dark:text-white'>{customer.currency}</p>
+                  <p className='text-foreground'>{customer.currency}</p>
                 </div>
               )}
               {customer.language && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Language
                   </label>
-                  <p className='text-gray-900 dark:text-white'>{customer.language}</p>
+                  <p className='text-foreground'>{customer.language}</p>
                 </div>
               )}
               {customer?.taxId && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Tax ID
-                  </label>
-                  <p className='text-gray-900 dark:text-white'>{customer.taxId}</p>
+                  <label className='block text-sm font-medium text-muted-foreground'>Tax ID</label>
+                  <p className='text-foreground'>{customer.taxId}</p>
                 </div>
               )}
               {customer?.creditLimit && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Credit Limit
                   </label>
-                  <p className='text-gray-900 dark:text-white'>
+                  <p className='text-foreground'>
                     {new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: customer.currency || 'USD',
@@ -220,21 +206,17 @@ const CustomerDetails = () => {
           <div className='space-y-6'>
             {/* Primary Address */}
             {customer.address && (
-              <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                  Primary Address
-                </h3>
-                <p className='text-gray-900 dark:text-white'>{customer.address}</p>
+              <div className='bg-muted rounded-lg p-4'>
+                <h3 className='text-lg font-semibold text-foreground mb-4'>Primary Address</h3>
+                <p className='text-foreground'>{customer.address}</p>
               </div>
             )}
 
             {/* Billing Address */}
             {customer.billingAddress && (
-              <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                  Billing Address
-                </h3>
-                <div className='space-y-1 text-gray-900 dark:text-white'>
+              <div className='bg-muted rounded-lg p-4'>
+                <h3 className='text-lg font-semibold text-foreground mb-4'>Billing Address</h3>
+                <div className='space-y-1 text-foreground'>
                   {customer.billingAddress.street && <p>{customer.billingAddress.street}</p>}
                   <p>
                     {[
@@ -252,11 +234,9 @@ const CustomerDetails = () => {
 
             {/* Shipping Address */}
             {customer.shippingAddress && (
-              <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                  Shipping Address
-                </h3>
-                <div className='space-y-1 text-gray-900 dark:text-white'>
+              <div className='bg-muted rounded-lg p-4'>
+                <h3 className='text-lg font-semibold text-foreground mb-4'>Shipping Address</h3>
+                <div className='space-y-1 text-foreground'>
                   {customer.shippingAddress.street && <p>{customer.shippingAddress.street}</p>}
                   <p>
                     {[
@@ -275,15 +255,13 @@ const CustomerDetails = () => {
 
           {/* Contact Persons */}
           {customer.contacts && customer.contacts.length > 0 && (
-            <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-                Contact Persons
-              </h3>
+            <div className='bg-muted rounded-lg p-4'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Contact Persons</h3>
               <div className='space-y-4'>
                 {customer.contacts.map((contact, index) => (
-                  <div key={contact.email} className='border-l-4 border-teal-500 pl-4'>
+                  <div key={contact.email} className='border-l-4 border-primary pl-4'>
                     <div className='flex items-center gap-2 mb-1'>
-                      <p className='font-medium text-gray-900 dark:text-white'>{contact.name}</p>
+                      <p className='font-medium text-foreground'>{contact.name}</p>
                       {contact.primary && (
                         <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
                           Primary
@@ -291,16 +269,14 @@ const CustomerDetails = () => {
                       )}
                     </div>
                     {contact.role && (
-                      <p className='text-sm text-gray-500 dark:text-gray-400 mb-2'>
-                        {contact.role}
-                      </p>
+                      <p className='text-sm text-muted-foreground mb-2'>{contact.role}</p>
                     )}
-                    <div className='text-sm text-gray-600 dark:text-gray-300 space-y-1'>
+                    <div className='text-sm text-muted-foreground space-y-1'>
                       {contact.email && (
                         <p>
                           <a
                             href={`mailto:${contact.email}`}
-                            className='text-teal-600 hover:text-teal-800 dark:text-teal-400'
+                            className='text-primary hover:text-primary dark:text-primary'
                           >
                             {contact.email}
                           </a>
@@ -310,7 +286,7 @@ const CustomerDetails = () => {
                         <p>
                           <a
                             href={`tel:${contact.phone}`}
-                            className='text-teal-600 hover:text-teal-800 dark:text-teal-400'
+                            className='text-primary hover:text-primary dark:text-primary'
                           >
                             {contact.phone}
                           </a>
@@ -325,13 +301,13 @@ const CustomerDetails = () => {
 
           {/* Tags */}
           {customer.tags && customer.tags.length > 0 && (
-            <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>Tags</h3>
+            <div className='bg-muted rounded-lg p-4'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Tags</h3>
               <div className='flex flex-wrap gap-2'>
                 {customer.tags.map((tag, index) => (
                   <span
                     key={tag}
-                    className='px-3 py-1 bg-teal-100 text-teal-800 dark:bg-teal-800 dark:text-teal-100 rounded-full text-sm'
+                    className='px-3 py-1 bg-primary-light text-primary dark:bg-primary/30 dark:text-primary-foreground/80 rounded-full text-sm'
                   >
                     {tag}
                   </span>
@@ -342,44 +318,40 @@ const CustomerDetails = () => {
 
           {/* Notes */}
           {customer.notes && (
-            <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4 lg:col-span-2'>
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>Notes</h3>
-              <p className='text-gray-900 dark:text-white whitespace-pre-wrap'>{customer.notes}</p>
+            <div className='bg-muted rounded-lg p-4 lg:col-span-2'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Notes</h3>
+              <p className='text-foreground whitespace-pre-wrap'>{customer.notes}</p>
             </div>
           )}
 
           {/* Metadata */}
-          <div className='bg-gray-50 dark:bg-gray-700 rounded-lg p-4 lg:col-span-2'>
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
-              Record Information
-            </h3>
+          <div className='bg-muted rounded-lg p-4 lg:col-span-2'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Record Information</h3>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
               {customer.createdAt && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
-                    Created
-                  </label>
-                  <p className='text-gray-900 dark:text-white'>
+                  <label className='block text-sm font-medium text-muted-foreground'>Created</label>
+                  <p className='text-foreground'>
                     {new Date(customer.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               )}
               {customer.updatedAt && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Last Updated
                   </label>
-                  <p className='text-gray-900 dark:text-white'>
+                  <p className='text-foreground'>
                     {new Date(customer.updatedAt).toLocaleDateString()}
                   </p>
                 </div>
               )}
               {customer._id && (
                 <div>
-                  <label className='block text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <label className='block text-sm font-medium text-muted-foreground'>
                     Customer ID
                   </label>
-                  <p className='text-gray-900 dark:text-white font-mono text-xs'>{customer._id}</p>
+                  <p className='text-foreground font-mono text-xs'>{customer._id}</p>
                 </div>
               )}
             </div>
@@ -388,14 +360,14 @@ const CustomerDetails = () => {
       </div>
 
       {/* Action Footer */}
-      <div className='mt-8 flex items-center justify-between p-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-lg'>
+      <div className='mt-8 flex items-center justify-between p-6 bg-card border-t border-border rounded-lg'>
         <button
           onClick={handleDelete}
           className='px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500'
         >
           Delete Customer
         </button>
-        <div className='text-sm text-gray-500 dark:text-gray-400'>
+        <div className='text-sm text-muted-foreground'>
           Last updated:{' '}
           {customer.updatedAt ? new Date(customer.updatedAt).toLocaleDateString() : 'Never'}
         </div>
@@ -414,6 +386,7 @@ const CustomerDetails = () => {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDeleteCustomer}
+          open={showDeleteModal}
         />
       )}
     </div>

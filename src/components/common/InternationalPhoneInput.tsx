@@ -54,7 +54,7 @@ const InternationalPhoneInput: React.FC<InternationalPhoneInputProps> = ({
     <div className={className}>
       <label
         htmlFor={fieldName}
-        className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+        className='block text-sm font-medium text-secondary-foreground mb-2'
       >
         {label} {required && '*'}
       </label>

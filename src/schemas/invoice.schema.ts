@@ -55,7 +55,9 @@ export const invoiceSchema = z.object({
     .max(5000, 'Terms must be less than 5000 characters')
     .optional()
     .or(z.literal('')),
+  templateName: z.string().optional(),
   template: z.string().optional(),
+
   accentColor: z.string().optional(),
   whtRate: z.number().min(0).max(100).default(5),
 })

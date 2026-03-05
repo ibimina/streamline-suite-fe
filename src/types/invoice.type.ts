@@ -54,10 +54,20 @@ export interface Invoice {
   paidDate?: string
   sentDate?: string
   whtRate: number
+  // Profit fields
+  totalCost?: number
+  totalGrossProfit?: number
+  totalNetProfit?: number
+  grossProfitMargin?: number
+  netProfitMargin?: number
   // Additional fields
   notes?: string
   terms?: string
-  template?: string
+  template?: {
+    _id: string
+    imageUrl: string
+  }
+  templateName?: string
   accentColor?: string
   quotation?: string
   createdBy?: string | UserRef
@@ -144,15 +154,34 @@ export interface InvoicesResponse {
   status: number
 }
 
+export interface TopCustomer {
+  customerId: string
+  companyName: string
+  email: string
+  totalRevenue: number
+  invoiceCount: number
+  paidAmount: number
+  outstandingAmount: number
+}
+
+export interface InvoiceStatsQueryParams {
+  startDate?: string
+  endDate?: string
+  customerId?: string
+}
+
 export interface InvoiceStatsResponse {
   payload: {
     total: number
     totalValue: number
+    totalGrossProfit: number
+    totalNetProfit: number
     draft: { count: number; amount: number }
     sent: { count: number; amount: number }
     paid: { count: number; amount: number }
     overdue: { count: number; amount: number }
     cancelled: { count: number; amount: number }
+    topCustomers: TopCustomer[]
   }
   message: string
   status: number

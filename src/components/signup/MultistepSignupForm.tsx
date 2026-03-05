@@ -88,18 +88,14 @@ const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) 
   }
 
   return (
-    <div className='w-full max-w-2xl mx-auto'>
-      <div className='text-center mb-8'>
-        <h1 className='text-3xl font-extrabold text-gray-900 dark:text-white'>
-          Create your account
-        </h1>
-        <p className='mt-2 text-gray-600 dark:text-gray-400'>
-          Join Streamline Suite to manage your business efficiently
-        </p>
+    <div className='w-full'>
+      <div className='text-center mb-6'>
+        <h1 className='text-2xl font-bold text-foreground'>Create your account</h1>
+        <p className='mt-1 text-muted-foreground'>Complete the steps below to get started</p>
       </div>
 
-      <div className='bg-white dark:bg-gray-800 shadow-xl rounded-lg'>
-        <div className='px-6 py-8'>
+      <div className='bg-background border border-border rounded-xl'>
+        <div className='px-4 sm:px-6 py-6'>
           <StepProgress
             currentStep={currentStep}
             totalSteps={totalSteps}
@@ -108,9 +104,9 @@ const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) 
           />
 
           <FormProvider {...formMethods}>
-            <form className='space-y-8'>
+            <form className='space-y-6'>
               {/* Current Step Component */}
-              <div className='min-h-[400px]'>{stepComponents[currentStep]}</div>
+              <div className='min-h-80'>{stepComponents[currentStep]}</div>
 
               {/* Global Errors */}
               {errors.submit && (
@@ -135,12 +131,12 @@ const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) 
               )}
 
               {/* Navigation Buttons */}
-              <div className='flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700'>
+              <div className='flex justify-between pt-4 border-t border-border'>
                 <button
                   type='button'
                   onClick={prevStep}
                   disabled={isFirstStep}
-                  className='inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                  className='inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-lg text-secondary-foreground bg-card hover:bg-muted  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
                 >
                   <svg
                     className='mr-2 h-4 w-4'
@@ -163,7 +159,7 @@ const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) 
                     type='button'
                     onClick={handleSubmitStep}
                     disabled={isSubmitting}
-                    className='inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+                    className='inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
                   >
                     {isSubmitting ? (
                       <>
@@ -211,7 +207,7 @@ const MultistepSignupForm: React.FC<MultistepSignupFormProps> = ({ onSuccess }) 
                   <button
                     type='button'
                     onClick={handleNext}
-                    className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors'
+                    className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors'
                   >
                     Next
                     <svg

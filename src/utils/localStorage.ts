@@ -1,5 +1,10 @@
 // localStorage utilities for state persistence and app preferences
 export class LocalStorageManager {
+  // Check if we're in a browser environment
+  private static isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined'
+  }
+
   private static readonly STORAGE_KEYS = {
     // Authentication persistence
     AUTH_TOKEN: 'streamline_auth_token',
@@ -31,6 +36,7 @@ export class LocalStorageManager {
 
   // Generic localStorage helpers
   static setItem<T>(key: string, value: T): void {
+    if (!this.isBrowser()) return
     try {
       const serializedValue = JSON.stringify({
         data: value,
@@ -43,8 +49,9 @@ export class LocalStorageManager {
   }
 
   static getItem<T>(key: string): T | null {
+    if (!this.isBrowser()) return null
     try {
-      const item = localStorage?.getItem(key)
+      const item = localStorage.getItem(key)
       if (!item) return null
 
       const parsed = JSON.parse(item)
@@ -56,6 +63,7 @@ export class LocalStorageManager {
   }
 
   static removeItem(key: string): void {
+    if (!this.isBrowser()) return
     try {
       localStorage.removeItem(key)
     } catch (error) {
@@ -64,6 +72,7 @@ export class LocalStorageManager {
   }
 
   static clear(): void {
+    if (!this.isBrowser()) return
     try {
       // Only clear our app's keys, not all localStorage
       Object.values(this.STORAGE_KEYS).forEach(key => {
@@ -208,6 +217,7 @@ export class LocalStorageManager {
 
   // Check if localStorage is available
   static isAvailable(): boolean {
+    if (!this.isBrowser()) return false
     try {
       const testKey = '__localStorage_test__'
       localStorage.setItem(testKey, 'test')

@@ -1,30 +1,43 @@
 // Inventory Transaction types for the frontend
 
-export type TransactionType = 'stock_in' | 'stock_out' | 'adjustment' | 'transfer'
+export type TransactionType =
+  | 'purchase'
+  | 'sale'
+  | 'return_from_customer'
+  | 'return_to_supplier'
+  | 'adjustment'
+  | 'transfer'
+  | 'production_in'
+  | 'production_out'
+  | 'completed'
+
 export type TransactionStatus = 'pending' | 'completed' | 'cancelled'
 
 export interface InventoryTransaction {
   _id: string
-  product: string
+  product: string | { _id: string; name: string; sku: string; currentStock?: number }
   productName?: string
-  transactionType: TransactionType
-  status: TransactionStatus
+  status: TransactionType
   quantity: number
   unitCost: number
-  totalValue: number
+  totalValue?: number
   reference: string
+  referenceId?: string
   warehouse?: string
   warehouseName?: string
-  sourceWarehouse?: string
-  destinationWarehouse?: string
+  runningBalance?: number
+  runningStock?: number
+  averageCost?: number
   serialNumbers?: string[]
-  batchNumber?: string
   expiryDate?: string
   notes?: string
-  runningStock?: number
+  account: string
   createdBy?: {
     _id: string
-    name: string
+    firstName?: string
+    lastName?: string
+    name?: string
+    email?: string
   }
   createdAt: string
   updatedAt: string
@@ -37,8 +50,7 @@ export interface InventoryTransactionQueryParams {
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
   productId?: string
-  transactionType?: TransactionType
-  status?: TransactionStatus
+  status?: TransactionType
   warehouseId?: string
   startDate?: string
   endDate?: string
@@ -75,20 +87,17 @@ export interface InventoryTransactionStatsResponse {
 
 export interface CreateInventoryTransactionData {
   product: string
-  transactionType: TransactionType
+  status: TransactionType
   quantity: number
   unitCost?: number
   reference?: string
   warehouse?: string
-  sourceWarehouse?: string
-  destinationWarehouse?: string
   serialNumbers?: string[]
-  batchNumber?: string
   expiryDate?: string
   notes?: string
 }
 
 export interface UpdateInventoryTransactionData {
-  status?: TransactionStatus
+  status?: string
   notes?: string
 }

@@ -58,11 +58,11 @@ const NavLink: React.FC<{
       className={`${commonClasses} ${
         isActive
           ? isMobile
-            ? 'bg-teal-600 text-white'
-            : 'text-teal-500'
+            ? 'bg-primary text-white'
+            : 'text-primary'
           : isMobile
-            ? 'text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
-            : 'text-gray-700 dark:text-gray-200 hover:text-teal-500 dark:hover:text-teal-400'
+            ? 'text-foreground hover:bg-muted '
+            : 'text-foreground hover:text-primary dark:hover:text-primary'
       }`}
     >
       {children}
@@ -83,7 +83,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
 
   return (
     <>
-      <header className='bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-50'>
+      <header className='bg-white/80 /80 backdrop-blur-md sticky top-0 z-50'>
         <nav
           className='mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8'
           aria-label='Global'
@@ -96,16 +96,14 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
             >
               <span className='sr-only'>Streamline Suite</span>
               <Logo className='h-8 w-auto' />
-              <span className='ml-2 text-xl font-bold text-gray-900 dark:text-white'>
-                Streamline Suite
-              </span>
+              <span className='ml-2 text-xl font-bold text-foreground'>Streamline Suite</span>
             </Link>
           </div>
           <div className='flex lg:hidden'>
             <button
               type='button'
               onClick={() => setMobileMenuOpen(true)}
-              className='-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-gray-400'
+              className='-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-secondary-foreground dark:text-muted-foreground'
             >
               <span className='sr-only'>Open main menu</span>
               <MenuIcon className='h-6 w-6' aria-hidden='true' />
@@ -127,14 +125,14 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
             <Link
               href='/login'
               onClick={() => handlePageChange('login')}
-              className='text-sm font-semibold leading-6 text-gray-700 dark:text-gray-200 hover:text-teal-500 dark:hover:text-teal-400'
+              className='text-sm font-semibold leading-6 text-foreground hover:text-primary dark:hover:text-primary'
             >
               Log in
             </Link>
             <Link
               href='/signup'
               onClick={() => handlePageChange('signup')}
-              className='rounded-md bg-teal-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-600  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600'
+              className='rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
             >
               Sign up
             </Link>
@@ -146,7 +144,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
       {isMobileMenuOpen && (
         <div className='lg:hidden' role='dialog' aria-modal='true'>
           <div className='fixed inset-0 z-50' />
-          <div className='fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white dark:bg-gray-900 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10'>
+          <div className='fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white  px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-border'>
             <div className='flex items-center justify-between'>
               <Link
                 href='/'
@@ -160,14 +158,14 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
               <button
                 type='button'
                 onClick={() => setMobileMenuOpen(false)}
-                className='-m-2.5 rounded-md p-2.5 text-gray-700 dark:text-gray-400'
+                className='-m-2.5 rounded-md p-2.5 text-secondary-foreground dark:text-muted-foreground'
               >
                 <span className='sr-only'>Close menu</span>
                 <XIcon className='h-6 w-6' aria-hidden='true' />
               </button>
             </div>
             <div className='mt-6 flow-root'>
-              <div className='-my-6 divide-y divide-gray-500/10'>
+              <div className='-my-6 divide-y divide-border'>
                 <div className='space-y-2 py-6'>
                   {navItems.map(item => (
                     <NavLink
@@ -189,7 +187,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
                       handlePageChange('login')
                       setMobileMenuOpen(false)
                     }}
-                    className='-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
+                    className='-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-foreground hover:bg-muted dark:hover:bg-card'
                   >
                     Log in
                   </Link>
@@ -199,7 +197,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({ activePage, handlePageChang
                       handlePageChange('signup')
                       setMobileMenuOpen(false)
                     }}
-                    className='mt-2 -mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white bg-teal-500 hover:bg-teal-600'
+                    className='mt-2 -mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white bg-primary hover:bg-primary'
                   >
                     Sign Up
                   </Link>

@@ -1,30 +1,64 @@
-const DeleteConfirmationModal: React.FC<{ onConfirm: () => void; onCancel: () => void }> = ({
+'use client'
+
+import * as React from 'react'
+import { AlertTriangle } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+
+interface DeleteConfirmationModalProps {
+  open: boolean
+  onConfirm: () => void
+  onCancel: () => void
+  itemName?: string
+  itemType?: string
+  isLoading?: boolean
+}
+
+const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
+  open,
   onConfirm,
   onCancel,
+  itemName,
+  itemType = 'item',
+  isLoading = false,
 }) => {
+  const title = itemName ? `Delete ${itemType}?` : 'Confirm Deletion'
+  const description = itemName
+    ? `Are you sure you want to delete "${itemName}"? This action cannot be undone.`
+    : 'Are you sure you want to delete this item? This action cannot be undone.'
+
   return (
-    <div className='fixed inset-0 backdrop-blur overflow-y-auto flex justify-center items-start sm:items-center z-50'>
-      <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm'>
-        <h3 className='text-lg font-bold mb-2'>Confirm Deletion</h3>
-        <p className='text-gray-600 dark:text-gray-400 mb-4'>
-          Are you sure? This action cannot be undone.
-        </p>
-        <div className='flex justify-end'>
-          <button
-            onClick={onCancel}
-            className='mr-2 px-4 py-2 rounded bg-gray-200 dark:bg-gray-600'
-          >
+    <Dialog open={open} onOpenChange={isOpen => !isOpen && onCancel()}>
+      <DialogContent className='sm:max-w-106.5'>
+        <DialogHeader>
+          <div className='flex items-center gap-3'>
+            <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive-light'>
+              <AlertTriangle className='h-5 w-5 text-destructive' />
+            </div>
+            <div>
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription className='mt-1'>{description}</DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+        <DialogFooter className='mt-4'>
+          <Button variant='outline' onClick={onCancel} disabled={isLoading}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className='px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700'
-          >
+          </Button>
+          <Button variant='destructive' onClick={onConfirm} isLoading={isLoading}>
             Delete
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
+
 export default DeleteConfirmationModal

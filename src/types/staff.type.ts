@@ -43,6 +43,7 @@ export interface Staff {
   dateOfBirth?: string
   gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say'
   avatarUrl?: string
+  isActive: boolean
   // Employment info
   role: StaffRole
   department?: string

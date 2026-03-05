@@ -13,9 +13,10 @@ export interface User {
   role: UserRole
   status: UserStatus
   avatar?: string
-  lastLogin?: string
+  lastLoginAt?: string
   createdAt: string
   updatedAt: string
+  isActive: boolean
 }
 
 export interface UserFormData {

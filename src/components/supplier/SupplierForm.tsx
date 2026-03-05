@@ -113,27 +113,27 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
         }
       }}
     >
-      <SheetContent className='bg-white overflow-y-auto w-full lg:max-w-2xl dark:bg-gray-800'>
+      <SheetContent className='bg-white overflow-y-auto w-full lg:max-w-2xl '>
         <SheetHeader className='flex justify-end'>
-          <h2 className='text-2xl font-bold text-gray-900 dark:text-white mb-2'>
+          <h2 className='text-2xl font-bold text-foreground mb-2'>
             {supplier?._id ? 'Edit Supplier' : 'Add New Supplier'}
           </h2>
-          <p className='text-sm text-gray-600 dark:text-gray-400 mb-6'>
+          <p className='text-sm text-muted-foreground mb-6'>
             Fields marked with <span className='text-red-500'>*</span> are required. Fields marked
-            with <span className='text-gray-400'>(optional)</span> can be left blank.
+            with <span className='text-muted-foreground'>(optional)</span> can be left blank.
           </p>
         </SheetHeader>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Supplier Name - Required */}
             <div className='md:col-span-2'>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
                 Supplier Name <span className='text-red-500 text-sm'>*</span>
               </label>
               <input
                 type='text'
                 {...register('name')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='Supplier company name'
               />
               {errors.name && <InputErrorWrapper message={errors.name.message || ''} />}
@@ -141,13 +141,13 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
 
             {/* Email - Optional */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Email <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Email <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='email'
                 {...register('email')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='contact@supplier.com'
               />
               {errors.email && <InputErrorWrapper message={errors.email.message || ''} />}
@@ -155,13 +155,13 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
 
             {/* Phone - Optional */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Phone <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Phone <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='tel'
                 {...register('phone')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='+1 (555) 123-4567'
               />
               {errors.phone && <InputErrorWrapper message={errors.phone.message || ''} />}
@@ -169,13 +169,13 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
 
             {/* Tax ID - Optional */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                Tax ID <span className='text-xs text-gray-400'>(optional)</span>
+              <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                Tax ID <span className='text-xs text-muted-foreground'>(optional)</span>
               </label>
               <input
                 type='text'
                 {...register('taxId')}
-                className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                 placeholder='TAX123456789'
               />
               {errors.taxId && <InputErrorWrapper message={errors.taxId.message || ''} />}
@@ -184,12 +184,12 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
 
           {/* Address - Optional */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Address <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              Address <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <textarea
               {...register('address')}
-              className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+              className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
               placeholder='Full business address'
               rows={3}
             />
@@ -198,8 +198,8 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
 
           {/* Payment Terms - Optional */}
           <div>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-              Payment Terms <span className='text-xs text-gray-400'>(optional)</span>
+            <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+              Payment Terms <span className='text-xs text-muted-foreground'>(optional)</span>
             </label>
             <Select
               // value={watch('paymentTerms')}
@@ -208,7 +208,7 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
               <SelectTrigger className='w-full'>
                 <SelectValue placeholder='Select payment terms' />
               </SelectTrigger>
-              <SelectContent className='w-full z-50 bg-white dark:bg-gray-800'>
+              <SelectContent className='w-full z-50 bg-card'>
                 {paymentTermsOptions.map(term => (
                   <SelectItem key={term} value={term}>
                     {term}
@@ -224,14 +224,14 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
           {/* Contacts Section */}
           <div className='mt-6'>
             <div className='flex items-center justify-between mb-4'>
-              <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
-                Contact Persons <span className='text-sm text-gray-400'>(optional)</span>
+              <h3 className='text-lg font-medium text-foreground'>
+                Contact Persons <span className='text-sm text-muted-foreground'>(optional)</span>
               </h3>
               <button
                 type='button'
                 onClick={addContact}
                 disabled={!newContactName.trim()}
-                className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed'
               >
                 Add Contact
               </button>
@@ -243,25 +243,23 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
                 {contactFields.map((field, index) => (
                   <div
                     key={field.id}
-                    className='flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md'
+                    className='flex items-center justify-between p-3 bg-muted rounded-md'
                   >
                     <div className='flex-1'>
                       <div className='flex items-center gap-2'>
-                        <span className='font-medium text-gray-900 dark:text-white'>
-                          {field.name}
-                        </span>
+                        <span className='font-medium text-foreground'>{field.name}</span>
                         {field.primary && (
                           <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
                             Primary
                           </span>
                         )}
                       </div>
-                      <div className='text-sm text-gray-500 dark:text-gray-400'>
+                      <div className='text-sm text-muted-foreground'>
                         {field.email && <span>{field.email}</span>}
                         {field.email && field.phone && <span> • </span>}
                         {field.phone && <span>{field.phone}</span>}
                         {field.role && (
-                          <span className='ml-2 text-xs text-gray-400'>({field.role})</span>
+                          <span className='ml-2 text-xs text-muted-foreground'>({field.role})</span>
                         )}
                       </div>
                     </div>
@@ -278,52 +276,52 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
             )}
 
             {/* Add New Contact Form */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-gray-200 dark:border-gray-600 rounded-md'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 border border-border rounded-md'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                <label className='block text-sm font-medium text-secondary-foreground mb-1'>
                   Name <span className='text-red-500 text-sm'>*</span>
                 </label>
                 <input
                   type='text'
                   value={newContactName}
                   onChange={e => setNewContactName(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='Contact name'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                  Email <span className='text-xs text-gray-400'>(optional)</span>
+                <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                  Email <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <input
                   type='email'
                   value={newContactEmail}
                   onChange={e => setNewContactEmail(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='contact@example.com'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                  Phone <span className='text-xs text-gray-400'>(optional)</span>
+                <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                  Phone <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <input
                   type='tel'
                   value={newContactPhone}
                   onChange={e => setNewContactPhone(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='+1 (555) 123-4567'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                  Role <span className='text-xs text-gray-400'>(optional)</span>
+                <label className='block text-sm font-medium text-secondary-foreground mb-1'>
+                  Role <span className='text-xs text-muted-foreground'>(optional)</span>
                 </label>
                 <input
                   type='text'
                   value={newContactRole}
                   onChange={e => setNewContactRole(e.target.value)}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  className='w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary   '
                   placeholder='Sales Manager'
                 />
               </div>
@@ -336,13 +334,11 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
               <input
                 type='checkbox'
                 {...register('isActive')}
-                className='h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded'
+                className='h-4 w-4 text-primary focus:ring-primary border-border rounded'
               />
-              <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                Active Supplier
-              </span>
+              <span className='text-sm font-medium text-secondary-foreground'>Active Supplier</span>
             </label>
-            <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+            <p className='text-xs text-muted-foreground mt-1'>
               Uncheck to deactivate this supplier
             </p>
           </div>
@@ -356,14 +352,14 @@ const SupplierForm: React.FC<SupplierFormProps> = ({ supplier, onCancel, open })
                 reset()
               }}
               disabled={isSubmitting}
-              className='px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+              className='px-4 py-2 border border-border text-secondary-foreground rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary   '
             >
               Cancel
             </button>
             <button
               type='submit'
               disabled={isSubmitting}
-              className='px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isSubmitting ? 'Saving...' : supplier?._id ? 'Update Supplier' : 'Create Supplier'}
             </button>

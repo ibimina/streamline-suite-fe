@@ -1,52 +1,107 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
+import { Zap, Mail, Phone, MapPin } from 'lucide-react'
+import Logo from '../shared/Logo'
 
-type PublicPage = 'home' | 'features' | 'about' | 'contact' | 'login' | 'signup'
-
-const FooterLink: React.FC<{
-  page: PublicPage
-  handlePageChange: (page: PublicPage) => void
-  children: React.ReactNode
-}> = ({ page, handlePageChange, children }) => {
+const PublicFooter = () => {
   return (
-    <Link
-      href={`/${page}`}
-      onClick={() => {
-        handlePageChange(page)
-      }}
-      className='text-sm leading-6 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-    >
-      {children}
-    </Link>
-  )
-}
-
-const PublicFooter = ({ handlePageChange }: { handlePageChange: (page: PublicPage) => void }) => {
-  const navItems: { page: PublicPage; label: string }[] = [
-    { page: 'features', label: 'Features' },
-    { page: 'about', label: 'About' },
-    { page: 'contact', label: 'Contact' },
-  ]
-
-  return (
-    <footer className='bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700'>
-      <div className='mx-auto max-w-7xl overflow-hidden px-6 py-12 lg:px-4 lg:py-4'>
-        <nav
-          className='-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12'
-          aria-label='Footer'
-        >
-          {navItems.map(item => (
-            <div key={item.label} className='pb-6'>
-              <FooterLink page={item.page} handlePageChange={handlePageChange}>
-                {item.label}
-              </FooterLink>
+    <footer className='bg-card border-t border-border'>
+      <div className='mx-auto max-w-7xl px-6 py-16 lg:px-8'>
+        <div className='grid md:grid-cols-4 gap-12'>
+          {/* Brand */}
+          <div className='md:col-span-1'>
+            <div className='flex items-center gap-2 mb-4'>
+              <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center'>
+                <Logo variant='light' className='h-6 w-6' />
+              </div>
+              <span className='text-xl font-bold text-foreground'>Streamline</span>
             </div>
-          ))}
-        </nav>
-        <p className='mt-3 text-center text-xs leading-5 text-gray-500 dark:text-gray-400'>
-          &copy; {new Date().getFullYear()} Streamline Suite, Inc. All rights reserved.
-        </p>
+            <p className='text-sm text-muted-foreground mb-6'>
+              The all-in-one business management platform for African entrepreneurs.
+            </p>
+            <div className='flex gap-4'>
+              {['twitter', 'linkedin', 'facebook', 'instagram'].map(social => (
+                <a
+                  key={social}
+                  href={`#${social}`}
+                  className='w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors'
+                >
+                  <span className='sr-only'>{social}</span>
+                  <div className='w-4 h-4' />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Links */}
+          <div>
+            <h4 className='font-semibold text-foreground mb-4'>Product</h4>
+            <ul className='space-y-3'>
+              {['Features', 'Pricing', 'Integrations', 'Updates'].map(link => (
+                <li key={link}>
+                  <a
+                    href='#'
+                    className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+                  >
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className='font-semibold text-foreground mb-4'>Company</h4>
+            <ul className='space-y-3'>
+              {['About', 'Blog', 'Careers', 'Press'].map(link => (
+                <li key={link}>
+                  <a
+                    href='#'
+                    className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+                  >
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className='font-semibold text-foreground mb-4'>Contact</h4>
+            <ul className='space-y-3'>
+              <li className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <Mail className='w-4 h-4' />
+                hello@streamlinesuite.com
+              </li>
+              <li className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <Phone className='w-4 h-4' />
+                +234 800 000 0000
+              </li>
+              <li className='flex items-start gap-2 text-sm text-muted-foreground'>
+                <MapPin className='w-4 h-4 mt-0.5' />
+                Lagos, Nigeria
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className='mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4'>
+          <p className='text-sm text-muted-foreground'>
+            © 2026 Streamline Suite. All rights reserved.
+          </p>
+          <div className='flex gap-6'>
+            {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map(link => (
+              <a
+                key={link}
+                href='#'
+                className='text-sm text-muted-foreground hover:text-foreground transition-colors'
+              >
+                {link}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </footer>
   )

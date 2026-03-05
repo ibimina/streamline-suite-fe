@@ -42,6 +42,7 @@ export interface Expense {
   paymentMethod?: PaymentMethod
   reference?: string
   receiptUrl?: string
+  receiptName?: string
   status: ExpenseStatus
   notes?: string
   tags?: string[]
@@ -50,6 +51,7 @@ export interface Expense {
   approvedBy?: string | UserRef
   approvedAt?: string
   createdBy?: string | UserRef
+  items?: ExpenseItem[]
   createdAt: string
   updatedAt: string
 }
@@ -67,6 +69,30 @@ interface UserRef {
   email: string
 }
 
+export interface ProductRef {
+  _id: string
+  name: string
+  sku: string
+  currentStock?: number
+  costPrice?: number
+}
+
+export interface ExpenseItem {
+  _id?: string
+  product?: string | ProductRef
+  description: string
+  quantity: number
+  unitCost: number
+  lineTotal: number
+}
+
+export interface ExpenseItemFormData {
+  product?: string
+  description: string
+  quantity: number
+  unitCost: number
+}
+
 // Form data for creating/updating expense
 export interface ExpenseFormData {
   category: ExpenseCategory
@@ -78,10 +104,13 @@ export interface ExpenseFormData {
   paymentMethod?: PaymentMethod
   reference?: string
   receiptUrl?: string
+  receiptName?: string
+  receipt?: File
   notes?: string
   tags?: string[]
   isRecurring?: boolean
   recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  items?: ExpenseItemFormData[]
 }
 
 // Query params for expense list

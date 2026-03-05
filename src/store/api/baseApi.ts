@@ -121,6 +121,7 @@ export const baseApi = createApi({
     'Tax',
     'Analytics',
     'InventoryTransaction',
+    'Template',
   ],
   endpoints: () => ({}),
 })
