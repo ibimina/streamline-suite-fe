@@ -28,18 +28,12 @@ export interface TemplatePlaceholder {
 }
 
 export interface CustomTemplate {
-  id: string
+  id?: string
   name: string
   description?: string
   thumbnailUrl?: string
-  templateFile: File | string // PDF file or base64
-  placeholders: TemplatePlaceholder[]
-  dimensions: {
-    width: number
-    height: number
-  }
-  createdAt: string
-  updatedAt: string
+  imageUrl?: string
+  templateFile?: File | string // Image file or base64
 }
 
 export interface TemplateMapping {
@@ -73,7 +67,17 @@ export interface TemplateMapping {
   notes?: string
   watermark?: string
 }
-export type AccentColor = 'teal' | 'blue' | 'crimson' | 'slate'
+export type AccentColor =
+  | 'teal'
+  | 'blue'
+  | 'crimson'
+  | 'slate'
+  | 'purple'
+  | 'emerald'
+  | 'orange'
+  | 'pink'
+  | 'indigo'
+  | 'amber'
 
 export interface LineItem {
   id: string
@@ -89,54 +93,8 @@ export interface LineItem {
 
 export type QuotationStatus = 'Draft' | 'Sent' | 'Accepted' | 'Rejected'
 
-export interface Quotation {
-  id: string
-  customerName: string
-  customerAddress: string
-  date: string
-  status: QuotationStatus
-  items: LineItem[]
-  // Dynamic tax rates
-  vatRate: number
-  whtRate: number
-  // Calculated totals
-  subtotal: number
-  vat: number
-  total: number
-  terms: string
-  template: Template
-  accentColor: AccentColor
-  customTemplateId?: string // For custom templates
-}
-
-// --- Invoice Types ---
 export type InvoiceStatus = 'Paid' | 'Sent' | 'Draft' | 'Overdue'
-export interface InvoiceLineItem {
-  id: string
-  description: string
-  quantity: number
-  unitPrice: number
-  sku?: string // Stock Keeping Unit
-}
-export interface Invoice {
-  id: string
-  customerName: string
-  customerAddress: string
-  date: string
-  dueDate: string
-  status: InvoiceStatus
-  items: InvoiceLineItem[]
-  subtotal: number
-  vat: number
-  total: number
-  terms: string
-  quotationId?: string
-  template: Template
-  accentColor: AccentColor
-  customTemplateId?: string // For custom templates
-}
 
-// --- User & Staff Types ---
 export const ROLES = ['Admin', 'Manager', 'Accountant', 'Sales Rep', 'Technician'] as const
 export type Role = (typeof ROLES)[number]
 
@@ -178,14 +136,20 @@ export interface TaxReport {
 }
 
 export const EXPENSE_CATEGORIES = [
-  'Rent',
-  'Utilities',
-  'Salaries',
-  'Marketing',
-  'Supplies',
-  'Travel',
-  'Delivery',
-  'Other',
+  'rent',
+  'utilities',
+  'salaries',
+  'marketing',
+  'supplies',
+  'travel',
+  'delivery',
+  'equipment',
+  'maintenance',
+  'insurance',
+  'taxes',
+  'professional_services',
+  'software',
+  'other',
 ] as const
 export type ExpenseCategory = (typeof EXPENSE_CATEGORIES)[number]
 
@@ -217,3 +181,7 @@ export interface InventoryLog {
   purpose: string
   date: string
 }
+
+// Re-export types from type files
+export type { Quotation } from './types/quotation.type'
+export type { Invoice } from './types/invoice.type'

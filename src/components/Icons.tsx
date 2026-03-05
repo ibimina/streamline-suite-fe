@@ -712,3 +712,54 @@ export const CheckIcon: React.FC<IconProps> = props => (
     <path strokeLinecap='round' strokeLinejoin='round' d='M4.5 12.75l6 6 9-13.5' />
   </svg>
 )
+
+export const SearchIcon: React.FC<IconProps> = props => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    fill='none'
+    viewBox='0 0 24 24'
+    strokeWidth={1.5}
+    stroke='currentColor'
+    {...props}
+  >
+    <path
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      d='M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z'
+    />
+  </svg>
+)
+
+export const FilterIcon: React.FC<IconProps> = props => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    fill='none'
+    viewBox='0 0 24 24'
+    strokeWidth={1.5}
+    stroke='currentColor'
+    {...props}
+  >
+    <path
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      d='M3 5a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-1.447.894L9 17.618V13.414L3.293 7.707A1 1 0 013 7V5z'
+    />
+  </svg>
+)
+
+export const ArrowDownIcon: React.FC<IconProps> = props => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    fill='none'
+    viewBox='0 0 24 24'
+    strokeWidth={1.5}
+    stroke='currentColor'
+    {...props}
+  >
+    <path
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      d='M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75'
+    />
+  </svg>
+)

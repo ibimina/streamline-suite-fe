@@ -28,7 +28,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "src/app/layout.js"
+    "src/app/layout.js",
+    "src/store/slices/customer"
   ],
   "exclude": ["node_modules"]
 }
