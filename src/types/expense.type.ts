@@ -42,6 +42,7 @@ export interface Expense {
   paymentMethod?: PaymentMethod
   reference?: string
   receiptUrl?: string
+  receiptName?: string
   status: ExpenseStatus
   notes?: string
   tags?: string[]
@@ -103,6 +104,8 @@ export interface ExpenseFormData {
   paymentMethod?: PaymentMethod
   reference?: string
   receiptUrl?: string
+  receiptName?: string
+  receipt?: File
   notes?: string
   tags?: string[]
   isRecurring?: boolean

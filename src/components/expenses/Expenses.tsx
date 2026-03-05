@@ -42,6 +42,7 @@ import InputErrorWrapper from '../shared/InputErrorWrapper'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import { Paginator } from '../ui/pagination'
+import Image from 'next/image'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -263,6 +264,7 @@ const Expenses: React.FC = () => {
               <th className='px-6 py-3'>Category</th>
               <th className='px-6 py-3'>Description</th>
               <th className='px-6 py-3'>Items</th>
+              <th className='px-6 py-3'>Receipt</th>
               <th className='px-6 py-3'>Status</th>
               <th className='px-6 py-3 text-right'>Amount</th>
               <th className='px-6 py-3 text-center'>Actions</th>
@@ -271,7 +273,7 @@ const Expenses: React.FC = () => {
           <tbody>
             {expenses.length === 0 ? (
               <tr>
-                <td colSpan={7} className='px-6 py-12 text-center text-muted-foreground'>
+                <td colSpan={8} className='px-6 py-12 text-center text-muted-foreground'>
                   No expenses found. Add your first expense to get started.
                 </td>
               </tr>
@@ -292,6 +294,34 @@ const Expenses: React.FC = () => {
                       <span className='px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'>
                         {exp.items.length} item{exp.items.length > 1 ? 's' : ''}
                       </span>
+                    ) : (
+                      <span className='text-muted-foreground text-xs'>—</span>
+                    )}
+                  </td>
+                  <td className='px-6 py-4'>
+                    {exp.receiptUrl ? (
+                      <a
+                        href={exp.receiptUrl}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className='inline-flex items-center gap-1 text-primary hover:text-primary/80 text-xs font-medium'
+                        title={exp.receiptName || 'View receipt'}
+                      >
+                        <svg
+                          className='w-4 h-4'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                          />
+                        </svg>
+                        View
+                      </a>
                     ) : (
                       <span className='text-muted-foreground text-xs'>—</span>
                     )}
@@ -391,6 +421,8 @@ const ExpenseModal: React.FC<{
 }> = ({ expense, onSave, onClose, isLoading }) => {
   const { formatCurrency } = useCurrency()
   const [showItems, setShowItems] = useState(!!(expense?.items && expense.items.length > 0))
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(expense?.receiptUrl || null)
 
   const { data: productsData } = useGetProductsQuery({ limit: 200 })
   const products = productsData?.payload?.products || []
@@ -430,6 +462,31 @@ const ExpenseModal: React.FC<{
     },
   })
 
+  // Handle receipt file change
+  const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setReceiptFile(file)
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setReceiptPreview(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        // For PDFs, just show the filename
+        setReceiptPreview(null)
+      }
+    }
+  }
+
+  // Remove receipt
+  const handleRemoveReceipt = () => {
+    setReceiptFile(null)
+    setReceiptPreview(null)
+  }
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'items',
@@ -463,6 +520,10 @@ const ExpenseModal: React.FC<{
     } else {
       // Filter out empty items (no description)
       formData.items = formData.items.filter((item: any) => item.description?.trim())
+    }
+    // Include receipt file if selected
+    if (receiptFile) {
+      formData.receipt = receiptFile
     }
     onSave(formData)
   }
@@ -549,6 +610,75 @@ const ExpenseModal: React.FC<{
               className='p-2 w-full border rounded  '
             />
             {errors.reference && <InputErrorWrapper message={errors.reference.message || ''} />}
+          </div>
+
+          {/* Receipt Upload Section */}
+          <div className='border border-border rounded-lg p-4'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
+              Receipt (optional)
+            </label>
+            {receiptPreview || receiptFile ? (
+              <div className='flex items-center gap-4'>
+                {receiptPreview && receiptPreview.startsWith('data:image') ? (
+                  <Image
+                    src={receiptPreview}
+                    alt='Receipt preview'
+                    className='w-20 h-20 object-cover rounded border'
+                    width={80}
+                    height={80}
+                  />
+                ) : receiptPreview && !receiptFile ? (
+                  <a
+                    href={receiptPreview}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='text-primary hover:underline text-sm'
+                  >
+                    View existing receipt
+                  </a>
+                ) : (
+                  <div className='flex items-center gap-2'>
+                    <span className='text-sm text-muted-foreground'>{receiptFile?.name}</span>
+                  </div>
+                )}
+                <button
+                  type='button'
+                  onClick={handleRemoveReceipt}
+                  className='text-red-500 hover:text-red-700 text-sm'
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className='flex items-center justify-center w-full'>
+                <label className='flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 border-border'>
+                  <div className='flex flex-col items-center justify-center pt-3 pb-4'>
+                    <svg
+                      className='w-6 h-6 mb-2 text-muted-foreground'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
+                      />
+                    </svg>
+                    <p className='text-xs text-muted-foreground'>
+                      Click to upload receipt (JPG, PNG, PDF - max 5MB)
+                    </p>
+                  </div>
+                  <input
+                    type='file'
+                    className='hidden'
+                    accept='image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf'
+                    onChange={handleReceiptChange}
+                  />
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Product Items Section */}
