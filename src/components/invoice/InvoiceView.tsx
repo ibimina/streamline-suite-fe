@@ -96,15 +96,10 @@ const ArrowLeftIcon = ({ className }: { className?: string }) => (
 
 interface InvoiceViewProps {
   invoice: Invoice
-  onSendEmail?: (id: string) => void
   onDownloadPdf?: (id: string) => void
 }
 
-export default function InvoiceView({
-  invoice,
-  onSendEmail,
-  onDownloadPdf,
-}: Readonly<InvoiceViewProps>) {
+export default function InvoiceView({ invoice, onDownloadPdf }: Readonly<InvoiceViewProps>) {
   const router = useRouter()
   const { formatCurrency } = useCurrency()
   const statusConfig = getInvoiceStatusConfig(invoice.status)
@@ -152,11 +147,6 @@ export default function InvoiceView({
 
   const handleEdit = () => router.push(`/invoices/edit/${invoice._id}`)
 
-  const handleSendEmail = () => {
-    if (onSendEmail) onSendEmail(invoice._id)
-    else toast.info('Send email functionality coming soon')
-  }
-
   const handleDownloadPdf = () => {
     if (onDownloadPdf) onDownloadPdf(invoice._id)
     else toast.info('Download PDF functionality coming soon')
@@ -203,12 +193,6 @@ export default function InvoiceView({
               className='px-4 py-2 bg-muted  text-secondary-foreground rounded-lg hover:bg-muted  transition-colors flex items-center gap-2 text-sm font-medium'
             >
               <DownloadIcon className='h-4 w-4' /> PDF
-            </button>
-            <button
-              onClick={handleSendEmail}
-              className='px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-2 text-sm font-medium'
-            >
-              <MailIcon className='h-4 w-4' /> Send
             </button>
             <button
               onClick={handleEdit}

@@ -110,14 +110,12 @@ const ArrowLeftIcon = ({ className }: { className?: string }) => (
 interface QuotationViewProps {
   quotation: Quotation
   onConvertToInvoice?: (id: string) => void
-  onSendEmail?: (id: string) => void
   onDownloadPdf?: (id: string) => void
 }
 
 export default function QuotationView({
   quotation,
   onConvertToInvoice,
-  onSendEmail,
   onDownloadPdf,
 }: Readonly<QuotationViewProps>) {
   const router = useRouter()
@@ -189,14 +187,6 @@ export default function QuotationView({
     }
   }
 
-  const handleSendEmail = () => {
-    if (onSendEmail) {
-      onSendEmail(quotation._id)
-    } else {
-      toast.info('Send email functionality coming soon')
-    }
-  }
-
   const handleDownloadPdf = () => {
     if (onDownloadPdf) {
       onDownloadPdf(quotation._id)
@@ -249,13 +239,6 @@ export default function QuotationView({
             >
               <DownloadIcon className='h-4 w-4' />
               PDF
-            </button>
-            <button
-              onClick={handleSendEmail}
-              className='px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-2 text-sm font-medium'
-            >
-              <MailIcon className='h-4 w-4' />
-              Send
             </button>
             <button
               onClick={handleEdit}
