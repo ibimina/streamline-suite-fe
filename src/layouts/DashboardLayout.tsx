@@ -1,6 +1,8 @@
 'use client'
-import Header from '@/components/Header'
-import Sidebar from '@/components/Sidebar'
+import Header from '@/components/shared/Header'
+import Sidebar from '@/components/shared/Sidebar'
+import Breadcrumbs from '@/components/shared/Breadcrumbs'
+import ErrorBoundary from '@/components/shared/ErrorBoundary'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,7 +13,7 @@ interface PublicWebsiteProps {
 }
 
 const DashboardLayout: React.FC<PublicWebsiteProps> = ({ children }) => {
-  const { isAuthenticated } = useAppSelector(state => state.auth)
+  const { isAuthenticated } = useAppSelector(state => state.authReducer)
   const router = useRouter()
   const dispatch = useAppDispatch()
   const { isMobileSidebarOpen } = useAppSelector(state => state.ui)
@@ -27,12 +29,15 @@ const DashboardLayout: React.FC<PublicWebsiteProps> = ({ children }) => {
   // }
 
   return (
-    <div className='flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white'>
+    <div className='flex h-screen bg-muted dark:bg-background text-foreground'>
       <Sidebar />
       <div className='flex flex-col flex-1 min-w-0 overflow-hidden'>
         <Header toggleMobileSidebar={() => dispatch(setMobileSidebarOpen(!isMobileSidebarOpen))} />
         <main className='flex-1 overflow-y-auto'>
-          <div className='container mx-auto px-6 py-8'>{children}</div>
+          <div className='container mx-auto px-6 py-8'>
+            <Breadcrumbs className='mb-4' />
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </div>
         </main>
       </div>
     </div>

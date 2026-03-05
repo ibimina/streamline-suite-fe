@@ -19,11 +19,15 @@ test.describe('Authentication Smoke Tests', () => {
     // Check page loads correctly - match actual title
     await expect(page).toHaveTitle(/Streamline Suite.*Authentication/i)
 
-    // Check for essential form elements
-    await expect(page.locator('input[type="email"], input[name*="email"]')).toBeVisible()
-    // Check for at least one password field (signup has password + confirm password)
-    await expect(page.locator('input[type="password"]').first()).toBeVisible()
-    await expect(page.getByRole('button', { name: /sign up|register|create/i })).toBeVisible()
+    // Signup uses a multi-step form. Step 1 is Company Info.
+    // Check for step 1 elements (company name input)
+    await expect(page.locator('input#name, input[name="name"]')).toBeVisible()
+
+    // Check for "Create your account" heading
+    await expect(page.getByRole('heading', { name: /create your account/i })).toBeVisible()
+
+    // Check for navigation button to next step
+    await expect(page.getByRole('button', { name: /next|continue/i })).toBeVisible()
   })
 
   test('should have navigation between auth pages', async ({ page }) => {

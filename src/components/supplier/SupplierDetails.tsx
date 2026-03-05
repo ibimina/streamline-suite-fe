@@ -1,0 +1,340 @@
+'use client'
+import React from 'react'
+import { useState } from 'react'
+import SupplierForm from './SupplierForm'
+import LoadingSpinner from '../shared/LoadingSpinner'
+import { useParams, useRouter } from 'next/navigation'
+import { useDeleteSupplierMutation, useGetSupplierByIdQuery } from '@/store/api/supplierApi'
+import Link from 'next/link'
+import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
+
+const SupplierDetails = () => {
+  const [showForm, setShowForm] = useState(false)
+  const router = useRouter()
+  const params = useParams()
+  const id = params?.id as string
+  const { data, isLoading: loading } = useGetSupplierByIdQuery(id)
+  const [deleteSupplier] = useDeleteSupplierMutation()
+  const supplier = data?.payload?.supplier ?? null
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  const handleDelete = () => {
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteSupplier = async () => {
+    if (id) {
+      try {
+        await deleteSupplier(id).unwrap()
+        router.push('/suppliers')
+      } catch (error: any) {
+        alert(error?.data?.message || 'Failed to delete supplier')
+      }
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-muted '>
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (!supplier) {
+    return (
+      <div className='min-h-screen bg-muted '>
+        {/* Header */}
+        <div className='bg-card border-b border-border px-6 py-4'>
+          <Link
+            href={'/suppliers'}
+            className='text-muted-foreground mb-2 hover:text-muted-foreground dark:hover:text-muted-foreground flex items-center'
+          >
+            <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M15 19l-7-7 7-7'
+              />
+            </svg>
+            Back to Suppliers
+          </Link>
+        </div>
+        <div className='p-6'>Supplier not found.</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className='min-h-screen bg-muted '>
+      {/* Header */}
+      <div className='bg-card border-b border-border px-6 py-4'>
+        <Link
+          href={'/suppliers'}
+          className='text-muted-foreground mb-2 hover:text-muted-foreground dark:hover:text-muted-foreground flex items-center'
+        >
+          <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M15 19l-7-7 7-7'
+            />
+          </svg>
+          Back to Suppliers
+        </Link>
+        <div className='flex items-center justify-between max-w-7xl mx-auto'>
+          <div className='flex items-center space-x-4'>
+            <div>
+              <h1 className='text-2xl font-bold text-foreground'>{supplier?.name}</h1>
+              {supplier?.contact && (
+                <p className='text-sm text-muted-foreground mt-1'>
+                  Primary Contact: {supplier?.contact}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className='flex items-center gap-3'>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                supplier.isActive
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-muted text-foreground  '
+              }`}
+            >
+              {supplier.isActive ? 'Active' : 'Inactive'}
+            </span>
+            <button
+              onClick={() => setShowForm(true)}
+              className='px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
+            >
+              Edit Supplier
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className='max-w-7xl mx-auto px-6 py-8'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+          {/* Basic Information */}
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Basic Information</h3>
+            <div className='space-y-3'>
+              <div>
+                <label className='block text-sm font-medium text-muted-foreground'>
+                  Supplier Name
+                </label>
+                <p className='text-foreground'>{supplier.name}</p>
+              </div>
+              {supplier.contact && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>
+                    Primary Contact
+                  </label>
+                  <p className='text-foreground'>{supplier.contact}</p>
+                </div>
+              )}
+              {supplier.email && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>Email</label>
+                  <a
+                    href={`mailto:${supplier.email}`}
+                    className='text-primary hover:text-primary dark:text-primary'
+                  >
+                    {supplier.email}
+                  </a>
+                </div>
+              )}
+              {supplier.phone && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>Phone</label>
+                  <a
+                    href={`tel:${supplier.phone}`}
+                    className='text-primary hover:text-primary dark:text-primary'
+                  >
+                    {supplier.phone}
+                  </a>
+                </div>
+              )}
+              {supplier.paymentTerms && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>
+                    Payment Terms
+                  </label>
+                  <p className='text-foreground'>{supplier.paymentTerms}</p>
+                </div>
+              )}
+              {supplier.taxId && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>Tax ID</label>
+                  <p className='text-foreground'>{supplier.taxId}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Address Information */}
+          <div className='space-y-6'>
+            {/* Primary Address */}
+            {supplier.address && (
+              <div className='bg-muted rounded-lg p-4'>
+                <h3 className='text-lg font-semibold text-foreground mb-4'>Business Address</h3>
+                <p className='text-foreground'>{supplier.address}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Contact Persons */}
+          {supplier.contacts && supplier.contacts.length > 0 && (
+            <div className='bg-muted rounded-lg p-4'>
+              <h3 className='text-lg font-semibold text-foreground mb-4'>Contact Persons</h3>
+              <div className='space-y-4'>
+                {supplier.contacts.map((contact, index) => (
+                  <div key={contact.email} className='border-l-4 border-primary pl-4'>
+                    <div className='flex items-center gap-2 mb-1'>
+                      <p className='font-medium text-foreground'>{contact.name}</p>
+                      {contact.primary && (
+                        <span className='px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full'>
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                    {contact.role && (
+                      <p className='text-sm text-muted-foreground mb-2'>{contact.role}</p>
+                    )}
+                    <div className='text-sm text-muted-foreground space-y-1'>
+                      {contact.email && (
+                        <p>
+                          <a
+                            href={`mailto:${contact.email}`}
+                            className='text-primary hover:text-primary dark:text-primary'
+                          >
+                            {contact.email}
+                          </a>
+                        </p>
+                      )}
+                      {contact.phone && (
+                        <p>
+                          <a
+                            href={`tel:${contact.phone}`}
+                            className='text-primary hover:text-primary dark:text-primary'
+                          >
+                            {contact.phone}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Business Details */}
+          <div className='bg-muted rounded-lg p-4'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Business Details</h3>
+            <div className='space-y-3'>
+              <div>
+                <label className='block text-sm font-medium text-muted-foreground'>Status</label>
+                <span
+                  className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                    supplier.isActive
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      : 'bg-muted text-foreground  '
+                  }`}
+                >
+                  {supplier.isActive ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              {supplier.paymentTerms && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>
+                    Payment Terms
+                  </label>
+                  <p className='text-foreground'>{supplier.paymentTerms}</p>
+                </div>
+              )}
+              {supplier.taxId && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>
+                    Tax Identification
+                  </label>
+                  <p className='text-foreground font-mono text-sm'>{supplier.taxId}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Metadata */}
+          <div className='bg-muted rounded-lg p-4 lg:col-span-2'>
+            <h3 className='text-lg font-semibold text-foreground mb-4'>Record Information</h3>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'>
+              {supplier.createdAt && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>Created</label>
+                  <p className='text-foreground'>
+                    {new Date(supplier.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+              {supplier.updatedAt && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>
+                    Last Updated
+                  </label>
+                  <p className='text-foreground'>
+                    {new Date(supplier.updatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+              {supplier._id && (
+                <div>
+                  <label className='block text-sm font-medium text-muted-foreground'>
+                    Supplier ID
+                  </label>
+                  <p className='text-foreground font-mono text-xs'>{supplier._id}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Footer */}
+      <div className='mt-8 flex items-center justify-between p-6 bg-card border-t border-border rounded-lg'>
+        <button
+          onClick={handleDelete}
+          className='px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500'
+        >
+          Delete Supplier
+        </button>
+        <div className='text-sm text-muted-foreground'>
+          Last updated:{' '}
+          {supplier.updatedAt ? new Date(supplier.updatedAt).toLocaleDateString() : 'Never'}
+        </div>
+      </div>
+
+      {/* Supplier Form Modal */}
+      {showForm && (
+        <SupplierForm
+          supplier={supplier as any}
+          onCancel={() => {
+            setShowForm(false)
+          }}
+          open={showForm}
+        />
+      )}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={confirmDeleteSupplier}
+          open={showDeleteModal}
+        />
+      )}
+    </div>
+  )
+}
+
+export default SupplierDetails

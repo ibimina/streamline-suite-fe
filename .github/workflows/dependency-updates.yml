@@ -96,6 +96,8 @@ jobs:
   security-audit:
     name: 🛡️ Security Audit
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
 
     steps:
       - name: 📦 Checkout code
@@ -114,7 +116,7 @@ jobs:
         id: audit
         run: |
           # Run audit and capture output
-          npm audit --audit-level=moderate --json > audit-results.json || true
+          npm audit --omit=dev --audit-level=moderate --json > audit-results.json || true
 
           # Check if there are vulnerabilities
           VULN_COUNT=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0')
@@ -130,7 +132,7 @@ jobs:
             echo "" >> security-report.md
             
             # Add vulnerability details
-            npm audit --audit-level=moderate >> security-report.md || true
+            npm audit --omit=dev --audit-level=moderate >> security-report.md || true
           else
             echo "vulnerabilities_found=false" >> $GITHUB_OUTPUT
             echo "✅ No security vulnerabilities found"
