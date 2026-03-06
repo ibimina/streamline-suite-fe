@@ -332,8 +332,7 @@ const Expenses: React.FC = () => {
                       onChange={e =>
                         handleExpenseStatusChange(exp._id, e.target.value as ExpenseStatus)
                       }
-                      className={`px-2 py-1 text-xs font-medium rounded-full capitalize border-0 cursor-pointer focus:ring-2 focus:ring-primary appearance-none ${
-                        exp.status === 'approved'
+                      className={`px-2 py-1 text-xs font-medium rounded-full capitalize border-0 cursor-pointer focus:ring-2 focus:ring-primary appearance-none ${exp.status === 'approved'
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                           : exp.status === 'rejected'
                             ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -342,7 +341,7 @@ const Expenses: React.FC = () => {
                               : exp.status === 'cancelled'
                                 ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                                 : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      }`}
+                        }`}
                     >
                       <option value='pending'>Pending</option>
                       <option value='approved'>Approved</option>
@@ -421,7 +420,8 @@ const ExpenseModal: React.FC<{
 }> = ({ expense, onSave, onClose, isLoading }) => {
   const { formatCurrency } = useCurrency()
   const [showItems, setShowItems] = useState(!!(expense?.items && expense.items.length > 0))
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [receiptFile, setReceiptFile] = useState<string | null>(null) // base64 encoded
+  const [receiptFileName, setReceiptFileName] = useState<string | null>(null)
   const [receiptPreview, setReceiptPreview] = useState<string | null>(expense?.receiptUrl || null)
 
   const { data: productsData } = useGetProductsQuery({ limit: 200 })
@@ -462,28 +462,31 @@ const ExpenseModal: React.FC<{
     },
   })
 
-  // Handle receipt file change
+  // Handle receipt file change - convert to base64
   const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setReceiptFile(file)
-      // Create preview for images
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          setReceiptPreview(reader.result as string)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64 = reader.result as string
+        setReceiptFile(base64)
+        setReceiptFileName(file.name)
+        // Set preview for images
+        if (file.type.startsWith('image/')) {
+          setReceiptPreview(base64)
+        } else {
+          // For PDFs, just show the filename
+          setReceiptPreview(null)
         }
-        reader.readAsDataURL(file)
-      } else {
-        // For PDFs, just show the filename
-        setReceiptPreview(null)
       }
+      reader.readAsDataURL(file)
     }
   }
 
   // Remove receipt
   const handleRemoveReceipt = () => {
     setReceiptFile(null)
+    setReceiptFileName(null)
     setReceiptPreview(null)
   }
 
@@ -521,9 +524,12 @@ const ExpenseModal: React.FC<{
       // Filter out empty items (no description)
       formData.items = formData.items.filter((item: any) => item.description?.trim())
     }
-    // Include receipt file if selected
+    // Include receipt file if selected (as base64)
     if (receiptFile) {
-      formData.receipt = receiptFile
+      formData.receiptFile = receiptFile
+      if (receiptFileName) {
+        formData.receiptName = receiptFileName
+      }
     }
     onSave(formData)
   }
@@ -638,7 +644,7 @@ const ExpenseModal: React.FC<{
                   </a>
                 ) : (
                   <div className='flex items-center gap-2'>
-                    <span className='text-sm text-muted-foreground'>{receiptFile?.name}</span>
+                    <span className='text-sm text-muted-foreground'>{receiptFileName}</span>
                   </div>
                 )}
                 <button
