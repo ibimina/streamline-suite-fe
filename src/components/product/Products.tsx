@@ -9,6 +9,8 @@ import { useDeleteProductMutation, useGetProductsQuery } from '@/store/api/produ
 import { toast } from 'react-toastify'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import { Paginator } from '../ui/pagination'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 const Products = () => {
   const [page, setPage] = useState(1)
@@ -102,16 +104,18 @@ const Products = () => {
           <h1 className='text-2xl font-bold text-foreground'>Products</h1>
           <p className='text-muted-foreground'>Manage your product catalog</p>
         </div>
-        <button
-          onClick={() => {
-            setEditingProduct(null)
-            setShowForm(true)
-          }}
-          className='flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
-        >
-          <PlusIcon className='w-4 h-4 mr-2' />
-          Add Product
-        </button>
+        <PermissionGate permissions={[PermissionName.MANAGE_PRODUCTS]}>
+          <button
+            onClick={() => {
+              setEditingProduct(null)
+              setShowForm(true)
+            }}
+            className='flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
+          >
+            <PlusIcon className='w-4 h-4 mr-2' />
+            Add Product
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Search and Filters */}
@@ -282,20 +286,22 @@ const Products = () => {
                             >
                               <EyeIcon className='w-4 h-4' />
                             </Link>
-                            <button
-                              onClick={() => handleEditProduct(product)}
-                              className='text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300'
-                              title='Edit'
-                            >
-                              <PencilIcon className='w-4 h-4' />
-                            </button>
-                            <button
-                              onClick={() => product._id && handleDeleteProduct(product._id)}
-                              className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
-                              title='Delete'
-                            >
-                              <TrashIcon className='w-4 h-4' />
-                            </button>
+                            <PermissionGate permissions={[PermissionName.MANAGE_PRODUCTS]}>
+                              <button
+                                onClick={() => handleEditProduct(product)}
+                                className='text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300'
+                                title='Edit'
+                              >
+                                <PencilIcon className='w-4 h-4' />
+                              </button>
+                              <button
+                                onClick={() => product._id && handleDeleteProduct(product._id)}
+                                className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
+                                title='Delete'
+                              >
+                                <TrashIcon className='w-4 h-4' />
+                              </button>
+                            </PermissionGate>
                           </div>
                         </td>
                       </tr>

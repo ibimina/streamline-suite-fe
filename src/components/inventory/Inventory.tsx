@@ -18,6 +18,8 @@ import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import InventoryTransactionForm from './InventoryTransactionsForm'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
 import { Paginator } from '../ui/pagination'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 // Transaction type filter options
 const TYPE_OPTIONS: FilterOption[] = [
@@ -192,13 +194,15 @@ const InventoryTransactions = () => {
       {/* Header */}
       <div className='flex justify-between items-center'>
         <h1 className='text-3xl font-bold text-foreground'>Inventory Transactions</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary'
-        >
-          <PlusIcon className='w-5 h-5' />
-          <span>Add Transaction</span>
-        </button>
+        <PermissionGate permissions={[PermissionName.MANAGE_INVENTORY]}>
+          <button
+            onClick={() => setShowForm(true)}
+            className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary'
+          >
+            <PlusIcon className='w-5 h-5' />
+            <span>Add Transaction</span>
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Filters */}
@@ -343,18 +347,20 @@ const InventoryTransactions = () => {
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
                           <div className='flex space-x-2'>
-                            <button
-                              onClick={() => handleEditTransaction(transaction)}
-                              className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
-                            >
-                              <PencilIcon className='w-4 h-4' />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTransaction(transaction._id)}
-                              className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
-                            >
-                              <TrashIcon className='w-4 h-4' />
-                            </button>
+                            <PermissionGate permissions={[PermissionName.MANAGE_INVENTORY]}>
+                              <button
+                                onClick={() => handleEditTransaction(transaction)}
+                                className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
+                              >
+                                <PencilIcon className='w-4 h-4' />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTransaction(transaction._id)}
+                                className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
+                              >
+                                <TrashIcon className='w-4 h-4' />
+                              </button>
+                            </PermissionGate>
                           </div>
                         </td>
                       </tr>

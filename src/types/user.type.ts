@@ -1,6 +1,17 @@
 // User type definitions for admin user management
+import { PermissionName } from '@/contants/permissions'
 
-export type UserRole = 'admin' | 'manager' | 'staff' | 'accountant' | 'sales_rep'
+export type PermissionMode = 'inherit' | 'custom'
+
+export type UserRole =
+  | 'Admin'
+  | 'Manager'
+  | 'Staff'
+  | 'Accountant'
+  | 'Sale'
+  | 'Procurement'
+  | 'BusinessOwner'
+  | 'Warehouse'
 
 export type UserStatus = 'active' | 'inactive' | 'suspended'
 
@@ -17,6 +28,8 @@ export interface User {
   createdAt: string
   updatedAt: string
   isActive: boolean
+  permissionMode?: PermissionMode
+  permissions?: PermissionName[]
 }
 
 export interface UserFormData {
@@ -26,6 +39,8 @@ export interface UserFormData {
   phone?: string
   role: UserRole
   password?: string
+  permissionMode?: PermissionMode
+  permissions?: PermissionName[]
 }
 
 export interface UserQueryParams {

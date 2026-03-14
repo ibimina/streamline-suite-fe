@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   HomeIcon,
   ClipboardListIcon,
@@ -32,6 +32,8 @@ import {
 } from '@/store/slices/uiSlice'
 import { useLogoutMutation } from '@/store/api'
 import { useRouter } from 'next/navigation'
+import { usePermissions } from '@/hooks/usePermissions'
+import { PermissionName } from '@/contants/permissions'
 
 export type View =
   | 'Dashboard'
@@ -53,6 +55,7 @@ interface NavigationSubItem {
   name: string
   href: string
   icon: React.FC<React.SVGProps<SVGSVGElement>>
+  permissions?: PermissionName[] // Required permissions for this sub-item
 }
 
 interface NavigationItem {
@@ -60,40 +63,113 @@ interface NavigationItem {
   icon: React.FC<React.SVGProps<SVGSVGElement>>
   href?: string
   subItems?: NavigationSubItem[]
+  permissions?: PermissionName[] // Required permissions (user needs ANY of these)
 }
 
 const navigationItems: NavigationItem[] = [
-  { name: 'Dashboard', icon: HomeIcon, href: '/dashboard' },
+  {
+    name: 'Dashboard',
+    icon: HomeIcon,
+    href: '/dashboard',
+    permissions: [PermissionName.VIEW_DASHBOARD],
+  },
   {
     name: 'Quotations',
     icon: ClipboardListIcon,
+    permissions: [PermissionName.VIEW_QUOTATIONS, PermissionName.CREATE_QUOTATIONS],
     subItems: [
-      { name: 'View All', href: '/quotations', icon: EyeIcon },
-      { name: 'Create New', href: '/quotations/create', icon: PlusIcon },
+      {
+        name: 'View All',
+        href: '/quotations',
+        icon: EyeIcon,
+        permissions: [PermissionName.VIEW_QUOTATIONS],
+      },
+      {
+        name: 'Create New',
+        href: '/quotations/create',
+        icon: PlusIcon,
+        permissions: [PermissionName.CREATE_QUOTATIONS],
+      },
     ],
   },
   {
     name: 'Invoices',
     icon: DocumentTextIcon,
+    permissions: [PermissionName.VIEW_INVOICES, PermissionName.CREATE_INVOICES],
     subItems: [
-      { name: 'View All', href: '/invoices', icon: EyeIcon },
-      { name: 'Create New', href: '/invoices/create', icon: PlusIcon },
+      {
+        name: 'View All',
+        href: '/invoices',
+        icon: EyeIcon,
+        permissions: [PermissionName.VIEW_INVOICES],
+      },
+      {
+        name: 'Create New',
+        href: '/invoices/create',
+        icon: PlusIcon,
+        permissions: [PermissionName.CREATE_INVOICES],
+      },
     ],
   },
-  { name: 'Inventory', icon: CollectionIcon, href: '/inventory' },
-  { name: 'Suppliers', icon: CollectionIcon, href: '/suppliers' },
-  { name: 'Products', icon: CollectionIcon, href: '/products' },
-  { name: 'Customers', icon: CollectionIcon, href: '/customers' },
-  { name: 'Expenses', icon: ReceiptRefundIcon, href: '/expenses' },
-  { name: 'Analytics', icon: ChartPieIcon, href: '/analytics' },
-  { name: 'Staff', icon: BriefcaseIcon, href: '/staff' },
-  { name: 'Payroll', icon: CashIcon, href: '/payroll' },
-  { name: 'Taxes', icon: ReceiptTaxIcon, href: '/taxes' },
+  {
+    name: 'Inventory',
+    icon: CollectionIcon,
+    href: '/inventory',
+    permissions: [PermissionName.VIEW_INVENTORY],
+  },
+  {
+    name: 'Suppliers',
+    icon: CollectionIcon,
+    href: '/suppliers',
+    permissions: [PermissionName.VIEW_SUPPLIERS],
+  },
+  {
+    name: 'Products',
+    icon: CollectionIcon,
+    href: '/products',
+    permissions: [PermissionName.VIEW_PRODUCTS],
+  },
+  {
+    name: 'Customers',
+    icon: CollectionIcon,
+    href: '/customers',
+    permissions: [PermissionName.VIEW_CUSTOMERS],
+  },
+  {
+    name: 'Expenses',
+    icon: ReceiptRefundIcon,
+    href: '/expenses',
+    permissions: [PermissionName.VIEW_EXPENSES],
+  },
+  {
+    name: 'Analytics',
+    icon: ChartPieIcon,
+    href: '/analytics',
+    permissions: [PermissionName.VIEW_REPORTS],
+  },
+  {
+    name: 'Staff',
+    icon: BriefcaseIcon,
+    href: '/staff',
+    permissions: [PermissionName.MANAGE_USERS],
+  },
+  { name: 'Payroll', icon: CashIcon, href: '/payroll', permissions: [PermissionName.VIEW_PAYROLL] },
+  { name: 'Taxes', icon: ReceiptTaxIcon, href: '/taxes', permissions: [PermissionName.VIEW_TAXES] },
 ]
 
 const secondaryNavigationItems: NavigationItem[] = [
-  { name: 'Admin', icon: ShieldCheckIcon, href: '/admin' },
-  { name: 'Settings', icon: CogIcon, href: '/settings' },
+  {
+    name: 'Admin',
+    icon: ShieldCheckIcon,
+    href: '/admin',
+    permissions: [PermissionName.MANAGE_USERS],
+  },
+  {
+    name: 'Settings',
+    icon: CogIcon,
+    href: '/settings',
+    permissions: [PermissionName.MANAGE_SETTINGS],
+  },
 ]
 
 const Sidebar = () => {
@@ -104,6 +180,36 @@ const Sidebar = () => {
     state => state.ui
   )
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const { hasAnyPermission } = usePermissions()
+
+  // Filter navigation items based on user permissions
+  const filteredNavigationItems = useMemo(() => {
+    return navigationItems
+      .filter(item => {
+        // If no permissions required, show the item
+        if (!item.permissions || item.permissions.length === 0) return true
+        // Check if user has any of the required permissions
+        return hasAnyPermission(item.permissions)
+      })
+      .map(item => {
+        // Also filter sub-items if they have permissions
+        if (item.subItems) {
+          const filteredSubItems = item.subItems.filter(subItem => {
+            if (!subItem.permissions || subItem.permissions.length === 0) return true
+            return hasAnyPermission(subItem.permissions)
+          })
+          return { ...item, subItems: filteredSubItems }
+        }
+        return item
+      })
+  }, [hasAnyPermission])
+
+  const filteredSecondaryItems = useMemo(() => {
+    return secondaryNavigationItems.filter(item => {
+      if (!item.permissions || item.permissions.length === 0) return true
+      return hasAnyPermission(item.permissions)
+    })
+  }, [hasAnyPermission])
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems(prev =>
@@ -214,13 +320,13 @@ const Sidebar = () => {
       </div>
       <div className='flex-1 overflow-y-auto overflow-x-hidden p-4'>
         <nav className='space-y-2'>
-          {navigationItems.map(item => (
+          {filteredNavigationItems.map(item => (
             <NavLink key={item.name} item={item} />
           ))}
         </nav>
         <hr className='my-4 border-border' />
         <nav className='space-y-2'>
-          {secondaryNavigationItems.map(item => (
+          {filteredSecondaryItems.map(item => (
             <NavLink key={item.name} item={item} />
           ))}
         </nav>

@@ -43,6 +43,8 @@ import { FilterBar, FilterOption } from '../shared/FilterBar'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import { Paginator } from '../ui/pagination'
 import Image from 'next/image'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -248,12 +250,14 @@ const Expenses: React.FC = () => {
           secondaryPlaceholder='All Categories'
           showSecondary={true}
         />
-        <button
-          onClick={() => handleOpenModal()}
-          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center whitespace-nowrap'
-        >
-          <PlusIcon className='w-5 h-5 mr-2' /> Add New Expense
-        </button>
+        <PermissionGate permissions={[PermissionName.SUBMIT_EXPENSES]}>
+          <button
+            onClick={() => handleOpenModal()}
+            className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center whitespace-nowrap'
+          >
+            <PlusIcon className='w-5 h-5 mr-2' /> Add New Expense
+          </button>
+        </PermissionGate>
       </div>
 
       <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
@@ -332,7 +336,8 @@ const Expenses: React.FC = () => {
                       onChange={e =>
                         handleExpenseStatusChange(exp._id, e.target.value as ExpenseStatus)
                       }
-                      className={`px-2 py-1 text-xs font-medium rounded-full capitalize border-0 cursor-pointer focus:ring-2 focus:ring-primary appearance-none ${exp.status === 'approved'
+                      className={`px-2 py-1 text-xs font-medium rounded-full capitalize border-0 cursor-pointer focus:ring-2 focus:ring-primary appearance-none ${
+                        exp.status === 'approved'
                           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
                           : exp.status === 'rejected'
                             ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -341,7 +346,7 @@ const Expenses: React.FC = () => {
                               : exp.status === 'cancelled'
                                 ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
                                 : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                        }`}
+                      }`}
                     >
                       <option value='pending'>Pending</option>
                       <option value='approved'>Approved</option>
@@ -354,22 +359,24 @@ const Expenses: React.FC = () => {
                     {formatCurrency(exp.amount)}
                   </td>
                   <td className='px-6 py-4 text-center'>
-                    <button
-                      onClick={() => handleOpenModal(exp)}
-                      className='p-2 rounded-full hover:bg-muted '
-                      title='Edit Expense'
-                      disabled={isUpdating}
-                    >
-                      <PencilIcon className='w-5 h-5 text-muted-foreground' />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(exp)}
-                      className='p-2 rounded-full hover:bg-muted '
-                      title='Delete Expense'
-                      disabled={isDeleting}
-                    >
-                      <TrashIcon className='w-5 h-5 text-red-500' />
-                    </button>
+                    <PermissionGate permissions={[PermissionName.SUBMIT_EXPENSES]}>
+                      <button
+                        onClick={() => handleOpenModal(exp)}
+                        className='p-2 rounded-full hover:bg-muted '
+                        title='Edit Expense'
+                        disabled={isUpdating}
+                      >
+                        <PencilIcon className='w-5 h-5 text-muted-foreground' />
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(exp)}
+                        className='p-2 rounded-full hover:bg-muted '
+                        title='Delete Expense'
+                        disabled={isDeleting}
+                      >
+                        <TrashIcon className='w-5 h-5 text-red-500' />
+                      </button>
+                    </PermissionGate>
                   </td>
                 </tr>
               ))
