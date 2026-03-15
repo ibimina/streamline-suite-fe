@@ -8,6 +8,8 @@ import { useGetSuppliersQuery, useDeleteSupplierMutation, Supplier } from '@/sto
 import LoadingSpinner from '../shared/LoadingSpinner'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import { Paginator } from '../ui/pagination'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 const Suppliers = () => {
   const [page, setPage] = useState(1)
@@ -62,13 +64,15 @@ const Suppliers = () => {
       {/* Header */}
       <div className='flex justify-between items-center'>
         <h1 className='text-3xl font-bold text-foreground'>Suppliers</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
-        >
-          <PlusIcon className='w-5 h-5' />
-          <span>Add Supplier</span>
-        </button>
+        <PermissionGate permissions={[PermissionName.MANAGE_SUPPLIERS]}>
+          <button
+            onClick={() => setShowForm(true)}
+            className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
+          >
+            <PlusIcon className='w-5 h-5' />
+            <span>Add Supplier</span>
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Filters and Search */}
@@ -192,18 +196,20 @@ const Suppliers = () => {
                             />
                           </svg>
                         </Link>
-                        <button
-                          onClick={() => handleEditSupplier(supplier)}
-                          className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
-                        >
-                          <PencilIcon className='w-4 h-4' />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSupplier(supplier._id!)}
-                          className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
-                        >
-                          <TrashIcon className='w-4 h-4' />
-                        </button>
+                        <PermissionGate permissions={[PermissionName.MANAGE_SUPPLIERS]}>
+                          <button
+                            onClick={() => handleEditSupplier(supplier)}
+                            className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
+                          >
+                            <PencilIcon className='w-4 h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSupplier(supplier._id!)}
+                            className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
+                          >
+                            <TrashIcon className='w-4 h-4' />
+                          </button>
+                        </PermissionGate>
                       </div>
                     </td>
                   </tr>

@@ -18,6 +18,8 @@ import { useCurrency } from '@/hooks/useCurrency'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
 import { Paginator } from '../ui/pagination'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -423,13 +425,15 @@ const Quotations = () => {
           <h1 className='text-2xl font-bold text-foreground'>Quotations</h1>
           <p className='text-muted-foreground mt-1'>Create, manage, and track your quotations</p>
         </div>
-        <button
-          onClick={() => router.push('/quotations/create')}
-          className='inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary text-white font-medium px-5 py-2.5 rounded-lg transition-all hover:shadow-lg hover:shadow-primary/25'
-        >
-          <PlusIcon className='w-5 h-5' />
-          <span>New Quotation</span>
-        </button>
+        <PermissionGate permissions={[PermissionName.CREATE_QUOTATIONS]}>
+          <button
+            onClick={() => router.push('/quotations/create')}
+            className='inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary text-white font-medium px-5 py-2.5 rounded-lg transition-all hover:shadow-lg hover:shadow-primary/25'
+          >
+            <PlusIcon className='w-5 h-5' />
+            <span>New Quotation</span>
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Stats Cards */}
@@ -667,18 +671,20 @@ const Quotations = () => {
                                 <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
                                   Edit
                                 </div>
-                                {canEdit(q.status) && (
-                                  <button
-                                    onClick={() => {
-                                      router.push(`/quotations/edit/${q._id}`)
-                                      setActiveDropdown(null)
-                                    }}
-                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
-                                  >
-                                    <PencilIcon className='w-4 h-4' />
-                                    Edit Quotation
-                                  </button>
-                                )}
+                                <PermissionGate permissions={[PermissionName.CREATE_QUOTATIONS]}>
+                                  {canEdit(q.status) && (
+                                    <button
+                                      onClick={() => {
+                                        router.push(`/quotations/edit/${q._id}`)
+                                        setActiveDropdown(null)
+                                      }}
+                                      className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
+                                    >
+                                      <PencilIcon className='w-4 h-4' />
+                                      Edit Quotation
+                                    </button>
+                                  )}
+                                </PermissionGate>
                                 <button
                                   onClick={() => handleDuplicate(q)}
                                   className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted  transition-colors'
@@ -755,13 +761,15 @@ const Quotations = () => {
                                 <hr className='my-1 border-border' />
 
                                 {/* Danger Zone */}
-                                <button
-                                  onClick={() => handleDelete(q)}
-                                  className='w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors'
-                                >
-                                  <TrashIcon className='w-4 h-4' />
-                                  Delete
-                                </button>
+                                <PermissionGate permissions={[PermissionName.CREATE_QUOTATIONS]}>
+                                  <button
+                                    onClick={() => handleDelete(q)}
+                                    className='w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors'
+                                  >
+                                    <TrashIcon className='w-4 h-4' />
+                                    Delete
+                                  </button>
+                                </PermissionGate>
                               </div>
                             )}
                           </div>

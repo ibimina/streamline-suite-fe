@@ -11,6 +11,8 @@ import {
 } from '@/store/api'
 import { taxReportSchema, type TaxReportFormData } from '@/schemas/tax-report.schema'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 const StatCard: React.FC<{ title: string; value: string; isLoading?: boolean }> = ({
   title,
@@ -114,13 +116,15 @@ const Taxes: React.FC = () => {
 
       <div className='flex justify-between items-center'>
         <h2 className='text-xl font-semibold'>Tax Filing History</h2>
-        <button
-          onClick={() => setModalOpen(true)}
-          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
-        >
-          <PlusIcon className='w-5 h-5 mr-2' />
-          Generate New Report
-        </button>
+        <PermissionGate permissions={[PermissionName.MANAGE_TAXES]}>
+          <button
+            onClick={() => setModalOpen(true)}
+            className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary transition-colors flex items-center'
+          >
+            <PlusIcon className='w-5 h-5 mr-2' />
+            Generate New Report
+          </button>
+        </PermissionGate>
       </div>
 
       <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>

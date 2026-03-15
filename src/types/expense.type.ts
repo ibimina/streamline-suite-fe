@@ -105,7 +105,7 @@ export interface ExpenseFormData {
   reference?: string
   receiptUrl?: string
   receiptName?: string
-  receipt?: File
+  receiptFile?: string // base64 encoded file
   notes?: string
   tags?: string[]
   isRecurring?: boolean
