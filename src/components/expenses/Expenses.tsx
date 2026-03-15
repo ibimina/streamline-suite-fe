@@ -43,6 +43,8 @@ import { FilterBar, FilterOption } from '../shared/FilterBar'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import { Paginator } from '../ui/pagination'
 import Image from 'next/image'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -248,12 +250,14 @@ const Expenses: React.FC = () => {
           secondaryPlaceholder='All Categories'
           showSecondary={true}
         />
-        <button
-          onClick={() => handleOpenModal()}
-          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center whitespace-nowrap'
-        >
-          <PlusIcon className='w-5 h-5 mr-2' /> Add New Expense
-        </button>
+        <PermissionGate permissions={[PermissionName.SUBMIT_EXPENSES]}>
+          <button
+            onClick={() => handleOpenModal()}
+            className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center whitespace-nowrap'
+          >
+            <PlusIcon className='w-5 h-5 mr-2' /> Add New Expense
+          </button>
+        </PermissionGate>
       </div>
 
       <div className='bg-card p-4 rounded-xl shadow-lg overflow-x-auto'>
@@ -355,22 +359,24 @@ const Expenses: React.FC = () => {
                     {formatCurrency(exp.amount)}
                   </td>
                   <td className='px-6 py-4 text-center'>
-                    <button
-                      onClick={() => handleOpenModal(exp)}
-                      className='p-2 rounded-full hover:bg-muted '
-                      title='Edit Expense'
-                      disabled={isUpdating}
-                    >
-                      <PencilIcon className='w-5 h-5 text-muted-foreground' />
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(exp)}
-                      className='p-2 rounded-full hover:bg-muted '
-                      title='Delete Expense'
-                      disabled={isDeleting}
-                    >
-                      <TrashIcon className='w-5 h-5 text-red-500' />
-                    </button>
+                    <PermissionGate permissions={[PermissionName.SUBMIT_EXPENSES]}>
+                      <button
+                        onClick={() => handleOpenModal(exp)}
+                        className='p-2 rounded-full hover:bg-muted '
+                        title='Edit Expense'
+                        disabled={isUpdating}
+                      >
+                        <PencilIcon className='w-5 h-5 text-muted-foreground' />
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(exp)}
+                        className='p-2 rounded-full hover:bg-muted '
+                        title='Delete Expense'
+                        disabled={isDeleting}
+                      >
+                        <TrashIcon className='w-5 h-5 text-red-500' />
+                      </button>
+                    </PermissionGate>
                   </td>
                 </tr>
               ))
@@ -421,7 +427,8 @@ const ExpenseModal: React.FC<{
 }> = ({ expense, onSave, onClose, isLoading }) => {
   const { formatCurrency } = useCurrency()
   const [showItems, setShowItems] = useState(!!(expense?.items && expense.items.length > 0))
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [receiptFile, setReceiptFile] = useState<string | null>(null) // base64 encoded
+  const [receiptFileName, setReceiptFileName] = useState<string | null>(null)
   const [receiptPreview, setReceiptPreview] = useState<string | null>(expense?.receiptUrl || null)
 
   const { data: productsData } = useGetProductsQuery({ limit: 200 })
@@ -462,28 +469,31 @@ const ExpenseModal: React.FC<{
     },
   })
 
-  // Handle receipt file change
+  // Handle receipt file change - convert to base64
   const handleReceiptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setReceiptFile(file)
-      // Create preview for images
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          setReceiptPreview(reader.result as string)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64 = reader.result as string
+        setReceiptFile(base64)
+        setReceiptFileName(file.name)
+        // Set preview for images
+        if (file.type.startsWith('image/')) {
+          setReceiptPreview(base64)
+        } else {
+          // For PDFs, just show the filename
+          setReceiptPreview(null)
         }
-        reader.readAsDataURL(file)
-      } else {
-        // For PDFs, just show the filename
-        setReceiptPreview(null)
       }
+      reader.readAsDataURL(file)
     }
   }
 
   // Remove receipt
   const handleRemoveReceipt = () => {
     setReceiptFile(null)
+    setReceiptFileName(null)
     setReceiptPreview(null)
   }
 
@@ -521,9 +531,12 @@ const ExpenseModal: React.FC<{
       // Filter out empty items (no description)
       formData.items = formData.items.filter((item: any) => item.description?.trim())
     }
-    // Include receipt file if selected
+    // Include receipt file if selected (as base64)
     if (receiptFile) {
-      formData.receipt = receiptFile
+      formData.receiptFile = receiptFile
+      if (receiptFileName) {
+        formData.receiptName = receiptFileName
+      }
     }
     onSave(formData)
   }
@@ -638,7 +651,7 @@ const ExpenseModal: React.FC<{
                   </a>
                 ) : (
                   <div className='flex items-center gap-2'>
-                    <span className='text-sm text-muted-foreground'>{receiptFile?.name}</span>
+                    <span className='text-sm text-muted-foreground'>{receiptFileName}</span>
                   </div>
                 )}
                 <button

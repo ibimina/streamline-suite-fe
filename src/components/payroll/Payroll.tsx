@@ -20,6 +20,8 @@ import LoadingSpinner from '../shared/LoadingSpinner'
 import InputErrorWrapper from '../shared/InputErrorWrapper'
 import { FilterBar, FilterOption } from '../shared/FilterBar'
 import { Paginator } from '../ui/pagination'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 // Status filter options
 const STATUS_OPTIONS: FilterOption[] = [
@@ -150,13 +152,15 @@ const Payroll: React.FC = () => {
           <h1 className='text-3xl font-bold text-foreground'>Salary Payments (Payroll)</h1>
           <p className='text-muted-foreground mt-1'>Manage and track all payroll history.</p>
         </div>
-        <button
-          onClick={() => setModalOpen(true)}
-          className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center'
-        >
-          <PlusIcon className='w-5 h-5 mr-2' />
-          Run New Payroll
-        </button>
+        <PermissionGate permissions={[PermissionName.MANAGE_PAYROLL]}>
+          <button
+            onClick={() => setModalOpen(true)}
+            className='bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center'
+          >
+            <PlusIcon className='w-5 h-5 mr-2' />
+            Run New Payroll
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Filters */}
@@ -204,24 +208,26 @@ const Payroll: React.FC = () => {
                     <StatusBadge status={run.status} />
                   </td>
                   <td className='px-6 py-4 text-center space-x-2'>
-                    {run.status === 'draft' && (
-                      <button
-                        onClick={() => handleApprove(run._id)}
-                        className='text-blue-600 dark:text-blue-400 hover:underline text-sm'
-                        disabled={isApproving}
-                      >
-                        Approve
-                      </button>
-                    )}
-                    {run.status === 'approved' && (
-                      <button
-                        onClick={() => handleProcess(run._id)}
-                        className='text-green-600 dark:text-green-400 hover:underline text-sm'
-                        disabled={isProcessing}
-                      >
-                        Process
-                      </button>
-                    )}
+                    <PermissionGate permissions={[PermissionName.MANAGE_PAYROLL]}>
+                      {run.status === 'draft' && (
+                        <button
+                          onClick={() => handleApprove(run._id)}
+                          className='text-blue-600 dark:text-blue-400 hover:underline text-sm'
+                          disabled={isApproving}
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {run.status === 'approved' && (
+                        <button
+                          onClick={() => handleProcess(run._id)}
+                          className='text-green-600 dark:text-green-400 hover:underline text-sm'
+                          disabled={isProcessing}
+                        >
+                          Process
+                        </button>
+                      )}
+                    </PermissionGate>
                     {run.status === 'paid' && run.items?.[0] && (
                       <button
                         onClick={() =>
