@@ -48,6 +48,8 @@ import {
   TrendingUp,
   Users,
 } from 'lucide-react'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 export const defaultTerms = `1. Payment is due within 30 days of the invoice date.
 2. Late payments are subject to a 1.5% monthly interest charge.
@@ -442,14 +444,16 @@ const Invoices = () => {
           <h1 className='text-3xl font-bold text-foreground'>Invoices</h1>
           <p className='text-muted-foreground mt-1'>Manage, track, and send customer invoices.</p>
         </div>
-        <button
-          onClick={() => route.push('/invoices/create')}
-          className='flex items-center bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors'
-        >
-          <PlusIcon className='w-5 h-5 mr-0 sm:mr-2' />
-          <span className='hidden sm:inline'>Create New Invoice</span>
-          <span className='inline sm:hidden'>Add Invoice</span>
-        </button>
+        <PermissionGate permissions={[PermissionName.CREATE_INVOICES]}>
+          <button
+            onClick={() => route.push('/invoices/create')}
+            className='flex items-center bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors'
+          >
+            <PlusIcon className='w-5 h-5 mr-0 sm:mr-2' />
+            <span className='hidden sm:inline'>Create New Invoice</span>
+            <span className='inline sm:hidden'>Add Invoice</span>
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Stats Filter */}
@@ -763,29 +767,33 @@ const Invoices = () => {
                           <div className='px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase'>
                             Edit
                           </div>
-                          {invoice.status === 'Draft' && (
-                            <button
-                              onClick={() => {
-                                route.push(`/invoices/edit/${invoice._id}`)
-                                setActiveDropdown(null)
-                              }}
-                              className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted transition-colors'
-                            >
-                              <PencilIcon className='w-4 h-4' />
-                              Edit Invoice
-                            </button>
-                          )}
+                          <PermissionGate permissions={[PermissionName.CREATE_INVOICES]}>
+                            {invoice.status === 'Draft' && (
+                              <button
+                                onClick={() => {
+                                  route.push(`/invoices/edit/${invoice._id}`)
+                                  setActiveDropdown(null)
+                                }}
+                                className='w-full flex items-center gap-3 px-4 py-2 text-sm text-secondary-foreground hover:bg-muted transition-colors'
+                              >
+                                <PencilIcon className='w-4 h-4' />
+                                Edit Invoice
+                              </button>
+                            )}
+                          </PermissionGate>
 
                           <hr className='my-1 border-border' />
 
                           {/* Danger Zone */}
-                          <button
-                            onClick={() => handleDelete(invoice)}
-                            className='w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors'
-                          >
-                            <TrashIcon className='w-4 h-4' />
-                            Delete
-                          </button>
+                          <PermissionGate permissions={[PermissionName.CREATE_INVOICES]}>
+                            <button
+                              onClick={() => handleDelete(invoice)}
+                              className='w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors'
+                            >
+                              <TrashIcon className='w-4 h-4' />
+                              Delete
+                            </button>
+                          </PermissionGate>
                         </div>
                       )}
                     </div>

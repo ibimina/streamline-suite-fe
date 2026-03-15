@@ -5,8 +5,9 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs'
 import ErrorBoundary from '@/components/shared/ErrorBoundary'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import React, { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { setMobileSidebarOpen } from '@/store/slices/uiSlice'
+import { usePermissions } from '@/hooks/usePermissions'
 
 interface PublicWebsiteProps {
   children?: React.ReactNode
@@ -15,14 +16,22 @@ interface PublicWebsiteProps {
 const DashboardLayout: React.FC<PublicWebsiteProps> = ({ children }) => {
   const { isAuthenticated } = useAppSelector(state => state.authReducer)
   const router = useRouter()
+  const pathname = usePathname()
   const dispatch = useAppDispatch()
   const { isMobileSidebarOpen } = useAppSelector(state => state.ui)
+  const { canAccessPage, accessDeniedRedirect } = usePermissions()
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login')
+      return
     }
-  }, [isAuthenticated, router])
+
+    // Check route permissions after authentication
+    if (isAuthenticated && pathname && !canAccessPage(pathname)) {
+      router.push(accessDeniedRedirect)
+    }
+  }, [isAuthenticated, pathname, canAccessPage, accessDeniedRedirect, router])
 
   // if (!isAuthenticated) {
   //     return null;

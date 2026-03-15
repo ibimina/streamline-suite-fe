@@ -31,10 +31,12 @@ export interface User {
   _id: string
   email: string
   name: string
-  role: 'admin' | 'user' | 'manager'
+  role: string
   account: Account
   firstName: string
   lastName: string
+  permissionMode?: 'inherit' | 'custom'
+  permissions?: string[]
 }
 
 export interface AuthState {

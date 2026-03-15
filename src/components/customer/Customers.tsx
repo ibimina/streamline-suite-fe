@@ -8,6 +8,8 @@ import { Customer } from '@/interface/customer.interface'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import DeleteConfirmationModal from '../shared/DeleteConfirmationModal'
 import { Paginator } from '../ui/pagination'
+import { PermissionGate } from '../common/PermissionGate'
+import { PermissionName } from '@/contants/permissions'
 
 const Customers = () => {
   const { data, isLoading: loading } = useGetCustomersQuery()
@@ -76,13 +78,15 @@ const Customers = () => {
       {/* Header */}
       <div className='flex justify-between items-center'>
         <h1 className='text-3xl font-bold text-foreground'>Customers</h1>
-        <button
-          onClick={() => setShowForm(true)}
-          className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
-        >
-          <PlusIcon className='w-5 h-5' />
-          <span>Add Customer</span>
-        </button>
+        <PermissionGate permissions={[PermissionName.MANAGE_CUSTOMERS]}>
+          <button
+            onClick={() => setShowForm(true)}
+            className='flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary'
+          >
+            <PlusIcon className='w-5 h-5' />
+            <span>Add Customer</span>
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Filters and Search */}
@@ -225,20 +229,22 @@ const Customers = () => {
                           </svg>
                         </Link>
 
-                        <button
-                          onClick={() => handleEditCustomer(customer)}
-                          className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
-                          title='Edit Customer'
-                        >
-                          <PencilIcon className='w-4 h-4' />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCustomer(customer._id!)}
-                          className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
-                          title='Delete Customer'
-                        >
-                          <TrashIcon className='w-4 h-4' />
-                        </button>
+                        <PermissionGate permissions={[PermissionName.MANAGE_CUSTOMERS]}>
+                          <button
+                            onClick={() => handleEditCustomer(customer)}
+                            className='text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary'
+                            title='Edit Customer'
+                          >
+                            <PencilIcon className='w-4 h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCustomer(customer._id!)}
+                            className='text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300'
+                            title='Delete Customer'
+                          >
+                            <TrashIcon className='w-4 h-4' />
+                          </button>
+                        </PermissionGate>
                       </div>
                     </td>
                   </tr>
