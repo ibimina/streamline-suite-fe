@@ -2,13 +2,7 @@
 
 import { useAppSelector } from '@/store/hooks'
 import { RoleName } from '@/contants/roles'
-import {
-  PermissionName,
-  getUserPermissions,
-  hasPermission as checkHasPermission,
-  hasAllPermissions as checkHasAllPermissions,
-  hasAnyPermission as checkHasAnyPermission,
-} from '@/contants/permissions'
+import { PermissionName } from '@/contants/permissions'
 import { canAccessRoute, getAccessDeniedRedirect } from '@/contants/routePermissions'
 import { useMemo } from 'react'
 
@@ -36,40 +30,34 @@ export function usePermissions() {
 
   // Get user's permission mode (inherit from role or custom)
   const permissionMode = useMemo(() => {
-    return (user as any)?.permissionMode || 'inherit'
+    return user?.permissionMode || 'inherit'
   }, [user])
 
-  // Get user's custom permissions from the user object (if any)
-  // Only use custom permissions if permissionMode is 'custom'
-  const customPermissions = useMemo(() => {
-    if (permissionMode !== 'custom') return undefined
-    return (user as any)?.permissions as PermissionName[] | undefined
-  }, [user, permissionMode])
-
-  // Get all permissions for the current user
+  // Get all permissions for the current user (from API response - already resolved by backend)
   const userPermissions = useMemo(() => {
-    return getUserPermissions(userRole, customPermissions)
-  }, [userRole, customPermissions])
+    // Use permissions from API (single source of truth)
+    return (user?.permissions || []) as PermissionName[]
+  }, [user])
 
   /**
    * Check if user has a specific permission
    */
   const hasPermission = (permission: PermissionName): boolean => {
-    return checkHasPermission(userRole, permission, customPermissions)
+    return userPermissions.includes(permission)
   }
 
   /**
    * Check if user has ALL of the specified permissions
    */
   const hasAllPermissions = (permissions: PermissionName[]): boolean => {
-    return checkHasAllPermissions(userRole, permissions, customPermissions)
+    return permissions.every(p => userPermissions.includes(p))
   }
 
   /**
    * Check if user has ANY of the specified permissions
    */
   const hasAnyPermission = (permissions: PermissionName[]): boolean => {
-    return checkHasAnyPermission(userRole, permissions, customPermissions)
+    return permissions.some(p => userPermissions.includes(p))
   }
 
   /**

@@ -168,7 +168,7 @@ const secondaryNavigationItems: NavigationItem[] = [
     name: 'Settings',
     icon: CogIcon,
     href: '/settings',
-    permissions: [PermissionName.MANAGE_SETTINGS],
+    // No permissions required - all users can see their settings/permissions
   },
 ]
 

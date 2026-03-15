@@ -49,8 +49,9 @@ export const ROUTE_PERMISSIONS: Record<string, PermissionName[]> = {
   // Analytics / Reports
   '/analytics': [PermissionName.VIEW_REPORTS],
 
-  // Settings - Admin/Owner only
-  '/settings': [PermissionName.MANAGE_SETTINGS],
+  // Settings - accessible to all authenticated users (to view their permissions)
+  // Note: MANAGE_SETTINGS controls what can be edited, not access to the page
+  '/settings': [],
 }
 
 /**
