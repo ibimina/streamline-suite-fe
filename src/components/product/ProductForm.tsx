@@ -102,11 +102,24 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onCancel, open }) =>
   }, [product, open, reset])
   const onSubmit = async (data: ProductFormData) => {
     try {
+      // Clean up empty strings for optional fields to avoid validation errors
+      const cleanedData = {
+        ...data,
+        supplier: data.supplier || undefined,
+        sku: data.sku || undefined,
+        barcode: data.barcode || undefined,
+        description: data.description || undefined,
+        unit: data.unit || undefined,
+        category: data.category || undefined,
+        brand: data.brand || undefined,
+        expiryDate: data.expiryDate || undefined,
+      }
+
       if (product?._id) {
-        await updateProduct({ productId: product._id, data }).unwrap()
+        await updateProduct({ productId: product._id, data: cleanedData }).unwrap()
         toast.success('Product updated successfully')
       } else {
-        await createProduct(data).unwrap()
+        await createProduct(cleanedData).unwrap()
         toast.success('Product created successfully')
       }
       reset()
