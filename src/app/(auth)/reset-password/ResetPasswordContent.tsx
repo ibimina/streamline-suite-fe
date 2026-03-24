@@ -8,6 +8,7 @@ import { Lock, ArrowLeft, Shield, CheckCircle2, Eye, EyeOff } from 'lucide-react
 import Logo from '@/components/shared/Logo'
 import InputErrorWrapper from '@/components/shared/InputErrorWrapper'
 import { ResetPasswordData, resetPasswordSchema } from '@/schemas/reset-password.schema'
+import { useResetPasswordMutation } from '@/store/api/authApi'
 
 // Loading fallback component
 export const ResetPasswordLoading = () => (
@@ -30,12 +31,13 @@ export const ResetPasswordLoading = () => (
 
 const ResetPasswordContent: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const searchParams = useSearchParams()
   const router = useRouter()
   const token = searchParams.get('token')
+  const [resetPassword, { isLoading }] = useResetPasswordMutation()
 
   const {
     register,
@@ -69,19 +71,15 @@ const ResetPasswordContent: React.FC = () => {
   }
 
   const onSubmit = async (data: ResetPasswordData) => {
-    setIsLoading(true)
+    if (!token) return
+    setErrorMessage('')
     try {
-      // TODO: Call API to reset password with token
-      // await resetPassword({ token, password: data.password })
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
+      await resetPassword({ token, newPassword: data.password }).unwrap()
       setIsSubmitted(true)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Reset password error:', error)
-    } finally {
-      setIsLoading(false)
+      const message = error?.data?.message || 'Failed to reset password. Please try again.'
+      setErrorMessage(message)
     }
   }
 
@@ -158,6 +156,12 @@ const ResetPasswordContent: React.FC = () => {
                   Create a strong password for your account
                 </p>
               </div>
+
+              {errorMessage && (
+                <div className='mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg'>
+                  <p className='text-sm text-red-600 dark:text-red-400'>{errorMessage}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
                 <div>

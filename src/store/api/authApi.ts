@@ -102,6 +102,24 @@ export const authApi = baseApi.injectEndpoints({
       query: () => '/auth/me',
       providesTags: ['User'],
     }),
+
+    // Forgot password - request password reset email
+    forgotPassword: builder.mutation<{ message: string }, { email: string }>({
+      query: data => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    // Reset password - set new password with token
+    resetPassword: builder.mutation<{ message: string }, { token: string; newPassword: string }>({
+      query: data => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
   overrideExisting: false,
 })
@@ -114,4 +132,6 @@ export const {
   useRefreshTokenMutation,
   useGetCurrentUserQuery,
   useLazyGetCurrentUserQuery,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = authApi

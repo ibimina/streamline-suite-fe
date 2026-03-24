@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Mail, ArrowLeft, Shield, CheckCircle2 } from 'lucide-react'
 import Logo from '@/components/shared/Logo'
 import InputErrorWrapper from '@/components/shared/InputErrorWrapper'
+import { useForgotPasswordMutation } from '@/store/api/authApi'
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -17,8 +18,8 @@ type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>
 
 const ForgotPasswordPage: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation()
 
   const {
     register,
@@ -29,20 +30,15 @@ const ForgotPasswordPage: React.FC = () => {
   })
 
   const onSubmit = async (data: ForgotPasswordData) => {
-    setIsLoading(true)
     try {
-      // TODO: Call API to send reset email
-      // await forgotPassword(data.email)
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
+      await forgotPassword({ email: data.email }).unwrap()
       setSubmittedEmail(data.email)
       setIsSubmitted(true)
     } catch (error) {
       console.error('Forgot password error:', error)
-    } finally {
-      setIsLoading(false)
+      // Still show success to prevent email enumeration
+      setSubmittedEmail(data.email)
+      setIsSubmitted(true)
     }
   }
 
